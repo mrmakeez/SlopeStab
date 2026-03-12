@@ -1,0 +1,48 @@
+{
+  "fos": 2.186360284606295,
+  "driving_moment": 10959.88840488849,
+  "resisting_moment": 23962.264732165233,
+  "search": {
+    "best_surface": {
+      "xc": 14.507207669677229,
+      "yc": 29.158689827360433,
+      "r": 20.475451635326056,
+      "x_left": 7.283031331189058,
+      "y_left": 10.0,
+      "x_right": 31.339292245866204,
+      "y_right": 17.5,
+      "fos": 2.186360284606295
+    },
+    "iteration_summaries": [
+      {
+        "iteration": 1,
+        "pairs_evaluated": 28,
+        "candidates_generated": 112,
+        "valid_surfaces": 65,
+        "best_fos": 2.205317698526232,
+        "mean_fos": 163.60928864355344,
+        "retained_count": 33
+      },
+      {
+        "iteration": 2,
+        "pairs_evaluated": 13,
+        "candidates_generated": 52,
+        "valid_surfaces": 36,
+        "best_fos": 2.2140311688418812,
+        "mean_fos": 3.7682459322124426,
+        "retained_count": 18
+      },
+      {
+        "iteration": 3,
+        "pairs_evaluated": 8,
+        "candidates_generated": 32,
+        "valid_surfaces": 28,
+        "best_fos": 2.186360284606295,
+        "mean_fos": 3.1883372935063163,
+        "retained_count": 14
+      }
+    ],
+    "total_surfaces_generated": 196,
+    "total_valid_surfaces": 129
+  }
+}

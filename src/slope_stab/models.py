@@ -20,12 +20,26 @@ class MaterialInput:
 
 
 @dataclass(frozen=True)
+class AutoRefineInput:
+    divisions: int = 20
+    circles_per_pair: int = 10
+    iterations: int = 10
+    retain_ratio: float = 0.5
+    toe_extension_h: float = 1.0
+    crest_extension_h: float = 2.0
+    min_span_h: float = 0.10
+    radius_max_h: float = 10.0
+    seed: int = 42
+
+
+@dataclass(frozen=True)
 class AnalysisInput:
     method: str
     n_slices: int
     tolerance: float
     max_iter: int
     f_init: float = 1.0
+    mode: str = "prescribed"
 
 
 @dataclass(frozen=True)
@@ -45,7 +59,8 @@ class ProjectInput:
     geometry: GeometryInput
     material: MaterialInput
     analysis: AnalysisInput
-    prescribed_surface: PrescribedCircleInput
+    prescribed_surface: PrescribedCircleInput | None = None
+    auto_refine: AutoRefineInput | None = None
 
 
 @dataclass(frozen=True)
@@ -103,6 +118,7 @@ class AnalysisResult:
     slice_results: list[SliceResult] = field(default_factory=list)
     iteration_history: list[IterationState] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    search: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)

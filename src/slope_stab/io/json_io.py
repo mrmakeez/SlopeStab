@@ -7,6 +7,7 @@ from slope_stab.exceptions import InputValidationError
 from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
+    AutoRefineInput,
     GeometryInput,
     MaterialInput,
     PrescribedCircleInput,
@@ -37,6 +38,42 @@ def _as_int(v: object, key: str) -> int:
     return iv
 
 
+def _parse_prescribed_surface(surface_data: dict | None) -> PrescribedCircleInput | None:
+    if surface_data is None:
+        return None
+    if not isinstance(surface_data, dict):
+        raise InputValidationError("'prescribed_surface' must be an object when provided.")
+
+    return PrescribedCircleInput(
+        xc=_as_float(_require_key(surface_data, "xc"), "prescribed_surface.xc"),
+        yc=_as_float(_require_key(surface_data, "yc"), "prescribed_surface.yc"),
+        r=_as_float(_require_key(surface_data, "r"), "prescribed_surface.r"),
+        x_left=_as_float(_require_key(surface_data, "x_left"), "prescribed_surface.x_left"),
+        y_left=_as_float(_require_key(surface_data, "y_left"), "prescribed_surface.y_left"),
+        x_right=_as_float(_require_key(surface_data, "x_right"), "prescribed_surface.x_right"),
+        y_right=_as_float(_require_key(surface_data, "y_right"), "prescribed_surface.y_right"),
+    )
+
+
+def _parse_auto_refine(data: dict | None) -> AutoRefineInput:
+    if data is None:
+        return AutoRefineInput()
+    if not isinstance(data, dict):
+        raise InputValidationError("'auto_refine' must be an object when provided.")
+
+    return AutoRefineInput(
+        divisions=_as_int(data.get("divisions", 20), "auto_refine.divisions"),
+        circles_per_pair=_as_int(data.get("circles_per_pair", 10), "auto_refine.circles_per_pair"),
+        iterations=_as_int(data.get("iterations", 10), "auto_refine.iterations"),
+        retain_ratio=_as_float(data.get("retain_ratio", 0.5), "auto_refine.retain_ratio"),
+        toe_extension_h=_as_float(data.get("toe_extension_h", 1.0), "auto_refine.toe_extension_h"),
+        crest_extension_h=_as_float(data.get("crest_extension_h", 2.0), "auto_refine.crest_extension_h"),
+        min_span_h=_as_float(data.get("min_span_h", 0.10), "auto_refine.min_span_h"),
+        radius_max_h=_as_float(data.get("radius_max_h", 10.0), "auto_refine.radius_max_h"),
+        seed=_as_int(data.get("seed", 42), "auto_refine.seed"),
+    )
+
+
 def parse_project_input(payload: dict) -> ProjectInput:
     units = str(_require_key(payload, "units")).strip().lower()
     if units not in {"metric", "metric_units"}:
@@ -45,12 +82,13 @@ def parse_project_input(payload: dict) -> ProjectInput:
     geom_data = _require_key(payload, "geometry")
     mat_data = _require_key(payload, "material")
     ana_data = _require_key(payload, "analysis")
-    surface_data = _require_key(payload, "prescribed_surface")
+    surface_data = payload.get("prescribed_surface")
+    auto_refine_data = payload.get("auto_refine")
 
     if not isinstance(geom_data, dict) or not isinstance(mat_data, dict):
         raise InputValidationError("'geometry' and 'material' must be objects.")
-    if not isinstance(ana_data, dict) or not isinstance(surface_data, dict):
-        raise InputValidationError("'analysis' and 'prescribed_surface' must be objects.")
+    if not isinstance(ana_data, dict):
+        raise InputValidationError("'analysis' must be an object.")
 
     geometry = GeometryInput(
         h=_as_float(_require_key(geom_data, "h"), "geometry.h"),
@@ -69,16 +107,10 @@ def parse_project_input(payload: dict) -> ProjectInput:
         tolerance=_as_float(_require_key(ana_data, "tolerance"), "analysis.tolerance"),
         max_iter=_as_int(_require_key(ana_data, "max_iter"), "analysis.max_iter"),
         f_init=_as_float(ana_data.get("f_init", 1.0), "analysis.f_init"),
+        mode=str(ana_data.get("mode", "prescribed")).strip().lower(),
     )
-    surface = PrescribedCircleInput(
-        xc=_as_float(_require_key(surface_data, "xc"), "prescribed_surface.xc"),
-        yc=_as_float(_require_key(surface_data, "yc"), "prescribed_surface.yc"),
-        r=_as_float(_require_key(surface_data, "r"), "prescribed_surface.r"),
-        x_left=_as_float(_require_key(surface_data, "x_left"), "prescribed_surface.x_left"),
-        y_left=_as_float(_require_key(surface_data, "y_left"), "prescribed_surface.y_left"),
-        x_right=_as_float(_require_key(surface_data, "x_right"), "prescribed_surface.x_right"),
-        y_right=_as_float(_require_key(surface_data, "y_right"), "prescribed_surface.y_right"),
-    )
+    surface = _parse_prescribed_surface(surface_data)
+    auto_refine = _parse_auto_refine(auto_refine_data) if analysis.mode == "auto_refine" else None
 
     if geometry.h <= 0 or geometry.l <= 0:
         raise InputValidationError("geometry.h and geometry.l must be greater than zero.")
@@ -92,10 +124,28 @@ def parse_project_input(payload: dict) -> ProjectInput:
         raise InputValidationError("analysis.tolerance must be greater than zero.")
     if analysis.f_init <= 0:
         raise InputValidationError("analysis.f_init must be greater than zero.")
-    if surface.r <= 0:
-        raise InputValidationError("prescribed_surface.r must be greater than zero.")
-    if surface.x_right <= surface.x_left:
-        raise InputValidationError("prescribed_surface.x_right must exceed x_left.")
+    if analysis.mode not in {"prescribed", "auto_refine"}:
+        raise InputValidationError("analysis.mode must be either 'prescribed' or 'auto_refine'.")
+
+    if analysis.mode == "prescribed":
+        if surface is None:
+            raise InputValidationError("'prescribed_surface' is required when analysis.mode='prescribed'.")
+        if surface.r <= 0:
+            raise InputValidationError("prescribed_surface.r must be greater than zero.")
+        if surface.x_right <= surface.x_left:
+            raise InputValidationError("prescribed_surface.x_right must exceed x_left.")
+
+    if analysis.mode == "auto_refine" and auto_refine is not None:
+        if auto_refine.divisions < 2:
+            raise InputValidationError("auto_refine.divisions must be at least 2.")
+        if auto_refine.circles_per_pair <= 0 or auto_refine.iterations <= 0:
+            raise InputValidationError("auto_refine.circles_per_pair and iterations must be > 0.")
+        if not (0.0 < auto_refine.retain_ratio <= 1.0):
+            raise InputValidationError("auto_refine.retain_ratio must be in (0, 1].")
+        if auto_refine.toe_extension_h <= 0 or auto_refine.crest_extension_h <= 0:
+            raise InputValidationError("auto_refine toe/crest extensions must be > 0.")
+        if auto_refine.min_span_h <= 0 or auto_refine.radius_max_h <= 0:
+            raise InputValidationError("auto_refine min_span_h and radius_max_h must be > 0.")
 
     return ProjectInput(
         units=units,
@@ -103,6 +153,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
         material=material,
         analysis=analysis,
         prescribed_surface=surface,
+        auto_refine=auto_refine,
     )
 
 

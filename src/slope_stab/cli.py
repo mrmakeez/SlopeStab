@@ -11,7 +11,7 @@ from slope_stab.verification.runner import run_verification_suite
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     project = load_project_input(args.input)
-    result = run_analysis(project)
+    result = run_analysis(project, top_n=args.top_n)
     text = dump_result_json(result, path=args.output, pretty=not args.compact)
     if args.output is None:
         print(text)
@@ -53,10 +53,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Slope stability (Bishop simplified MVP)")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    analyze = sub.add_parser("analyze", help="Run prescribed-surface Bishop analysis from JSON input")
+    analyze = sub.add_parser("analyze", help="Run Bishop analysis from JSON input")
     analyze.add_argument("--input", required=True, help="Path to input JSON")
     analyze.add_argument("--output", help="Optional output JSON path")
     analyze.add_argument("--compact", action="store_true", help="Emit compact JSON")
+    analyze.add_argument(
+        "--top-n",
+        type=int,
+        default=20,
+        help="Maximum number of top surfaces in auto-refine output (default: 20)",
+    )
     analyze.set_defaults(func=_cmd_analyze)
 
     verify = sub.add_parser("verify", help="Run built-in verification cases")
