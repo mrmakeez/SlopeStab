@@ -1,0 +1,473 @@
+* Version 1695608026 10116 0
+9.041
+* #grids
+0
+* #surfaces
+1
+* #three point surfaces
+0
+* MMO
+0
+* Slice Type
+0
+* Number of analysis types
+1
+* Analysis names
+bishop simplified
+* surface#,data mode (0=max,1=min)
+1 0
+* surface center
+13.689 25.558
+* # surfaces for this center
+1
+* minimum surfaces for this center (per method)
+0 
+* surface 0 data (r,x1,y1,x2,y2,fs)
+15.989 10.0005216402222 10.0002608201111 27.4990237870903 17.5 2.11283 0
+* #slices
+7
+* minimum slice info(x,yt,yb loc.) method=bishop simplified
+10.0005216402222 10.0005216402222 10.0002608201111 10.0002608201111 10.0002608201111 1
+12.5003076612033 12.5003076612033 11.2501538306017 9.61324752391289 11.2501538306017 1
+15.0000936821845 15.0000936821845 12.5000468410922 9.622845330009 12.5000468410922 1
+17.4998797031657 17.4998797031657 13.7499398515828 10.0297896431044 13.7499398515828 1
+19.9996657241468 19.9996657241468 14.9998328620734 10.8670633682505 14.9998328620734 1
+22.499451745128 22.499451745128 16.249725872564 12.2154342404929 16.249725872564 1
+24.9992377661091 24.9992377661091 17.4996188830546 14.2563787590418 17.4996188830546 1
+27.4990237870903 27.4990237870903 17.5 17.5 17.5 1
+* #data
+20
+* name
+Frictional Strength
+* type
+2 2
+* data
+6.66886
+16.4059
+22.8122
+25.933
+25.4994
+20.7577
+5.9969
+* name
+Cohesive Strength
+* type
+2 3
+* data
+20
+* name
+Base Normal Force
+* type
+2 2
+* data
+46.3481
+112.679
+158.739
+187.835
+198.985
+184.047
+67.4726
+* name
+Base Friction Angle
+* type
+2 3
+* data
+0.349066
+* name
+Interslice Normal Force
+* type
+3 2
+* data
+0
+38.633
+81.2586
+106.388
+101.058
+60.4058
+-7.78665
+0
+* name
+Interslice Shear Force
+* type
+3 3
+* data
+-0
+* name
+Slice Weight
+* type
+2 2
+* data
+40.9192
+112.843
+164.92
+196.306
+204.159
+181.923
+81.0836
+* name
+Pore Pressure
+* type
+2 3
+* data
+0
+* name
+M-Alpha
+* type
+2 2
+* data
+0.96188
+1.00065
+1.01468
+1.00292
+0.96188
+0.883524
+0.746829
+* name
+Thrust Line Elevation
+* type
+3 2
+* data
+10.0003
+9.80675
+9.70776
+10.9955
+12.3506
+12.8953
+15.8782
+17.5
+* name
+Initial Pore Pressure
+* type
+2 3
+* data
+0
+* name
+Horizontal Seismic Force
+* type
+2 3
+* data
+0
+* name
+Vertical Seismic Force
+* type
+2 3
+* data
+0
+* name
+Phib
+* type
+2 3
+* data
+0
+* name
+Base Cohesion
+* type
+2 3
+* data
+20
+* name
+Base Material
+* type
+2 3
+* data
+1
+* name
+Generalized Hoek-Brown GSI
+* type
+2 3
+* data
+-1
+* name
+Generalized Hoek-Brown mi
+* type
+2 3
+* data
+-1
+* name
+Generalized Hoek-Brown D
+* type
+2 3
+* data
+-1
+* name
+Generalized Hoek-Brown UCS
+* type
+2 3
+* data
+-1
+* bolt data (#bolts,#methods)
+0 1
+* Global Minimum FS (xc,yc,r,x1,y1,x2,y2,fs,name)
+13.689 25.558 15.989 10.0005216402222 10.0002608201111 27.4990237870903 17.5 2.11283 bishop simplified
+* Global Minimum Text
+5
+Resisting Moment=12075.1 kN-m
+Driving Moment=5715.12 kN-m
+Total Slice Area=49.1077 m2
+Surface Horizontal Width=17.4985 m
+Surface Average Height=2.80639 m
+* minimum slice info(xb,xt,yt,yb,yt_soil loc.) method=bishop simplified
+10.0005216402222 10.0005216402222 10.0002608201111 10.0002608201111 10.0002608201111 1
+12.5003076612033 12.5003076612033 11.2501538306017 9.61324752391289 11.2501538306017 1
+15.0000936821845 15.0000936821845 12.5000468410922 9.622845330009 12.5000468410922 1
+17.4998797031657 17.4998797031657 13.7499398515828 10.0297896431044 13.7499398515828 1
+19.9996657241468 19.9996657241468 14.9998328620734 10.8670633682505 14.9998328620734 1
+22.499451745128 22.499451745128 16.249725872564 12.2154342404929 16.249725872564 1
+24.9992377661091 24.9992377661091 17.4996188830546 14.2563787590418 17.4996188830546 1
+27.4990237870903 27.4990237870903 17.5 17.5 17.5 1
+* #data
+20
+* name
+Frictional Strength
+* type
+2 1
+* data
+6.66886 
+16.4059 
+22.8122 
+25.933 
+25.4994 
+20.7577 
+5.9969 
+* name
+Cohesive Strength
+* type
+2 1
+* data
+20 
+20 
+20 
+20 
+20 
+20 
+20 
+* name
+Base Normal Force
+* type
+2 1
+* data
+46.3481 
+112.679 
+158.739 
+187.835 
+198.985 
+184.047 
+67.4726 
+* name
+Base Friction Angle
+* type
+2 1
+* data
+0.349066 
+0.349066 
+0.349066 
+0.349066 
+0.349066 
+0.349066 
+0.349066 
+* name
+Interslice Normal Force
+* type
+3 1
+* data
+0 
+38.633 
+81.2586 
+106.388 
+101.058 
+60.4058 
+-7.78665 
+0 
+* name
+Interslice Shear Force
+* type
+3 1
+* data
+-0 
+-0 
+-0 
+-0 
+-0 
+-0 
+-0 
+-0 
+* name
+Slice Weight
+* type
+2 1
+* data
+40.9192 
+112.843 
+164.92 
+196.306 
+204.159 
+181.923 
+81.0836 
+* name
+Pore Pressure
+* type
+2 1
+* data
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+* name
+M-Alpha
+* type
+2 1
+* data
+0.96188 
+1.00065 
+1.01468 
+1.00292 
+0.96188 
+0.883524 
+0.746829 
+* name
+Thrust Line Elevation
+* type
+3 1
+* data
+10.0003 
+9.80675 
+9.70776 
+10.9955 
+12.3506 
+12.8953 
+15.8782 
+17.5 
+* name
+Initial Pore Pressure
+* type
+2 1
+* data
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+* name
+Horizontal Seismic Force
+* type
+2 1
+* data
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+* name
+Vertical Seismic Force
+* type
+2 1
+* data
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+* name
+Phib
+* type
+2 1
+* data
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+* name
+Base Cohesion
+* type
+2 1
+* data
+20 
+20 
+20 
+20 
+20 
+20 
+20 
+* name
+Base Material
+* type
+2 1
+* data
+1 
+1 
+1 
+1 
+1 
+1 
+1 
+* name
+Generalized Hoek-Brown GSI
+* type
+2 1
+* data
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+* name
+Generalized Hoek-Brown mi
+* type
+2 1
+* data
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+* name
+Generalized Hoek-Brown D
+* type
+2 1
+* data
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+* name
+Generalized Hoek-Brown UCS
+* type
+2 1
+* data
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+-1 
+* bolt data (#bolts,nummethods)
+0 1
+* bolt force diagram data (#bolts)
+0
+* bolt pressure diagram data (#bolts)
+0
+* Global Minimum Bolt Data
+* Factor of Safety Computation Counters
+* method name      valid#  invalid#
+bishop simplified   1    0
+* Warning and Error Codes in Computation of Factor of Safety
