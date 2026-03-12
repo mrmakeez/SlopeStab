@@ -1,0 +1,30 @@
+{
+  "units": "metric",
+  "geometry": {
+    "h": 10.0,
+    "l": 20.0,
+    "x_toe": 30.0,
+    "y_toe": 25.0
+  },
+  "material": {
+    "gamma": 20.0,
+    "c": 3.0,
+    "phi_deg": 19.6
+  },
+  "analysis": {
+    "method": "bishop_simplified",
+    "n_slices": 25,
+    "tolerance": 0.0001,
+    "max_iter": 100,
+    "f_init": 1.0
+  },
+  "prescribed_surface": {
+    "xc": 29.07,
+    "yc": 55.495,
+    "r": 30.4956368485163,
+    "x_left": 30.02888427029,
+    "y_left": 25.014442135145,
+    "x_right": 51.6518254752929,
+    "y_right": 35.0
+  }
+}
