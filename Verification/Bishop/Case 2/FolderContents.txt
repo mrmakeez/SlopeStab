@@ -1,4 +1,5 @@
+Verification Purpose: To verify that the Bishop algoritim is working as intended
 "PublishedSource2.pdf" - Problem Definition
 "Case2.slmd" - Slide2 Model
-"\Case2" - Slide2 Model Output
+"\Case2" - Slide2 Model Output (Standard Output)
 "Case 2.pdf" - Slide2 Report

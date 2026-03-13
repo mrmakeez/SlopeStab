@@ -1,0 +1,5 @@
+Verification Purpose: To verify that the auto-refine algoritim is working in a similar manner to Slide2 implementation
+"PublishedSource3.pdf" - Problem Definition (note that Case 3 is simply Case 1 put with auto-refine used inlieu of a grid search)
+"Case3.slmd" - Slide2 Model
+"\Case3" - Slide2 Model Output (Maximum Output)
+"Case 3.pdf" - Slide2 Report
