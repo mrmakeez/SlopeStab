@@ -73,6 +73,9 @@ When proposing extensions, sequence strictly:
 4. Add tests + regression fixtures.
 5. Re-run full verification gate.
 
+## ExecPlans
+When writing complex features or significant refactors, use an ExecPlan (as described in .agent/PLANS.md) from design to implementation.
+
 ## Future Roadmap (Deferred)
 Deferred until explicitly approved:
 - Search algorithms
