@@ -2,7 +2,7 @@
 
 ## Purpose
 This repository is a verification-first slope stability program.
-Primary goal: preserve correctness of Bishop simplified calculations for prescribed circular surfaces before adding search or additional physics.
+Primary goal: preserve correctness of Bishop simplified calculations for prescribed circular surfaces while supporting deterministic auto-refine circular search.
 
 ## Current Baseline (Do Not Regress)
 Supported:
@@ -10,12 +10,13 @@ Supported:
 - Uniform slope geometry with infinite flat toe/crest extent
 - Homogeneous Mohr-Coulomb soil
 - Circular slip surface input (prescribed geometry)
+- Deterministic circular critical-surface search via `search.method = auto_refine_circular`
 - Bishop simplified factor-of-safety solver
 - Vertical slice discretization
 - JSON CLI analysis + built-in verification suite
 
 Not supported in baseline:
-- Critical surface search (grid, auto-refine, random, GA, etc.)
+- Additional/alternative search algorithms beyond current auto-refine circular search (grid, random, GA, etc.)
 - Spencer or other rigorous methods
 - Non-circular surfaces
 - Multi-soil zoning/internal boundaries
@@ -51,6 +52,7 @@ Before merging any change, run:
 Expected:
 - Verification suite reports all cases passed.
 - Unit/integration/regression tests pass.
+- Case 3 auto-refine parity is validated by separate regression test `tests/regression/test_case3_auto_refine.py` and is intentionally not part of `cli verify`.
 
 ## Implementation Guidance for Agents
 - Keep module boundaries clean:
@@ -59,11 +61,13 @@ Expected:
   - surfaces
   - slicing
   - lem_core
+  - search
   - io
   - verification
 - Avoid solver lock-in in shared data models.
 - Expose diagnostics that help reconcile per-slice terms and iteration history.
 - Prefer explicit validation errors over silent fallback behavior.
+- Keep search paths deterministic and do not alter Case 1/Case 2 benchmark behavior.
 
 ## Change Policy
 When proposing extensions, sequence strictly:
@@ -78,7 +82,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 ## Future Roadmap (Deferred)
 Deferred until explicitly approved:
-- Search algorithms
+- Additional/alternative search algorithms (beyond current auto-refine circular search)
 - Spencer integration
 - Non-circular surfaces
 - Layered/zoned soils

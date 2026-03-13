@@ -7,10 +7,13 @@ from slope_stab.exceptions import InputValidationError
 from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
+    AutoRefineSearchInput,
     GeometryInput,
     MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
+    SearchInput,
+    SearchLimitsInput,
 )
 
 
@@ -45,12 +48,13 @@ def parse_project_input(payload: dict) -> ProjectInput:
     geom_data = _require_key(payload, "geometry")
     mat_data = _require_key(payload, "material")
     ana_data = _require_key(payload, "analysis")
-    surface_data = _require_key(payload, "prescribed_surface")
+    surface_data = payload.get("prescribed_surface")
+    search_data = payload.get("search")
 
     if not isinstance(geom_data, dict) or not isinstance(mat_data, dict):
         raise InputValidationError("'geometry' and 'material' must be objects.")
-    if not isinstance(ana_data, dict) or not isinstance(surface_data, dict):
-        raise InputValidationError("'analysis' and 'prescribed_surface' must be objects.")
+    if not isinstance(ana_data, dict):
+        raise InputValidationError("'analysis' must be an object.")
 
     geometry = GeometryInput(
         h=_as_float(_require_key(geom_data, "h"), "geometry.h"),
@@ -70,16 +74,6 @@ def parse_project_input(payload: dict) -> ProjectInput:
         max_iter=_as_int(_require_key(ana_data, "max_iter"), "analysis.max_iter"),
         f_init=_as_float(ana_data.get("f_init", 1.0), "analysis.f_init"),
     )
-    surface = PrescribedCircleInput(
-        xc=_as_float(_require_key(surface_data, "xc"), "prescribed_surface.xc"),
-        yc=_as_float(_require_key(surface_data, "yc"), "prescribed_surface.yc"),
-        r=_as_float(_require_key(surface_data, "r"), "prescribed_surface.r"),
-        x_left=_as_float(_require_key(surface_data, "x_left"), "prescribed_surface.x_left"),
-        y_left=_as_float(_require_key(surface_data, "y_left"), "prescribed_surface.y_left"),
-        x_right=_as_float(_require_key(surface_data, "x_right"), "prescribed_surface.x_right"),
-        y_right=_as_float(_require_key(surface_data, "y_right"), "prescribed_surface.y_right"),
-    )
-
     if geometry.h <= 0 or geometry.l <= 0:
         raise InputValidationError("geometry.h and geometry.l must be greater than zero.")
     if material.gamma <= 0:
@@ -92,10 +86,94 @@ def parse_project_input(payload: dict) -> ProjectInput:
         raise InputValidationError("analysis.tolerance must be greater than zero.")
     if analysis.f_init <= 0:
         raise InputValidationError("analysis.f_init must be greater than zero.")
-    if surface.r <= 0:
-        raise InputValidationError("prescribed_surface.r must be greater than zero.")
-    if surface.x_right <= surface.x_left:
-        raise InputValidationError("prescribed_surface.x_right must exceed x_left.")
+    has_surface = surface_data is not None
+    has_search = search_data is not None
+    if has_surface == has_search:
+        raise InputValidationError("Exactly one of 'prescribed_surface' or 'search' must be provided.")
+
+    surface: PrescribedCircleInput | None = None
+    search: SearchInput | None = None
+
+    if has_surface:
+        if not isinstance(surface_data, dict):
+            raise InputValidationError("'prescribed_surface' must be an object.")
+
+        surface = PrescribedCircleInput(
+            xc=_as_float(_require_key(surface_data, "xc"), "prescribed_surface.xc"),
+            yc=_as_float(_require_key(surface_data, "yc"), "prescribed_surface.yc"),
+            r=_as_float(_require_key(surface_data, "r"), "prescribed_surface.r"),
+            x_left=_as_float(_require_key(surface_data, "x_left"), "prescribed_surface.x_left"),
+            y_left=_as_float(_require_key(surface_data, "y_left"), "prescribed_surface.y_left"),
+            x_right=_as_float(_require_key(surface_data, "x_right"), "prescribed_surface.x_right"),
+            y_right=_as_float(_require_key(surface_data, "y_right"), "prescribed_surface.y_right"),
+        )
+
+        if surface.r <= 0:
+            raise InputValidationError("prescribed_surface.r must be greater than zero.")
+        if surface.x_right <= surface.x_left:
+            raise InputValidationError("prescribed_surface.x_right must exceed x_left.")
+    else:
+        if not isinstance(search_data, dict):
+            raise InputValidationError("'search' must be an object.")
+
+        method = str(_require_key(search_data, "method")).strip().lower()
+        if method != "auto_refine_circular":
+            raise InputValidationError("Only search.method='auto_refine_circular' is supported.")
+
+        auto_data = _require_key(search_data, "auto_refine_circular")
+        if not isinstance(auto_data, dict):
+            raise InputValidationError("'search.auto_refine_circular' must be an object.")
+
+        limits_data = auto_data.get("search_limits")
+        if limits_data is None:
+            limits = SearchLimitsInput(
+                x_min=geometry.x_toe - geometry.h,
+                x_max=geometry.x_toe + geometry.l + 2.0 * geometry.h,
+            )
+        else:
+            if not isinstance(limits_data, dict):
+                raise InputValidationError("'search.auto_refine_circular.search_limits' must be an object.")
+            limits = SearchLimitsInput(
+                x_min=_as_float(_require_key(limits_data, "x_min"), "search.auto_refine_circular.search_limits.x_min"),
+                x_max=_as_float(_require_key(limits_data, "x_max"), "search.auto_refine_circular.search_limits.x_max"),
+            )
+
+        auto = AutoRefineSearchInput(
+            divisions_along_slope=_as_int(
+                _require_key(auto_data, "divisions_along_slope"),
+                "search.auto_refine_circular.divisions_along_slope",
+            ),
+            circles_per_division=_as_int(
+                _require_key(auto_data, "circles_per_division"),
+                "search.auto_refine_circular.circles_per_division",
+            ),
+            iterations=_as_int(
+                _require_key(auto_data, "iterations"),
+                "search.auto_refine_circular.iterations",
+            ),
+            divisions_to_use_next_iteration_pct=_as_float(
+                _require_key(auto_data, "divisions_to_use_next_iteration_pct"),
+                "search.auto_refine_circular.divisions_to_use_next_iteration_pct",
+            ),
+            search_limits=limits,
+        )
+
+        if auto.divisions_along_slope <= 1:
+            raise InputValidationError("search.auto_refine_circular.divisions_along_slope must be greater than 1.")
+        if auto.circles_per_division <= 0:
+            raise InputValidationError("search.auto_refine_circular.circles_per_division must be greater than zero.")
+        if auto.iterations <= 0:
+            raise InputValidationError("search.auto_refine_circular.iterations must be greater than zero.")
+        if auto.divisions_to_use_next_iteration_pct <= 0 or auto.divisions_to_use_next_iteration_pct > 100:
+            raise InputValidationError(
+                "search.auto_refine_circular.divisions_to_use_next_iteration_pct must be in (0, 100]."
+            )
+        if auto.search_limits.x_max <= auto.search_limits.x_min:
+            raise InputValidationError(
+                "search.auto_refine_circular.search_limits.x_max must exceed x_min."
+            )
+
+        search = SearchInput(method=method, auto_refine_circular=auto)
 
     return ProjectInput(
         units=units,
@@ -103,6 +181,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
         material=material,
         analysis=analysis,
         prescribed_surface=surface,
+        search=search,
     )
 
 

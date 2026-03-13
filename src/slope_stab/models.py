@@ -40,12 +40,34 @@ class PrescribedCircleInput:
 
 
 @dataclass(frozen=True)
+class SearchLimitsInput:
+    x_min: float
+    x_max: float
+
+
+@dataclass(frozen=True)
+class AutoRefineSearchInput:
+    divisions_along_slope: int
+    circles_per_division: int
+    iterations: int
+    divisions_to_use_next_iteration_pct: float
+    search_limits: SearchLimitsInput
+
+
+@dataclass(frozen=True)
+class SearchInput:
+    method: str
+    auto_refine_circular: AutoRefineSearchInput
+
+
+@dataclass(frozen=True)
 class ProjectInput:
     units: str
     geometry: GeometryInput
     material: MaterialInput
     analysis: AnalysisInput
-    prescribed_surface: PrescribedCircleInput
+    prescribed_surface: PrescribedCircleInput | None = None
+    search: SearchInput | None = None
 
 
 @dataclass(frozen=True)
