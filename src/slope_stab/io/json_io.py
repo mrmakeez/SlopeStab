@@ -8,6 +8,7 @@ from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
     AutoRefineSearchInput,
+    CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
     MaterialInput,
@@ -39,6 +40,12 @@ def _as_int(v: object, key: str) -> int:
     if float(v) != iv:
         raise InputValidationError(f"Key '{key}' must be an integer.")
     return iv
+
+
+def _as_bool(v: object, key: str) -> bool:
+    if isinstance(v, bool):
+        return v
+    raise InputValidationError(f"Key '{key}' must be a boolean.")
 
 
 def _parse_search_limits(
@@ -137,6 +144,66 @@ def _parse_direct_global_search(
         min_improvement=min_improvement,
         stall_iterations=stall_iterations,
         min_rectangle_half_size=min_rectangle_half_size,
+        search_limits=limits,
+    )
+
+
+def _parse_cuckoo_global_search(
+    cuckoo_data: dict,
+    geometry: GeometryInput,
+) -> CuckooGlobalSearchInput:
+    key_prefix = "search.cuckoo_global_circular"
+    limits = _parse_search_limits(cuckoo_data.get("search_limits"), geometry, key_prefix)
+
+    population_size = _as_int(cuckoo_data.get("population_size", 40), f"{key_prefix}.population_size")
+    max_iterations = _as_int(cuckoo_data.get("max_iterations", 200), f"{key_prefix}.max_iterations")
+    max_evaluations = _as_int(cuckoo_data.get("max_evaluations", 4000), f"{key_prefix}.max_evaluations")
+    discovery_rate = _as_float(cuckoo_data.get("discovery_rate", 0.20), f"{key_prefix}.discovery_rate")
+    levy_beta = _as_float(cuckoo_data.get("levy_beta", 1.5), f"{key_prefix}.levy_beta")
+    alpha_max = _as_float(cuckoo_data.get("alpha_max", 0.5), f"{key_prefix}.alpha_max")
+    alpha_min = _as_float(cuckoo_data.get("alpha_min", 0.05), f"{key_prefix}.alpha_min")
+    min_improvement = _as_float(cuckoo_data.get("min_improvement", 1e-4), f"{key_prefix}.min_improvement")
+    stall_iterations = _as_int(cuckoo_data.get("stall_iterations", 25), f"{key_prefix}.stall_iterations")
+    seed = _as_int(cuckoo_data.get("seed", 0), f"{key_prefix}.seed")
+    post_polish = _as_bool(cuckoo_data.get("post_polish", True), f"{key_prefix}.post_polish")
+
+    if population_size <= 1:
+        raise InputValidationError(f"{key_prefix}.population_size must be greater than 1.")
+    if max_iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.max_iterations must be greater than zero.")
+    if max_evaluations <= 0:
+        raise InputValidationError(f"{key_prefix}.max_evaluations must be greater than zero.")
+    if discovery_rate <= 0.0 or discovery_rate >= 1.0:
+        raise InputValidationError(f"{key_prefix}.discovery_rate must be in (0, 1).")
+    if levy_beta <= 1.0 or levy_beta > 2.0:
+        raise InputValidationError(f"{key_prefix}.levy_beta must be in (1, 2].")
+    if alpha_max <= 0.0:
+        raise InputValidationError(f"{key_prefix}.alpha_max must be greater than zero.")
+    if alpha_min <= 0.0:
+        raise InputValidationError(f"{key_prefix}.alpha_min must be greater than zero.")
+    if alpha_max <= alpha_min:
+        raise InputValidationError(f"{key_prefix}.alpha_max must exceed alpha_min.")
+    if min_improvement < 0.0:
+        raise InputValidationError(f"{key_prefix}.min_improvement must be greater than or equal to zero.")
+    if stall_iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.stall_iterations must be greater than zero.")
+    if limits.x_max <= limits.x_min:
+        raise InputValidationError(
+            f"{key_prefix}.search_limits.x_max must exceed x_min."
+        )
+
+    return CuckooGlobalSearchInput(
+        population_size=population_size,
+        max_iterations=max_iterations,
+        max_evaluations=max_evaluations,
+        discovery_rate=discovery_rate,
+        levy_beta=levy_beta,
+        alpha_max=alpha_max,
+        alpha_min=alpha_min,
+        min_improvement=min_improvement,
+        stall_iterations=stall_iterations,
+        seed=seed,
+        post_polish=post_polish,
         search_limits=limits,
     )
 
@@ -245,9 +312,16 @@ def parse_project_input(payload: dict) -> ProjectInput:
                 raise InputValidationError("'search.direct_global_circular' must be an object.")
             direct = _parse_direct_global_search(direct_data, geometry)
             search = SearchInput(method=method, direct_global_circular=direct)
+        elif method == "cuckoo_global_circular":
+            cuckoo_data = _require_key(search_data, "cuckoo_global_circular")
+            if not isinstance(cuckoo_data, dict):
+                raise InputValidationError("'search.cuckoo_global_circular' must be an object.")
+            cuckoo = _parse_cuckoo_global_search(cuckoo_data, geometry)
+            search = SearchInput(method=method, cuckoo_global_circular=cuckoo)
         else:
             raise InputValidationError(
-                "Only search.method='auto_refine_circular' or 'direct_global_circular' is supported."
+                "Only search.method='auto_refine_circular', 'direct_global_circular', or "
+                "'cuckoo_global_circular' is supported."
             )
 
     return ProjectInput(

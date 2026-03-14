@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="36" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111111">D3. Replacement and Abandonment in Population</text>
+
+  <rect x="70" y="82" width="400" height="290" rx="8" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="94" y="116" font-size="17" font-family="Segoe UI, Arial" fill="#37474F">Ranked nests by FOS (lower is better)</text>
+
+  <rect x="108" y="146" width="44" height="170" fill="#43A047"/>
+  <rect x="156" y="158" width="44" height="158" fill="#66BB6A"/>
+  <rect x="204" y="170" width="44" height="146" fill="#81C784"/>
+  <rect x="252" y="190" width="44" height="126" fill="#A5D6A7"/>
+  <rect x="300" y="226" width="44" height="90" fill="#B0BEC5"/>
+  <rect x="348" y="244" width="44" height="72" fill="#EF9A9A"/>
+  <rect x="396" y="258" width="44" height="58" fill="#E57373"/>
+  <text x="94" y="342" font-size="13" font-family="Segoe UI, Arial" fill="#546E7A">rightmost tail is abandoned and regenerated</text>
+
+  <rect x="530" y="82" width="400" height="290" rx="8" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="554" y="116" font-size="17" font-family="Segoe UI, Arial" fill="#1565C0">After abandonment and regeneration</text>
+
+  <rect x="568" y="146" width="44" height="170" fill="#43A047"/>
+  <rect x="616" y="158" width="44" height="158" fill="#66BB6A"/>
+  <rect x="664" y="170" width="44" height="146" fill="#81C784"/>
+  <rect x="712" y="190" width="44" height="126" fill="#A5D6A7"/>
+  <rect x="760" y="190" width="44" height="126" fill="#B3E5FC"/>
+  <rect x="808" y="174" width="44" height="142" fill="#90CAF9"/>
+  <rect x="856" y="204" width="44" height="112" fill="#64B5F6"/>
+  <text x="554" y="342" font-size="13" font-family="Segoe UI, Arial" fill="#1565C0">new random nests restore global exploration capacity</text>
+
+  <line x1="470" y1="208" x2="530" y2="208" stroke="#E53935" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="476" y="194" font-size="12" font-family="Segoe UI, Arial" fill="#E53935">regenerate</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#E53935"/>
+    </marker>
+  </defs>
+</svg>

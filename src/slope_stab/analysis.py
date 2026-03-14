@@ -9,6 +9,7 @@ from slope_stab.lem_core.bishop import BishopSimplifiedSolver
 from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
 from slope_stab.models import AnalysisResult, PrescribedCircleInput, ProjectInput
 from slope_stab.search.auto_refine import run_auto_refine_search
+from slope_stab.search.cuckoo_global import run_cuckoo_global_search
 from slope_stab.search.direct_global import run_direct_global_search
 from slope_stab.slicing.slice_generator import generate_vertical_slices
 from slope_stab.surfaces.circular import CircularSlipSurface
@@ -180,6 +181,43 @@ def run_analysis(project: ProjectInput) -> AnalysisResult:
             }
             result = direct_result.winning_result
             winning_surface = direct_result.winning_surface
+        elif project.search.method == "cuckoo_global_circular":
+            config = project.search.cuckoo_global_circular
+            if config is None:
+                raise GeometryError("Missing search.cuckoo_global_circular configuration.")
+            cuckoo_result = run_cuckoo_global_search(
+                profile=profile,
+                config=config,
+                evaluate_surface=lambda s: _solve_prescribed_surface(project, profile, s),
+            )
+            config_payload = {
+                "cuckoo_global_circular": {
+                    "population_size": config.population_size,
+                    "max_iterations": config.max_iterations,
+                    "max_evaluations": config.max_evaluations,
+                    "discovery_rate": config.discovery_rate,
+                    "levy_beta": config.levy_beta,
+                    "alpha_max": config.alpha_max,
+                    "alpha_min": config.alpha_min,
+                    "min_improvement": config.min_improvement,
+                    "stall_iterations": config.stall_iterations,
+                    "seed": config.seed,
+                    "post_polish": config.post_polish,
+                    "search_limits": {
+                        "x_min": config.search_limits.x_min,
+                        "x_max": config.search_limits.x_max,
+                    },
+                }
+            }
+            diagnostics_payload = {
+                "total_evaluations": cuckoo_result.total_evaluations,
+                "valid_evaluations": cuckoo_result.valid_evaluations,
+                "infeasible_evaluations": cuckoo_result.infeasible_evaluations,
+                "termination_reason": cuckoo_result.termination_reason,
+                "iteration_diagnostics": [asdict(item) for item in cuckoo_result.iteration_diagnostics],
+            }
+            result = cuckoo_result.winning_result
+            winning_surface = cuckoo_result.winning_surface
         else:
             raise GeometryError(f"Unsupported search method: {project.search.method}")
 

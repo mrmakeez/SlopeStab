@@ -130,6 +130,64 @@ class SearchInputParsingTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
+    def test_parse_cuckoo_global_mode_defaults(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "cuckoo_global_circular",
+            "cuckoo_global_circular": {},
+        }
+
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertEqual(project.search.method, "cuckoo_global_circular")
+        self.assertIsNone(project.search.auto_refine_circular)
+        self.assertIsNone(project.search.direct_global_circular)
+        self.assertIsNotNone(project.search.cuckoo_global_circular)
+
+        cfg = project.search.cuckoo_global_circular
+        self.assertEqual(cfg.population_size, 40)
+        self.assertEqual(cfg.max_iterations, 200)
+        self.assertEqual(cfg.max_evaluations, 4000)
+        self.assertAlmostEqual(cfg.discovery_rate, 0.20)
+        self.assertAlmostEqual(cfg.levy_beta, 1.5)
+        self.assertAlmostEqual(cfg.alpha_max, 0.5)
+        self.assertAlmostEqual(cfg.alpha_min, 0.05)
+        self.assertAlmostEqual(cfg.min_improvement, 1e-4)
+        self.assertEqual(cfg.stall_iterations, 25)
+        self.assertEqual(cfg.seed, 0)
+        self.assertTrue(cfg.post_polish)
+        self.assertAlmostEqual(cfg.search_limits.x_min, 20.0)
+        self.assertAlmostEqual(cfg.search_limits.x_max, 70.0)
+
+    def test_parse_rejects_missing_cuckoo_payload(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "cuckoo_global_circular",
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_invalid_cuckoo_values(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "cuckoo_global_circular",
+            "cuckoo_global_circular": {
+                "population_size": 1,
+                "max_iterations": 0,
+                "max_evaluations": 0,
+                "discovery_rate": 1.0,
+                "levy_beta": 2.1,
+                "alpha_max": 0.0,
+                "alpha_min": 0.0,
+                "min_improvement": -1.0,
+                "stall_iterations": 0,
+                "seed": 0,
+                "post_polish": True,
+            },
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
 
 class AutoRefineSearchTests(unittest.TestCase):
     def test_generated_surfaces_per_iteration_matches_formula(self) -> None:

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="36" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111111">D4. First-Hit Stopping Conditions</text>
+
+  <rect x="80" y="90" width="260" height="250" rx="10" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="108" y="128" font-size="17" font-family="Segoe UI, Arial" fill="#0D47A1">max_iterations</text>
+  <text x="108" y="156" font-size="14" font-family="Segoe UI, Arial" fill="#37474F">Stop when k reaches limit.</text>
+  <text x="108" y="196" font-size="13" font-family="Consolas, monospace" fill="#263238">k >= max_iterations</text>
+
+  <rect x="370" y="90" width="260" height="250" rx="10" fill="#FFF8E1" stroke="#FFCC80"/>
+  <text x="398" y="128" font-size="17" font-family="Segoe UI, Arial" fill="#E65100">max_evaluations</text>
+  <text x="398" y="156" font-size="14" font-family="Segoe UI, Arial" fill="#37474F">Stop on evaluation budget.</text>
+  <text x="398" y="196" font-size="13" font-family="Consolas, monospace" fill="#263238">evals >= max_evaluations</text>
+
+  <rect x="660" y="90" width="260" height="250" rx="10" fill="#FDECEA" stroke="#EF9A9A"/>
+  <text x="688" y="128" font-size="17" font-family="Segoe UI, Arial" fill="#B71C1C">stall_tolerance_reached</text>
+  <text x="688" y="156" font-size="14" font-family="Segoe UI, Arial" fill="#37474F">Stop if improvement is too small</text>
+  <text x="688" y="174" font-size="14" font-family="Segoe UI, Arial" fill="#37474F">over the stall window.</text>
+  <text x="688" y="214" font-size="13" font-family="Consolas, monospace" fill="#263238">best[k-s] - best[k] &lt; eps</text>
+
+  <line x1="340" y1="256" x2="370" y2="256" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="630" y1="256" x2="660" y2="256" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="382" y="312" font-size="14" font-family="Segoe UI, Arial" fill="#546E7A">Termination reason is the first condition hit.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#455A64"/>
+    </marker>
+  </defs>
+</svg>

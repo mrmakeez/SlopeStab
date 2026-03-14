@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="36" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111111">D1. Normalized Parameters to Circular Slip Surface</text>
+
+  <rect x="60" y="80" width="360" height="280" rx="8" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="86" y="118" font-size="18" font-family="Segoe UI, Arial" fill="#37474F">Normalized search vector</text>
+  <rect x="92" y="142" width="296" height="180" rx="6" fill="#ffffff" stroke="#90A4AE"/>
+  <text x="112" y="182" font-size="16" font-family="Consolas, monospace" fill="#263238">u_left in [0, 1]</text>
+  <text x="112" y="216" font-size="16" font-family="Consolas, monospace" fill="#263238">u_span in [0, 1]</text>
+  <text x="112" y="250" font-size="16" font-family="Consolas, monospace" fill="#263238">u_beta in [0, 1]</text>
+  <text x="112" y="286" font-size="14" font-family="Segoe UI, Arial" fill="#546E7A">Mapped to x_left, x_right, beta</text>
+
+  <line x1="440" y1="220" x2="540" y2="220" stroke="#E53935" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="464" y="208" font-size="13" font-family="Segoe UI, Arial" fill="#E53935">decode</text>
+
+  <rect x="560" y="80" width="380" height="280" rx="8" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="586" y="118" font-size="18" font-family="Segoe UI, Arial" fill="#1565C0">Physical slope and slip circle</text>
+  <polyline points="598,254 666,254 760,210 892,210" fill="none" stroke="#424242" stroke-width="4"/>
+  <circle cx="742" cy="164" r="66" fill="none" stroke="#B0BEC5" stroke-width="2" stroke-dasharray="6 4"/>
+  <path d="M666 254 Q742 320 818 210" fill="none" stroke="#43A047" stroke-width="4"/>
+  <circle cx="666" cy="254" r="4" fill="#1E88E5"/>
+  <circle cx="818" cy="210" r="4" fill="#1E88E5"/>
+  <text x="646" y="275" font-size="12" font-family="Segoe UI, Arial" fill="#1E88E5">entry</text>
+  <text x="810" y="199" font-size="12" font-family="Segoe UI, Arial" fill="#1E88E5">exit</text>
+  <text x="690" y="338" font-size="14" font-family="Segoe UI, Arial" fill="#2E7D32">Used slip arc (lower branch under slope)</text>
+  <text x="680" y="158" font-size="12" font-family="Segoe UI, Arial" fill="#78909C">circle center above endpoints is valid</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#E53935"/>
+    </marker>
+  </defs>
+</svg>

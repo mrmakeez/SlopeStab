@@ -65,10 +65,27 @@ class DirectGlobalSearchInput:
 
 
 @dataclass(frozen=True)
+class CuckooGlobalSearchInput:
+    population_size: int
+    max_iterations: int
+    max_evaluations: int
+    discovery_rate: float
+    levy_beta: float
+    alpha_max: float
+    alpha_min: float
+    min_improvement: float
+    stall_iterations: int
+    seed: int
+    post_polish: bool
+    search_limits: SearchLimitsInput
+
+
+@dataclass(frozen=True)
 class SearchInput:
     method: str
     auto_refine_circular: AutoRefineSearchInput | None = None
     direct_global_circular: DirectGlobalSearchInput | None = None
+    cuckoo_global_circular: CuckooGlobalSearchInput | None = None
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,57 @@
+{
+  "units": "metric",
+  "geometry": {
+    "h": 7.5,
+    "l": 15.0,
+    "x_toe": 10.0,
+    "y_toe": 10.0
+  },
+  "material": {
+    "gamma": 20.0,
+    "c": 20.0,
+    "phi_deg": 20.0
+  },
+  "analysis": {
+    "method": "bishop_simplified",
+    "n_slices": 7,
+    "tolerance": 0.005,
+    "max_iter": 50,
+    "f_init": 1.0
+  },
+  "search": {
+    "method": "cuckoo_global_circular",
+    "cuckoo_global_circular": {
+      "population_size": 40,
+      "max_iterations": 200,
+      "max_evaluations": 4000,
+      "discovery_rate": 0.2,
+      "levy_beta": 1.5,
+      "alpha_max": 0.5,
+      "alpha_min": 0.05,
+      "min_improvement": 0.0001,
+      "stall_iterations": 25,
+      "seed": 0,
+      "post_polish": true,
+      "search_limits": {
+        "x_min": 2.5,
+        "x_max": 40.0
+      }
+    }
+  },
+  "oracle": {
+    "source": "dense_grid_u_space",
+    "grid_resolution_per_dimension": 61,
+    "benchmark_fos": 2.0924989577828477,
+    "margin": 0.005,
+    "benchmark_surface": {
+      "xc": 14.380261154319578,
+      "yc": 25.785058166853418,
+      "r": 16.384213570814843,
+      "x_left": 9.990000000000002,
+      "y_left": 10.0,
+      "x_right": 28.515333333333334,
+      "y_right": 17.5
+    },
+    "endpoint_abs_tolerance": 0.6
+  }
+}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="36" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111111">D6. Deterministic Post-Polish Sequence</text>
+
+  <rect x="60" y="78" width="280" height="286" rx="8" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="84" y="110" font-size="16" font-family="Segoe UI, Arial" fill="#37474F">After global cuckoo loop</text>
+  <polyline points="90,250 145,250 220,214 320,214" fill="none" stroke="#424242" stroke-width="4"/>
+  <path d="M145 250 Q215 308 285 214" fill="none" stroke="#90A4AE" stroke-width="4"/>
+  <text x="88" y="336" font-size="12" font-family="Segoe UI, Arial" fill="#546E7A">candidate slip arc (lower branch)</text>
+
+  <rect x="360" y="78" width="280" height="286" rx="8" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="384" y="110" font-size="16" font-family="Segoe UI, Arial" fill="#1565C0">Toe/crest local sweep</text>
+  <polyline points="390,250 445,250 520,214 620,214" fill="none" stroke="#424242" stroke-width="4"/>
+  <path d="M445 250 Q520 322 595 214" fill="none" stroke="#43A047" stroke-width="4"/>
+  <text x="388" y="336" font-size="12" font-family="Segoe UI, Arial" fill="#1565C0">still lower slip arc under slope</text>
+
+  <rect x="660" y="78" width="280" height="286" rx="8" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <text x="684" y="110" font-size="16" font-family="Segoe UI, Arial" fill="#1B5E20">Toe-locked beta sweep</text>
+  <polyline points="690,250 745,250 820,214 920,214" fill="none" stroke="#424242" stroke-width="4"/>
+  <path d="M745 250 Q820 326 895 214" fill="none" stroke="#2E7D32" stroke-width="4"/>
+  <text x="690" y="336" font-size="12" font-family="Segoe UI, Arial" fill="#1B5E20">final polished lower-branch slip arc</text>
+
+  <line x1="340" y1="222" x2="360" y2="222" stroke="#E53935" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="640" y1="222" x2="660" y2="222" stroke="#E53935" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#E53935"/>
+    </marker>
+  </defs>
+</svg>

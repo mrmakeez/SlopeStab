@@ -625,3 +625,64 @@ No external dependencies were added.
 Plan revision note: Added on 2026-03-14 to document completed DIRECT implementation, benchmark-gate verification, and release-alignment documentation updates.
 ```
 
+```md
+# Implement Seeded Cuckoo Global Circular Search with Oracle Global-Minimum Gates
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` were maintained through implementation and closure.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and maintained in accordance with `PLANS.md`.
+
+## Purpose / Big Picture
+
+Users can now run seeded stochastic cuckoo global circular search (`search.method = cuckoo_global_circular`) in the same analysis flow as prescribed, auto-refine, and direct-global modes. The path is additive and exposes search diagnostics while preserving baseline verification behavior.
+
+## Progress
+
+- [x] (2026-03-14 23:xx +13:00) Added additive schema/model support for `cuckoo_global_circular`.
+- [x] (2026-03-14 23:xx +13:00) Implemented seeded cuckoo search core with bounded repair, Levy variation, replacement, abandonment/regeneration, caching, and deterministic tie-breaks.
+- [x] (2026-03-14 23:xx +13:00) Wired analysis dispatch and metadata output for cuckoo mode.
+- [x] (2026-03-14 23:xx +13:00) Added Cases 2-4 cuckoo benchmark checks to built-in `cli verify`.
+- [x] (2026-03-14 23:xx +13:00) Added dedicated cuckoo regression tests for benchmark and oracle parity (`test_cuckoo_global_search_benchmark.py`, `test_cuckoo_global_oracle.py`).
+- [x] (2026-03-14 23:xx +13:00) Added cuckoo explainer diagrams and corrected SVG slip-surface exits to ground-level endpoints.
+- [x] (2026-03-14 23:xx +13:00) Ran required gate successfully (`python -m slope_stab.cli verify`, `python -m unittest discover -s tests -p "test_*.py"`).
+
+## Surprises & Discoveries
+
+- Observation: Dense-grid oracle baselines are useful as bounded empirical references, but coarse grids can remain conservative in narrow low-FOS basins.
+  Evidence: Case 4 dense-grid baseline stayed above cuckoo+post-polish minima while benchmark gates remained satisfied.
+
+- Observation: SVG educational diagrams needed explicit endpoint-ground checks to avoid visually incorrect elevated exits.
+  Evidence: Initial drafts showed elevated right exits; diagrams were corrected so entry/exit lie on the ground profile.
+
+## Decision Log
+
+- Decision: Keep cuckoo additive as a new method key (`cuckoo_global_circular`) rather than replacing direct-global.
+  Rationale: Preserves existing deterministic search baselines and non-regression expectations.
+  Date/Author: 2026-03-14 / Codex + Project Owner
+
+- Decision: Use fixed-seed repeatability as the determinism contract for cuckoo.
+  Rationale: Cuckoo is stochastic by design; fixed seed gives reproducible verification behavior.
+  Date/Author: 2026-03-14 / Codex + Project Owner
+
+- Decision: Verify cuckoo with benchmark margin gates and dedicated oracle regressions.
+  Rationale: Provides practical global-search quality checks without over-claiming finite-iteration global-optimality.
+  Date/Author: 2026-03-14 / Codex + Project Owner
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- End-to-end seeded cuckoo global circular search path implemented and documented.
+- Built-in verification extended with Cases 2-4 cuckoo benchmark checks.
+- Dedicated cuckoo regression tests added for benchmark and oracle diagnostics.
+- Required full verification gate passed.
+
+Residual caveat:
+
+- Cuckoo remains a finite-budget stochastic method; verification claims are empirical (benchmark/oracle-gated), not theorem-level finite-iteration guarantees.
+
+Plan status: Closed.
+
+Plan revision note: Added on 2026-03-15 to close the cuckoo implementation in repo-root planning records and align governance docs with shipped behavior.
+```
+

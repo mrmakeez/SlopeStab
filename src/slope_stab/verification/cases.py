@@ -6,6 +6,7 @@ from typing import TypeAlias
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
+    CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
     MaterialInput,
@@ -52,10 +53,20 @@ class GlobalSearchBenchmarkVerificationCase:
     margin: float
 
 
+@dataclass(frozen=True)
+class CuckooGlobalSearchBenchmarkVerificationCase:
+    case_type: str
+    name: str
+    project: ProjectInput
+    benchmark_fos: float
+    margin: float
+
+
 VerificationCase: TypeAlias = (
     PrescribedVerificationCase
     | AutoRefineVerificationCase
     | GlobalSearchBenchmarkVerificationCase
+    | CuckooGlobalSearchBenchmarkVerificationCase
 )
 
 
@@ -273,6 +284,114 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                     min_improvement=1e-4,
                     stall_iterations=18,
                     min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        benchmark_fos=1.234670,
+        margin=0.01,
+    ),
+    CuckooGlobalSearchBenchmarkVerificationCase(
+        case_type="cuckoo_global_search_benchmark",
+        name="Case 2 (Cuckoo Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cuckoo_global_circular",
+                cuckoo_global_circular=CuckooGlobalSearchInput(
+                    population_size=40,
+                    max_iterations=200,
+                    max_evaluations=4000,
+                    discovery_rate=0.20,
+                    levy_beta=1.5,
+                    alpha_max=0.5,
+                    alpha_min=0.05,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    search_limits=SearchLimitsInput(x_min=2.5, x_max=40.0),
+                ),
+            ),
+        ),
+        benchmark_fos=2.11283,
+        margin=0.01,
+    ),
+    CuckooGlobalSearchBenchmarkVerificationCase(
+        case_type="cuckoo_global_search_benchmark",
+        name="Case 3 (Cuckoo Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cuckoo_global_circular",
+                cuckoo_global_circular=CuckooGlobalSearchInput(
+                    population_size=40,
+                    max_iterations=200,
+                    max_evaluations=5000,
+                    discovery_rate=0.20,
+                    levy_beta=1.5,
+                    alpha_max=0.5,
+                    alpha_min=0.05,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        benchmark_fos=0.986442,
+        margin=0.01,
+    ),
+    CuckooGlobalSearchBenchmarkVerificationCase(
+        case_type="cuckoo_global_search_benchmark",
+        name="Case 4 (Cuckoo Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cuckoo_global_circular",
+                cuckoo_global_circular=CuckooGlobalSearchInput(
+                    population_size=50,
+                    max_iterations=250,
+                    max_evaluations=7000,
+                    discovery_rate=0.20,
+                    levy_beta=1.5,
+                    alpha_max=0.5,
+                    alpha_min=0.05,
+                    min_improvement=1e-4,
+                    stall_iterations=30,
+                    seed=0,
+                    post_polish=True,
                     search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
                 ),
             ),

@@ -8,6 +8,7 @@ from slope_stab.analysis import run_analysis
 from slope_stab.models import AnalysisResult
 from slope_stab.verification.cases import (
     AutoRefineVerificationCase,
+    CuckooGlobalSearchBenchmarkVerificationCase,
     GlobalSearchBenchmarkVerificationCase,
     PrescribedVerificationCase,
     VERIFICATION_CASES,
@@ -170,6 +171,8 @@ def run_verification_suite() -> list[VerificationOutcome]:
         elif isinstance(case, AutoRefineVerificationCase):
             hard_checks, diagnostics, passed = _evaluate_auto_refine_case(case, result)
         elif isinstance(case, GlobalSearchBenchmarkVerificationCase):
+            hard_checks, diagnostics, passed = _evaluate_global_search_benchmark_case(case, result)
+        elif isinstance(case, CuckooGlobalSearchBenchmarkVerificationCase):
             hard_checks, diagnostics, passed = _evaluate_global_search_benchmark_case(case, result)
         else:
             raise TypeError(f"Unsupported verification case type: {type(case)!r}")
