@@ -1,0 +1,31 @@
+{
+  "units": "metric",
+  "geometry": {
+    "h": 20.0,
+    "l": 25.0,
+    "x_toe": 30.0,
+    "y_toe": 25.0
+  },
+  "material": {
+    "gamma": 16.0,
+    "c": 9.0,
+    "phi_deg": 32.0
+  },
+  "analysis": {
+    "method": "bishop_simplified",
+    "n_slices": 25,
+    "tolerance": 0.0001,
+    "max_iter": 100,
+    "f_init": 1.0
+  },
+  "search": {
+    "method": "direct_global_circular",
+    "direct_global_circular": {
+      "max_iterations": 140,
+      "max_evaluations": 2200,
+      "min_improvement": 0.0001,
+      "stall_iterations": 18,
+      "min_rectangle_half_size": 0.001
+    }
+  }
+}

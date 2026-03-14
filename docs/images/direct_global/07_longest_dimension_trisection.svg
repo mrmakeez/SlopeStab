@@ -1,0 +1,31 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D7. Longest-Dimension Trisection</text>
+
+  <rect x="120" y="95" width="300" height="230" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="140" y="123" font-size="16" font-family="Segoe UI, Arial" fill="#1565C0">Parent rectangle</text>
+  <rect x="165" y="160" width="210" height="120" fill="#ffffff" stroke="#1E88E5" stroke-width="2"/>
+  <text x="176" y="300" font-size="12" font-family="Segoe UI, Arial">split dim = argmax(half_sizes)</text>
+  <text x="176" y="318" font-size="12" font-family="Segoe UI, Arial">tie-break: lowest index</text>
+
+  <line x1="420" y1="210" x2="500" y2="210" stroke="#E53935" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="520" y="95" width="360" height="230" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="540" y="123" font-size="16" font-family="Segoe UI, Arial" fill="#37474F">Children after trisection</text>
+
+  <rect x="550" y="165" width="90" height="110" fill="#FFEBEE" stroke="#EF9A9A"/>
+  <rect x="655" y="165" width="90" height="110" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <rect x="760" y="165" width="90" height="110" fill="#FFF8E1" stroke="#FFE082"/>
+
+  <text x="575" y="292" font-size="12" font-family="Segoe UI, Arial">left</text>
+  <text x="682" y="292" font-size="12" font-family="Segoe UI, Arial">center</text>
+  <text x="787" y="292" font-size="12" font-family="Segoe UI, Arial">right</text>
+
+  <text x="544" y="318" font-size="12" font-family="Segoe UI, Arial">evaluate 3 child centers (deterministic order)</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#E53935"/>
+    </marker>
+  </defs>
+</svg>

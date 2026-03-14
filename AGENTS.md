@@ -2,7 +2,9 @@
 
 ## Purpose
 This repository is a verification-first slope stability program.
-Primary goal: preserve correctness of Bishop simplified calculations for prescribed circular surfaces while supporting deterministic auto-refine circular search.
+Primary goal: preserve correctness of Bishop simplified calculations for prescribed circular surfaces while supporting deterministic circular search via:
+- `search.method = auto_refine_circular`
+- `search.method = direct_global_circular`
 
 ## Current Baseline (Do Not Regress)
 Supported:
@@ -11,12 +13,13 @@ Supported:
 - Homogeneous Mohr-Coulomb soil
 - Circular slip surface input (prescribed geometry)
 - Deterministic circular critical-surface search via `search.method = auto_refine_circular`
+- Deterministic DIRECT-based circular global search via `search.method = direct_global_circular`
 - Bishop simplified factor-of-safety solver
 - Vertical slice discretization
 - JSON CLI analysis + built-in verification suite
 
 Not supported in baseline:
-- Additional/alternative search algorithms beyond current auto-refine circular search (grid, random, GA, etc.)
+- Additional/alternative search algorithms beyond current auto-refine and direct-global circular search (grid, random, GA, etc.)
 - Spencer or other rigorous methods
 - Non-circular surfaces
 - Multi-soil zoning/internal boundaries
@@ -52,8 +55,9 @@ Before merging any change, run:
 Expected:
 - Verification suite reports all cases passed.
 - Unit/integration/regression tests pass.
-- Built-in `cli verify` includes Case 1, Case 2, Case 3, and Case 4.
+- Built-in `cli verify` includes Case 1, Case 2, Case 3, and Case 4, plus Cases 2-4 global benchmark checks for `direct_global_circular` (`FOS(method) <= FOS(benchmark) + 0.01`).
 - Dedicated Case 3/4 regression tests remain for parity-focused diagnostics (`tests/regression/test_case3_auto_refine.py`, `tests/regression/test_case4_auto_refine.py`).
+- Dedicated global benchmark regression test remains for direct-global diagnostics (`tests/regression/test_global_search_benchmark.py`).
 
 ## Implementation Guidance for Agents
 - Keep module boundaries clean:
@@ -83,7 +87,7 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 
 ## Future Roadmap (Deferred)
 Deferred until explicitly approved:
-- Additional/alternative search algorithms (beyond current auto-refine circular search)
+- Additional/alternative search algorithms (beyond current auto-refine and direct-global circular search)
 - Spencer integration
 - Non-circular surfaces
 - Layered/zoned soils

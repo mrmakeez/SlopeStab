@@ -8,6 +8,7 @@ from slope_stab.analysis import run_analysis
 from slope_stab.models import AnalysisResult
 from slope_stab.verification.cases import (
     AutoRefineVerificationCase,
+    GlobalSearchBenchmarkVerificationCase,
     PrescribedVerificationCase,
     VERIFICATION_CASES,
 )
@@ -137,6 +138,28 @@ def _evaluate_auto_refine_case(
     return hard_checks, diagnostics, passed
 
 
+def _evaluate_global_search_benchmark_case(
+    case: GlobalSearchBenchmarkVerificationCase,
+    result: AnalysisResult,
+) -> tuple[dict[str, Any], dict[str, Any], bool]:
+    threshold = case.benchmark_fos + case.margin
+    hard_checks = {
+        "fos_vs_benchmark_plus_margin": {
+            "value": result.fos,
+            "threshold": threshold,
+            "benchmark": case.benchmark_fos,
+            "margin": case.margin,
+            "passed": result.fos <= threshold,
+        }
+    }
+    diagnostics = {
+        "delta_vs_benchmark": result.fos - case.benchmark_fos,
+        "delta_vs_threshold": result.fos - threshold,
+    }
+    passed = hard_checks["fos_vs_benchmark_plus_margin"]["passed"]
+    return hard_checks, diagnostics, passed
+
+
 def run_verification_suite() -> list[VerificationOutcome]:
     outcomes: list[VerificationOutcome] = []
 
@@ -146,6 +169,8 @@ def run_verification_suite() -> list[VerificationOutcome]:
             hard_checks, diagnostics, passed = _evaluate_prescribed_case(case, result)
         elif isinstance(case, AutoRefineVerificationCase):
             hard_checks, diagnostics, passed = _evaluate_auto_refine_case(case, result)
+        elif isinstance(case, GlobalSearchBenchmarkVerificationCase):
+            hard_checks, diagnostics, passed = _evaluate_global_search_benchmark_case(case, result)
         else:
             raise TypeError(f"Unsupported verification case type: {type(case)!r}")
 

@@ -1,0 +1,21 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D9. Stopping Criteria and Termination Reason</text>
+
+  <rect x="90" y="90" width="820" height="250" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="110" y="118" font-size="16" font-family="Segoe UI, Arial" fill="#37474F">Loop stops at first satisfied condition</text>
+
+  <rect x="130" y="150" width="340" height="54" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <text x="150" y="183" font-size="13" font-family="Segoe UI, Arial">total_evaluations >= max_evaluations</text>
+
+  <rect x="130" y="220" width="340" height="54" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <text x="150" y="253" font-size="13" font-family="Segoe UI, Arial">iteration >= max_iterations</text>
+
+  <rect x="520" y="150" width="340" height="54" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <text x="540" y="183" font-size="13" font-family="Segoe UI, Arial">incumbent_size <= min_rectangle_half_size</text>
+
+  <rect x="520" y="220" width="340" height="54" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <text x="540" y="253" font-size="13" font-family="Segoe UI, Arial">improvement over stall window < min_improvement</text>
+
+  <text x="130" y="310" font-size="12" font-family="Segoe UI, Arial" fill="#455A64">record termination_reason in metadata</text>
+</svg>

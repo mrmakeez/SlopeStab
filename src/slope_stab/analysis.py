@@ -9,6 +9,7 @@ from slope_stab.lem_core.bishop import BishopSimplifiedSolver
 from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
 from slope_stab.models import AnalysisResult, PrescribedCircleInput, ProjectInput
 from slope_stab.search.auto_refine import run_auto_refine_search
+from slope_stab.search.direct_global import run_direct_global_search
 from slope_stab.slicing.slice_generator import generate_vertical_slices
 from slope_stab.surfaces.circular import CircularSlipSurface
 
@@ -119,41 +120,79 @@ def run_analysis(project: ProjectInput) -> AnalysisResult:
         return result
 
     if project.search is not None and project.prescribed_surface is None:
-        if project.search.method != "auto_refine_circular":
+        if project.search.method == "auto_refine_circular":
+            config = project.search.auto_refine_circular
+            if config is None:
+                raise GeometryError("Missing search.auto_refine_circular configuration.")
+            auto_result = run_auto_refine_search(
+                profile=profile,
+                config=config,
+                evaluate_surface=lambda s: _solve_prescribed_surface(project, profile, s),
+            )
+            config_payload = {
+                "auto_refine_circular": {
+                    "divisions_along_slope": config.divisions_along_slope,
+                    "circles_per_division": config.circles_per_division,
+                    "iterations": config.iterations,
+                    "divisions_to_use_next_iteration_pct": config.divisions_to_use_next_iteration_pct,
+                    "search_limits": {
+                        "x_min": config.search_limits.x_min,
+                        "x_max": config.search_limits.x_max,
+                    },
+                }
+            }
+            diagnostics_payload = {
+                "generated_surfaces": auto_result.generated_surfaces,
+                "valid_surfaces": auto_result.valid_surfaces,
+                "invalid_surfaces": auto_result.invalid_surfaces,
+                "iteration_diagnostics": [asdict(item) for item in auto_result.iteration_diagnostics],
+            }
+            result = auto_result.winning_result
+            winning_surface = auto_result.winning_surface
+        elif project.search.method == "direct_global_circular":
+            config = project.search.direct_global_circular
+            if config is None:
+                raise GeometryError("Missing search.direct_global_circular configuration.")
+            direct_result = run_direct_global_search(
+                profile=profile,
+                config=config,
+                evaluate_surface=lambda s: _solve_prescribed_surface(project, profile, s),
+            )
+            config_payload = {
+                "direct_global_circular": {
+                    "max_iterations": config.max_iterations,
+                    "max_evaluations": config.max_evaluations,
+                    "min_improvement": config.min_improvement,
+                    "stall_iterations": config.stall_iterations,
+                    "min_rectangle_half_size": config.min_rectangle_half_size,
+                    "search_limits": {
+                        "x_min": config.search_limits.x_min,
+                        "x_max": config.search_limits.x_max,
+                    },
+                }
+            }
+            diagnostics_payload = {
+                "total_evaluations": direct_result.total_evaluations,
+                "valid_evaluations": direct_result.valid_evaluations,
+                "infeasible_evaluations": direct_result.infeasible_evaluations,
+                "termination_reason": direct_result.termination_reason,
+                "iteration_diagnostics": [asdict(item) for item in direct_result.iteration_diagnostics],
+            }
+            result = direct_result.winning_result
+            winning_surface = direct_result.winning_surface
+        else:
             raise GeometryError(f"Unsupported search method: {project.search.method}")
-
-        search_result = run_auto_refine_search(
-            profile=profile,
-            config=project.search.auto_refine_circular,
-            evaluate_surface=lambda s: _solve_prescribed_surface(project, profile, s),
-        )
-        result = search_result.winning_result
-        winning_surface = search_result.winning_surface
 
         result.metadata = {
             "units": project.units,
             "method": project.analysis.method,
             "n_slices": project.analysis.n_slices,
-            "mode": "auto_refine_circular",
+            "mode": project.search.method,
             "prescribed_surface": _surface_to_dict(winning_surface),
             "search": {
                 "method": project.search.method,
-                "auto_refine_circular": {
-                    "divisions_along_slope": project.search.auto_refine_circular.divisions_along_slope,
-                    "circles_per_division": project.search.auto_refine_circular.circles_per_division,
-                    "iterations": project.search.auto_refine_circular.iterations,
-                    "divisions_to_use_next_iteration_pct": (
-                        project.search.auto_refine_circular.divisions_to_use_next_iteration_pct
-                    ),
-                    "search_limits": {
-                        "x_min": project.search.auto_refine_circular.search_limits.x_min,
-                        "x_max": project.search.auto_refine_circular.search_limits.x_max,
-                    },
-                },
-                "generated_surfaces": search_result.generated_surfaces,
-                "valid_surfaces": search_result.valid_surfaces,
-                "invalid_surfaces": search_result.invalid_surfaces,
-                "iteration_diagnostics": [asdict(item) for item in search_result.iteration_diagnostics],
+                **config_payload,
+                **diagnostics_payload,
             },
         }
         return result

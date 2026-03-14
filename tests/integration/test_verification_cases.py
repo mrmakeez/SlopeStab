@@ -12,8 +12,19 @@ from slope_stab.verification.runner import run_verification_suite
 class VerificationIntegrationTests(unittest.TestCase):
     def test_built_in_cases_pass(self) -> None:
         outcomes = run_verification_suite()
-        self.assertEqual(len(outcomes), 4)
-        self.assertEqual({outcome.name for outcome in outcomes}, {"Case 1", "Case 2", "Case 3", "Case 4"})
+        self.assertEqual(len(outcomes), 7)
+        self.assertEqual(
+            {outcome.name for outcome in outcomes},
+            {
+                "Case 1",
+                "Case 2",
+                "Case 3",
+                "Case 4",
+                "Case 2 (Global Search Benchmark)",
+                "Case 3 (Global Search Benchmark)",
+                "Case 4 (Global Search Benchmark)",
+            },
+        )
         for outcome in outcomes:
             self.assertTrue(outcome.passed, msg=f"{outcome.name} failed verification")
 

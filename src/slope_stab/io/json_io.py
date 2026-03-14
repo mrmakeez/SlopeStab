@@ -8,6 +8,7 @@ from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
     AutoRefineSearchInput,
+    DirectGlobalSearchInput,
     GeometryInput,
     MaterialInput,
     PrescribedCircleInput,
@@ -38,6 +39,106 @@ def _as_int(v: object, key: str) -> int:
     if float(v) != iv:
         raise InputValidationError(f"Key '{key}' must be an integer.")
     return iv
+
+
+def _parse_search_limits(
+    limits_data: object,
+    geometry: GeometryInput,
+    key_prefix: str,
+) -> SearchLimitsInput:
+    if limits_data is None:
+        return SearchLimitsInput(
+            x_min=geometry.x_toe - geometry.h,
+            x_max=geometry.x_toe + geometry.l + 2.0 * geometry.h,
+        )
+
+    if not isinstance(limits_data, dict):
+        raise InputValidationError(f"'{key_prefix}.search_limits' must be an object.")
+
+    return SearchLimitsInput(
+        x_min=_as_float(_require_key(limits_data, "x_min"), f"{key_prefix}.search_limits.x_min"),
+        x_max=_as_float(_require_key(limits_data, "x_max"), f"{key_prefix}.search_limits.x_max"),
+    )
+
+
+def _parse_search_common(
+    auto_data: dict,
+    geometry: GeometryInput,
+    key_prefix: str,
+) -> tuple[int, int, int, float, SearchLimitsInput]:
+    limits = _parse_search_limits(auto_data.get("search_limits"), geometry, key_prefix)
+
+    divisions_along_slope = _as_int(_require_key(auto_data, "divisions_along_slope"), f"{key_prefix}.divisions_along_slope")
+    circles_per_division = _as_int(_require_key(auto_data, "circles_per_division"), f"{key_prefix}.circles_per_division")
+    iterations = _as_int(_require_key(auto_data, "iterations"), f"{key_prefix}.iterations")
+    divisions_to_use_next_iteration_pct = _as_float(
+        _require_key(auto_data, "divisions_to_use_next_iteration_pct"),
+        f"{key_prefix}.divisions_to_use_next_iteration_pct",
+    )
+
+    if divisions_along_slope <= 1:
+        raise InputValidationError(f"{key_prefix}.divisions_along_slope must be greater than 1.")
+    if circles_per_division <= 0:
+        raise InputValidationError(f"{key_prefix}.circles_per_division must be greater than zero.")
+    if iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.iterations must be greater than zero.")
+    if divisions_to_use_next_iteration_pct <= 0 or divisions_to_use_next_iteration_pct > 100:
+        raise InputValidationError(
+            f"{key_prefix}.divisions_to_use_next_iteration_pct must be in (0, 100]."
+        )
+    if limits.x_max <= limits.x_min:
+        raise InputValidationError(
+            f"{key_prefix}.search_limits.x_max must exceed x_min."
+        )
+
+    return (
+        divisions_along_slope,
+        circles_per_division,
+        iterations,
+        divisions_to_use_next_iteration_pct,
+        limits,
+    )
+
+
+def _parse_direct_global_search(
+    direct_data: dict,
+    geometry: GeometryInput,
+) -> DirectGlobalSearchInput:
+    key_prefix = "search.direct_global_circular"
+    limits = _parse_search_limits(direct_data.get("search_limits"), geometry, key_prefix)
+
+    max_iterations = _as_int(_require_key(direct_data, "max_iterations"), f"{key_prefix}.max_iterations")
+    max_evaluations = _as_int(_require_key(direct_data, "max_evaluations"), f"{key_prefix}.max_evaluations")
+    min_improvement = _as_float(_require_key(direct_data, "min_improvement"), f"{key_prefix}.min_improvement")
+    stall_iterations = _as_int(_require_key(direct_data, "stall_iterations"), f"{key_prefix}.stall_iterations")
+    min_rectangle_half_size = _as_float(
+        _require_key(direct_data, "min_rectangle_half_size"),
+        f"{key_prefix}.min_rectangle_half_size",
+    )
+
+    if max_iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.max_iterations must be greater than zero.")
+    if max_evaluations <= 0:
+        raise InputValidationError(f"{key_prefix}.max_evaluations must be greater than zero.")
+    if min_improvement < 0.0:
+        raise InputValidationError(f"{key_prefix}.min_improvement must be greater than or equal to zero.")
+    if stall_iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.stall_iterations must be greater than zero.")
+    if min_rectangle_half_size <= 0.0:
+        raise InputValidationError(f"{key_prefix}.min_rectangle_half_size must be greater than zero.")
+    if limits.x_max <= limits.x_min:
+        raise InputValidationError(
+            f"{key_prefix}.search_limits.x_max must exceed x_min."
+        )
+
+    return DirectGlobalSearchInput(
+        max_iterations=max_iterations,
+        max_evaluations=max_evaluations,
+        min_improvement=min_improvement,
+        stall_iterations=stall_iterations,
+        min_rectangle_half_size=min_rectangle_half_size,
+        search_limits=limits,
+    )
 
 
 def parse_project_input(payload: dict) -> ProjectInput:
@@ -117,63 +218,37 @@ def parse_project_input(payload: dict) -> ProjectInput:
             raise InputValidationError("'search' must be an object.")
 
         method = str(_require_key(search_data, "method")).strip().lower()
-        if method != "auto_refine_circular":
-            raise InputValidationError("Only search.method='auto_refine_circular' is supported.")
+        if method == "auto_refine_circular":
+            auto_data = _require_key(search_data, "auto_refine_circular")
+            if not isinstance(auto_data, dict):
+                raise InputValidationError("'search.auto_refine_circular' must be an object.")
 
-        auto_data = _require_key(search_data, "auto_refine_circular")
-        if not isinstance(auto_data, dict):
-            raise InputValidationError("'search.auto_refine_circular' must be an object.")
+            (
+                divisions_along_slope,
+                circles_per_division,
+                iterations,
+                divisions_to_use_next_iteration_pct,
+                limits,
+            ) = _parse_search_common(auto_data, geometry, "search.auto_refine_circular")
 
-        limits_data = auto_data.get("search_limits")
-        if limits_data is None:
-            limits = SearchLimitsInput(
-                x_min=geometry.x_toe - geometry.h,
-                x_max=geometry.x_toe + geometry.l + 2.0 * geometry.h,
+            auto = AutoRefineSearchInput(
+                divisions_along_slope=divisions_along_slope,
+                circles_per_division=circles_per_division,
+                iterations=iterations,
+                divisions_to_use_next_iteration_pct=divisions_to_use_next_iteration_pct,
+                search_limits=limits,
             )
+            search = SearchInput(method=method, auto_refine_circular=auto)
+        elif method == "direct_global_circular":
+            direct_data = _require_key(search_data, "direct_global_circular")
+            if not isinstance(direct_data, dict):
+                raise InputValidationError("'search.direct_global_circular' must be an object.")
+            direct = _parse_direct_global_search(direct_data, geometry)
+            search = SearchInput(method=method, direct_global_circular=direct)
         else:
-            if not isinstance(limits_data, dict):
-                raise InputValidationError("'search.auto_refine_circular.search_limits' must be an object.")
-            limits = SearchLimitsInput(
-                x_min=_as_float(_require_key(limits_data, "x_min"), "search.auto_refine_circular.search_limits.x_min"),
-                x_max=_as_float(_require_key(limits_data, "x_max"), "search.auto_refine_circular.search_limits.x_max"),
-            )
-
-        auto = AutoRefineSearchInput(
-            divisions_along_slope=_as_int(
-                _require_key(auto_data, "divisions_along_slope"),
-                "search.auto_refine_circular.divisions_along_slope",
-            ),
-            circles_per_division=_as_int(
-                _require_key(auto_data, "circles_per_division"),
-                "search.auto_refine_circular.circles_per_division",
-            ),
-            iterations=_as_int(
-                _require_key(auto_data, "iterations"),
-                "search.auto_refine_circular.iterations",
-            ),
-            divisions_to_use_next_iteration_pct=_as_float(
-                _require_key(auto_data, "divisions_to_use_next_iteration_pct"),
-                "search.auto_refine_circular.divisions_to_use_next_iteration_pct",
-            ),
-            search_limits=limits,
-        )
-
-        if auto.divisions_along_slope <= 1:
-            raise InputValidationError("search.auto_refine_circular.divisions_along_slope must be greater than 1.")
-        if auto.circles_per_division <= 0:
-            raise InputValidationError("search.auto_refine_circular.circles_per_division must be greater than zero.")
-        if auto.iterations <= 0:
-            raise InputValidationError("search.auto_refine_circular.iterations must be greater than zero.")
-        if auto.divisions_to_use_next_iteration_pct <= 0 or auto.divisions_to_use_next_iteration_pct > 100:
             raise InputValidationError(
-                "search.auto_refine_circular.divisions_to_use_next_iteration_pct must be in (0, 100]."
+                "Only search.method='auto_refine_circular' or 'direct_global_circular' is supported."
             )
-        if auto.search_limits.x_max <= auto.search_limits.x_min:
-            raise InputValidationError(
-                "search.auto_refine_circular.search_limits.x_max must exceed x_min."
-            )
-
-        search = SearchInput(method=method, auto_refine_circular=auto)
 
     return ProjectInput(
         units=units,

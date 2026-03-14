@@ -6,6 +6,7 @@ from typing import TypeAlias
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
+    DirectGlobalSearchInput,
     GeometryInput,
     MaterialInput,
     PrescribedCircleInput,
@@ -42,7 +43,20 @@ class AutoRefineVerificationCase:
     endpoint_abs_tolerance: float
 
 
-VerificationCase: TypeAlias = PrescribedVerificationCase | AutoRefineVerificationCase
+@dataclass(frozen=True)
+class GlobalSearchBenchmarkVerificationCase:
+    case_type: str
+    name: str
+    project: ProjectInput
+    benchmark_fos: float
+    margin: float
+
+
+VerificationCase: TypeAlias = (
+    PrescribedVerificationCase
+    | AutoRefineVerificationCase
+    | GlobalSearchBenchmarkVerificationCase
+)
 
 
 VERIFICATION_CASES: tuple[VerificationCase, ...] = (
@@ -175,5 +189,95 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_left=(30.0, 25.0),
         expected_right=(58.068, 45.0),
         endpoint_abs_tolerance=0.20,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="global_search_benchmark",
+        name="Case 2 (Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="direct_global_circular",
+                direct_global_circular=DirectGlobalSearchInput(
+                    max_iterations=90,
+                    max_evaluations=1200,
+                    min_improvement=1e-4,
+                    stall_iterations=12,
+                    min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=2.5, x_max=40.0),
+                ),
+            ),
+        ),
+        benchmark_fos=2.11283,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="global_search_benchmark",
+        name="Case 3 (Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="direct_global_circular",
+                direct_global_circular=DirectGlobalSearchInput(
+                    max_iterations=120,
+                    max_evaluations=1800,
+                    min_improvement=1e-4,
+                    stall_iterations=15,
+                    min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        benchmark_fos=0.986442,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="global_search_benchmark",
+        name="Case 4 (Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="direct_global_circular",
+                direct_global_circular=DirectGlobalSearchInput(
+                    max_iterations=140,
+                    max_evaluations=2200,
+                    min_improvement=1e-4,
+                    stall_iterations=18,
+                    min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        benchmark_fos=1.234670,
+        margin=0.01,
     ),
 )

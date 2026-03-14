@@ -55,9 +55,20 @@ class AutoRefineSearchInput:
 
 
 @dataclass(frozen=True)
+class DirectGlobalSearchInput:
+    max_iterations: int
+    max_evaluations: int
+    min_improvement: float
+    stall_iterations: int
+    min_rectangle_half_size: float
+    search_limits: SearchLimitsInput
+
+
+@dataclass(frozen=True)
 class SearchInput:
     method: str
-    auto_refine_circular: AutoRefineSearchInput
+    auto_refine_circular: AutoRefineSearchInput | None = None
+    direct_global_circular: DirectGlobalSearchInput | None = None
 
 
 @dataclass(frozen=True)

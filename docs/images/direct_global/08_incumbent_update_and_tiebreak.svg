@@ -1,0 +1,22 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D8. Incumbent Update and Deterministic Tie-Break</text>
+
+  <rect x="95" y="88" width="390" height="250" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="115" y="116" font-size="16" font-family="Segoe UI, Arial" fill="#37474F">Incumbent update rule</text>
+  <text x="115" y="150" font-size="13" font-family="Segoe UI, Arial">if value &lt; best - tol: replace</text>
+  <text x="115" y="174" font-size="13" font-family="Segoe UI, Arial">if |value-best| &lt;= tol: tie-break by</text>
+  <text x="115" y="198" font-size="13" font-family="Segoe UI, Arial">(x_left, x_right, r)</text>
+  <text x="115" y="228" font-size="13" font-family="Segoe UI, Arial">tol = 1e-12</text>
+
+  <rect x="540" y="88" width="370" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="560" y="116" font-size="16" font-family="Segoe UI, Arial" fill="#1565C0">Deterministic ordering</text>
+
+  <rect x="575" y="145" width="300" height="56" fill="#ffffff" stroke="#90A4AE"/>
+  <text x="590" y="178" font-size="13" font-family="Segoe UI, Arial">candidate A: (30.00, 51.20, 26.8)</text>
+
+  <rect x="575" y="215" width="300" height="56" fill="#ffffff" stroke="#90A4AE"/>
+  <text x="590" y="248" font-size="13" font-family="Segoe UI, Arial">candidate B: (30.00, 51.30, 26.7)</text>
+
+  <text x="560" y="302" font-size="12" font-family="Segoe UI, Arial">Stable across repeated runs</text>
+</svg>

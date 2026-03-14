@@ -1,0 +1,37 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D5. Cache Reuse for Determinism and Efficiency</text>
+
+  <rect x="90" y="95" width="300" height="230" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="110" y="123" font-size="16" font-family="Segoe UI, Arial" fill="#37474F">Rounded cache key</text>
+  <text x="110" y="153" font-size="13" font-family="Segoe UI, Arial">(round(u_left, 15),</text>
+  <text x="110" y="175" font-size="13" font-family="Segoe UI, Arial"> round(u_span, 15),</text>
+  <text x="110" y="197" font-size="13" font-family="Segoe UI, Arial"> round(u_beta, 15))</text>
+  <text x="110" y="230" font-size="13" font-family="Segoe UI, Arial" fill="#455A64">Same key -> same objective</text>
+
+  <line x1="390" y1="210" x2="470" y2="210" stroke="#E53935" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="490" y="95" width="420" height="230" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="510" y="123" font-size="16" font-family="Segoe UI, Arial" fill="#1565C0">Evaluation flow</text>
+  <rect x="520" y="145" width="160" height="58" fill="#ffffff" stroke="#90A4AE"/>
+  <text x="546" y="179" font-size="13" font-family="Segoe UI, Arial">cache miss</text>
+  <rect x="710" y="145" width="170" height="58" fill="#ffffff" stroke="#90A4AE"/>
+  <text x="748" y="179" font-size="13" font-family="Segoe UI, Arial">evaluate</text>
+
+  <rect x="520" y="240" width="160" height="58" fill="#ffffff" stroke="#90A4AE"/>
+  <text x="546" y="274" font-size="13" font-family="Segoe UI, Arial">cache hit</text>
+  <rect x="710" y="240" width="170" height="58" fill="#E8F5E9" stroke="#A5D6A7"/>
+  <text x="744" y="274" font-size="13" font-family="Segoe UI, Arial" fill="#2E7D32">reuse value</text>
+
+  <line x1="680" y1="174" x2="710" y2="174" stroke="#E53935" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="680" y1="269" x2="710" y2="269" stroke="#43A047" stroke-width="2" marker-end="url(#arrow2)"/>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#E53935"/>
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#43A047"/>
+    </marker>
+  </defs>
+</svg>

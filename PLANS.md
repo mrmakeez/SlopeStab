@@ -465,3 +465,163 @@ Dependency policy: use only Python standard library and existing repository modu
 Plan revision note: Updated on 2026-03-14 to promote Case 3/4 parity into built-in `cli verify`, redesign typed verify payloads, and close the active plan after passing full validation.
 ```
 
+```md
+# Implement Deterministic DIRECT Global Circular Search with Cases 2-4 Benchmark Gates
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` were maintained through implementation and closure.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and maintained in accordance with `PLANS.md`.
+
+## Purpose / Big Picture
+
+Users can now run a deterministic global circular search (`search.method = direct_global_circular`) in the same analysis flow as prescribed and auto-refine modes. The direct-global path exposes DIRECT-style search diagnostics and is verified against benchmark margin checks for Cases 2-4 while preserving baseline Case 1-4 behavior.
+
+## Progress
+
+- [x] (2026-03-14 20:05 +13:00) Added additive direct-global method path and initial benchmark-gate verification scaffolding.
+- [x] (2026-03-14 21:02 +13:00) Replaced wrapper behavior with true deterministic DIRECT rectangle search over normalized 3-parameter circular space.
+- [x] (2026-03-14 21:02 +13:00) Migrated `direct_global_circular` input schema to DIRECT-specific fields (`max_iterations`, `max_evaluations`, `min_improvement`, `stall_iterations`, `min_rectangle_half_size`, `search_limits`).
+- [x] (2026-03-14 21:02 +13:00) Emitted DIRECT-specific metadata (`total_evaluations`, `valid_evaluations`, `infeasible_evaluations`, `termination_reason`, per-iteration diagnostics).
+- [x] (2026-03-14 21:02 +13:00) Added deterministic toe/crest polishing after global DIRECT exploration to satisfy benchmark quality gates.
+- [x] (2026-03-14 21:02 +13:00) Updated fixtures/tests/verification cases for direct-global schema and margin gate policy.
+- [x] (2026-03-14 21:20 +13:00) Updated docs/governance artifacts (`docs/direct-global-explainer.md`, `AGENTS.md`, `README.md`, and this plan) and re-ran required gate.
+
+## Surprises & Discoveries
+
+- Observation: A naive potentially-optimal selector collapsed to one rectangle per iteration and behaved like local search.
+  Evidence: Early runs terminated with good Case 2 but poor Case 3/4 FOS values despite increased evaluation budgets.
+
+- Observation: Initialization from only one center (`u = 0.5, 0.5, 0.5`) under-covered the domain.
+  Evidence: Global benchmark tests improved after deterministic 3x3x3 seeding.
+
+- Observation: DIRECT global phase alone still missed benchmark-quality minima in toe/crest-sensitive families.
+  Evidence: Cases 3/4 remained above target margin until deterministic toe/crest and toe-locked post-polish was applied.
+
+## Decision Log
+
+- Decision: Keep direct-global additive and do not modify prescribed or auto-refine baseline logic.
+  Rationale: Verification-first policy and Case 1/2 benchmark immutability.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Use DIRECT-specific JSON fields for `direct_global_circular` instead of reusing auto-refine controls.
+  Rationale: Makes global optimizer intent explicit and avoids semantic overload.
+  Date/Author: 2026-03-14 / Codex + Project Owner
+
+- Decision: Preserve benchmark acceptance gate as `FOS(method) <= FOS(benchmark) + 0.01` for Cases 2-4.
+  Rationale: Approved rollout gate balancing stability and quality.
+  Date/Author: 2026-03-14 / Project Owner
+
+- Decision: Apply deterministic post-polish after DIRECT global loop.
+  Rationale: Restores benchmark quality for known toe/crest-sensitive basins while keeping deterministic behavior.
+  Date/Author: 2026-03-14 / Codex
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- True deterministic DIRECT search implemented for `direct_global_circular`.
+- DIRECT-specific schema and metadata contract implemented.
+- Built-in verification now includes Cases 2-4 global benchmark entries with hard margin checks.
+- Regression tests enforce validity guards and repeatability for direct-global cases.
+- Required full verification gate passed after implementation.
+
+Residual gaps:
+
+- Additional search methods beyond auto-refine and direct-global remain deferred.
+- Performance tuning can continue in future work without altering current acceptance gates.
+
+Plan status: Closed.
+
+## Context and Orientation
+
+Core implementation files:
+
+- `src/slope_stab/search/direct_global.py` (DIRECT engine and diagnostics)
+- `src/slope_stab/io/json_io.py` (direct-global schema parsing/validation)
+- `src/slope_stab/analysis.py` (method dispatch and metadata emission)
+- `src/slope_stab/verification/cases.py` and `src/slope_stab/verification/runner.py` (benchmark gate definitions and evaluation)
+
+## Plan of Work
+
+Implemented in sequence:
+
+1. Introduced direct-global schema and parser validation.
+2. Implemented DIRECT rectangle search core with deterministic selection, subdivision, and caching.
+3. Added direct-global runtime metadata and iteration diagnostics output.
+4. Added deterministic post-polish passes to improve benchmark convergence behavior.
+5. Updated benchmark fixtures/cases/tests and validated with targeted and full gates.
+6. Updated repository docs/governance files to reflect shipped behavior.
+
+## Concrete Steps
+
+Run from repository root:
+
+    C:\Users\JamesMcKerrow\Stanley Gray Limited\SP - ENG\Technical\JAMES TECHNICAL\Codex\SlopeStab
+
+Targeted:
+
+    $env:PYTHONPATH='src'; python -m unittest tests.unit.test_search_auto_refine
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_global_search_benchmark
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_cli_verify
+
+Required gate:
+
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
+    python -m unittest discover -s tests -p "test_*.py"
+
+## Validation and Acceptance
+
+Hard acceptance checks met:
+
+- Case 1-4 baseline verification remained passing.
+- Cases 2-4 direct-global benchmark cases passed `FOS(method) <= FOS(benchmark) + 0.01`.
+- Direct-global regressions confirmed deterministic repeatability and validity guards.
+- Full `cli verify` and full `unittest discover` passed.
+
+## Idempotence and Recovery
+
+All docs/tests/verification commands are rerunnable. If future tuning regresses Case 1/2 benchmarks or Case 2-4 direct-global margin checks, treat as regression and fix search path behavior rather than loosening gates.
+
+## Artifacts and Notes
+
+Representative verify evidence after closure:
+
+    all_passed: true
+    case_type: prescribed_benchmark (Case 1, Case 2)
+    case_type: auto_refine_parity (Case 3, Case 4)
+    case_type: global_search_benchmark (Case 2, Case 3, Case 4)
+
+    Case 2 (Global Search Benchmark): fos 2.1068669 <= 2.12283
+    Case 3 (Global Search Benchmark): fos 0.9855736 <= 0.996442
+    Case 4 (Global Search Benchmark): fos 1.2350334 <= 1.24467
+
+## Interfaces and Dependencies
+
+Implemented direct-global interface:
+
+    @dataclass(frozen=True)
+    class DirectGlobalSearchInput:
+        max_iterations: int
+        max_evaluations: int
+        min_improvement: float
+        stall_iterations: int
+        min_rectangle_half_size: float
+        search_limits: SearchLimitsInput
+
+Implemented direct-global runtime result:
+
+    @dataclass(frozen=True)
+    class DirectGlobalSearchResult:
+        winning_surface: PrescribedCircleInput
+        winning_result: AnalysisResult
+        iteration_diagnostics: list[DirectIterationDiagnostics]
+        total_evaluations: int
+        valid_evaluations: int
+        infeasible_evaluations: int
+        termination_reason: str
+
+No external dependencies were added.
+
+Plan revision note: Added on 2026-03-14 to document completed DIRECT implementation, benchmark-gate verification, and release-alignment documentation updates.
+```
+

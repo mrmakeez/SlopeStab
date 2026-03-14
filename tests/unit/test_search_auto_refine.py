@@ -74,6 +74,62 @@ class SearchInputParsingTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
+    def test_parse_direct_global_mode(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "direct_global_circular",
+            "direct_global_circular": {
+                "max_iterations": 40,
+                "max_evaluations": 500,
+                "min_improvement": 1e-4,
+                "stall_iterations": 8,
+                "min_rectangle_half_size": 1e-3,
+            },
+        }
+
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertEqual(project.search.method, "direct_global_circular")
+        self.assertIsNone(project.search.auto_refine_circular)
+        self.assertIsNotNone(project.search.direct_global_circular)
+        self.assertEqual(project.search.direct_global_circular.max_iterations, 40)
+        self.assertEqual(project.search.direct_global_circular.max_evaluations, 500)
+        self.assertEqual(project.search.direct_global_circular.stall_iterations, 8)
+        limits = project.search.direct_global_circular.search_limits
+        self.assertAlmostEqual(limits.x_min, 20.0)
+        self.assertAlmostEqual(limits.x_max, 70.0)
+
+    def test_parse_rejects_missing_direct_global_payload(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "direct_global_circular",
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_invalid_direct_global_values(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "direct_global_circular",
+            "direct_global_circular": {
+                "max_iterations": 0,
+                "max_evaluations": 100,
+                "min_improvement": -1e-4,
+                "stall_iterations": 0,
+                "min_rectangle_half_size": 0.0,
+            },
+        }
+
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
 
 class AutoRefineSearchTests(unittest.TestCase):
     def test_generated_surfaces_per_iteration_matches_formula(self) -> None:

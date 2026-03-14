@@ -1,0 +1,27 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D6. Potentially-Optimal Rectangle Selection</text>
+
+  <rect x="90" y="88" width="820" height="250" fill="#F7F9FB" stroke="#CFD8DC"/>
+  <text x="110" y="116" font-size="16" font-family="Segoe UI, Arial" fill="#37474F">Lower-envelope probing over fixed K grid</text>
+
+  <line x1="170" y1="300" x2="860" y2="300" stroke="#607D8B" stroke-width="2"/>
+  <line x1="170" y1="300" x2="170" y2="140" stroke="#607D8B" stroke-width="2"/>
+  <text x="845" y="323" font-size="13" font-family="Segoe UI, Arial">size s</text>
+  <text x="130" y="150" font-size="13" font-family="Segoe UI, Arial">f</text>
+
+  <circle cx="240" cy="250" r="6" fill="#B0BEC5"/>
+  <circle cx="310" cy="235" r="6" fill="#B0BEC5"/>
+  <circle cx="380" cy="215" r="6" fill="#E53935"/>
+  <circle cx="470" cy="205" r="6" fill="#43A047"/>
+  <circle cx="560" cy="185" r="6" fill="#E53935"/>
+  <circle cx="660" cy="180" r="6" fill="#43A047"/>
+  <circle cx="760" cy="165" r="6" fill="#E53935"/>
+
+  <polyline points="380,215 560,185 760,165" fill="none" stroke="#E53935" stroke-width="2" stroke-dasharray="5 5"/>
+  <text x="520" y="148" font-size="13" font-family="Segoe UI, Arial" fill="#E53935">selected by K probes</text>
+  <text x="472" y="228" font-size="12" font-family="Segoe UI, Arial" fill="#2E7D32">incumbent included</text>
+
+  <text x="700" y="260" font-size="12" font-family="Segoe UI, Arial">score = f - K * s</text>
+  <text x="700" y="280" font-size="12" font-family="Segoe UI, Arial">K = {0, 10^-6 ... 10^6}</text>
+</svg>
