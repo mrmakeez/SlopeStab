@@ -1,0 +1,23 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D6. Sweep Angles and Build Circle Family (Lower Arc Used)</text>
+  <rect x="120" y="80" width="740" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <polyline points="60,300 250,300 500,180 940,180" fill="none" stroke="#424242" stroke-width="4"/>
+
+  <circle cx="300" cy="278" r="7" fill="#E53935"/>
+  <circle cx="640" cy="180" r="7" fill="#E53935"/>
+
+  <path d="M300 278 Q470 355 640 180" fill="none" stroke="#546E7A" stroke-width="1.5" opacity="0.9"/>
+  <path d="M300 278 Q470 338 640 180" fill="none" stroke="#546E7A" stroke-width="1.5" opacity="0.85"/>
+  <path d="M300 278 Q470 322 640 180" fill="none" stroke="#546E7A" stroke-width="1.5" opacity="0.8"/>
+  <path d="M300 278 Q470 306 640 180" fill="none" stroke="#546E7A" stroke-width="1.5" opacity="0.75"/>
+  <path d="M300 278 Q470 292 640 180" fill="none" stroke="#E53935" stroke-width="2.5" opacity="1"/>
+
+  <line x1="300" y1="278" x2="640" y2="180" stroke="#263238" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="470" y="238" font-size="13" font-family="Segoe UI, Arial" fill="#263238">Chord</text>
+
+  <text x="130" y="105" font-size="14" font-family="Segoe UI, Arial" fill="#37474F">Gray arcs = candidate family; base arc shown below ground between endpoints</text>
+  <text x="130" y="124" font-size="14" font-family="Segoe UI, Arial" fill="#B71C1C">Red arc = one evaluated candidate (lower branch used in FOS)</text>
+  <text x="130" y="145" font-size="13" font-family="Segoe UI, Arial" fill="#455A64">Note: circle center is above endpoints, but failure base uses y_base = yc - sqrt(...)</text>
+  <text x="558" y="205" font-size="14" font-family="Segoe UI, Arial" fill="#B71C1C">beta</text>
+</svg>

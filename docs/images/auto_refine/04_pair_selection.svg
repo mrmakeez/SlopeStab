@@ -1,0 +1,21 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D4. Select One Division Pair (i, j)</text>
+  <rect x="120" y="80" width="740" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <polyline points="60,300 250,300 500,180 940,180" fill="none" stroke="#424242" stroke-width="4"/>
+
+  <rect x="225" y="100" width="105" height="220" fill="#FFEBEE" stroke="#E53935" stroke-width="2"/>
+  <rect x="540" y="100" width="160" height="220" fill="#FFEBEE" stroke="#E53935" stroke-width="2"/>
+
+  <line x1="225" y1="325" x2="225" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="330" y1="325" x2="330" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="540" y1="325" x2="540" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="700" y1="325" x2="700" y2="130" stroke="#1E88E5" stroke-width="2"/>
+
+  <circle cx="277" cy="287" r="7" fill="#E53935"/>
+  <circle cx="620" cy="180" r="7" fill="#E53935"/>
+
+  <text x="268" y="94" font-size="16" font-family="Segoe UI, Arial" fill="#B71C1C">i</text>
+  <text x="615" y="94" font-size="16" font-family="Segoe UI, Arial" fill="#B71C1C">j</text>
+  <text x="130" y="105" font-size="14" font-family="Segoe UI, Arial" fill="#B71C1C">Red areas = currently selected pair of divisions</text>
+</svg>

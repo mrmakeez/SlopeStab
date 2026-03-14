@@ -1,0 +1,37 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D10. Final Refinement Passes (Lower Arc Used)</text>
+
+  <rect x="60" y="90" width="260" height="250" fill="#FAFAFA" stroke="#B0BEC5"/>
+  <rect x="370" y="90" width="260" height="250" fill="#FAFAFA" stroke="#B0BEC5"/>
+  <rect x="680" y="90" width="260" height="250" fill="#FAFAFA" stroke="#B0BEC5"/>
+
+  <text x="84" y="115" font-size="14" font-family="Segoe UI, Arial">From Main Iterations</text>
+  <polyline points="80,280 140,280 210,230 300,230" fill="none" stroke="#424242" stroke-width="3"/>
+  <path d="M140 280 Q200 330 260 230" fill="none" stroke="#E53935" stroke-width="2.5"/>
+
+  <text x="394" y="115" font-size="14" font-family="Segoe UI, Arial">Toe/Crest Local Sweep</text>
+  <polyline points="390,280 450,280 520,230 610,230" fill="none" stroke="#424242" stroke-width="3"/>
+  <path d="M450 280 Q500 350 560 230" fill="none" stroke="#546E7A" stroke-width="1.5"/>
+  <path d="M450 280 Q510 334 560 230" fill="none" stroke="#546E7A" stroke-width="1.5"/>
+  <path d="M450 280 Q520 318 560 230" fill="none" stroke="#E53935" stroke-width="2.5"/>
+
+  <text x="704" y="115" font-size="14" font-family="Segoe UI, Arial">Toe-Locked Beta Sweep</text>
+  <polyline points="700,280 760,280 830,230 920,230" fill="none" stroke="#424242" stroke-width="3"/>
+  <circle cx="760" cy="280" r="5" fill="#E53935"/>
+  <text x="742" y="299" font-size="12" font-family="Segoe UI, Arial" fill="#B71C1C">x_left=toe</text>
+  <path d="M760 280 Q820 350 880 230" fill="none" stroke="#546E7A" stroke-width="1.5"/>
+  <path d="M760 280 Q830 334 880 230" fill="none" stroke="#546E7A" stroke-width="1.5"/>
+  <path d="M760 280 Q840 318 880 230" fill="none" stroke="#E53935" stroke-width="2.5"/>
+
+  <line x1="320" y1="215" x2="370" y2="215" stroke="#78909C" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="630" y1="215" x2="680" y2="215" stroke="#78909C" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text x="60" y="370" font-size="13" font-family="Segoe UI, Arial" fill="#455A64">Note: circles are parameterized with center above endpoints, but FOS uses lower branch y_base = yc - sqrt(...).</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#78909C"/>
+    </marker>
+  </defs>
+</svg>

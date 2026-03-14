@@ -1,0 +1,5 @@
+Verification Purpose: To verify that the auto-refine algoritim is working in a similar manner to Slide2 implementation. Different slope geometry, material properties, & auto-refine search parameters in comparison to Case 3.
+"" - Problem Definition was created in Slide2 without any published reference problem
+"Case4.slmd" - Slide2 Model
+"\Case4" - Slide2 Model Output (Maximum Output)
+"Case 4.pdf" - Slide2 Report

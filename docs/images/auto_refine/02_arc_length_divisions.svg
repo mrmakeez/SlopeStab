@@ -1,0 +1,24 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D2. Equal Arc-Length Division Boundaries</text>
+  <rect x="120" y="80" width="740" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <polyline points="60,300 250,300 500,180 940,180" fill="none" stroke="#424242" stroke-width="4"/>
+
+  <line x1="120" y1="325" x2="120" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="225" y1="325" x2="225" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="330" y1="325" x2="330" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="435" y1="325" x2="435" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="540" y1="325" x2="540" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="700" y1="325" x2="700" y2="130" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="860" y1="325" x2="860" y2="130" stroke="#1E88E5" stroke-width="2"/>
+
+  <text x="112" y="350" font-size="12" font-family="Segoe UI, Arial">b0</text>
+  <text x="217" y="350" font-size="12" font-family="Segoe UI, Arial">b1</text>
+  <text x="322" y="350" font-size="12" font-family="Segoe UI, Arial">b2</text>
+  <text x="427" y="350" font-size="12" font-family="Segoe UI, Arial">b3</text>
+  <text x="532" y="350" font-size="12" font-family="Segoe UI, Arial">b4</text>
+  <text x="692" y="350" font-size="12" font-family="Segoe UI, Arial">b5</text>
+  <text x="852" y="350" font-size="12" font-family="Segoe UI, Arial">b6</text>
+
+  <text x="130" y="105" font-size="14" font-family="Segoe UI, Arial" fill="#1565C0">Blue lines = equal arc-length division boundaries</text>
+</svg>

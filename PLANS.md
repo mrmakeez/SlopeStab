@@ -152,7 +152,7 @@ When you revise a plan, you must ensure your changes are comprehensively reflect
 ## Active ExecPlans
 
 ```md
-# Implement Slide2-Style Auto-Refine Circular Search with Case 3 Parity Gates
+# Implement Slide2-Style Auto-Refine Circular Search with Case 3 and Case 4 Parity Gates
 
 This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
 
@@ -172,6 +172,13 @@ Users can run either prescribed-surface Bishop analysis or deterministic auto-re
 - [x] (2026-03-14 00:17 +13:00) Implemented deterministic auto-refine circular search and integrated with Bishop solver dispatch.
 - [x] (2026-03-14 00:17 +13:00) Added Case 3 fixture and separate unit/regression tests, including parser and deterministic repeatability coverage.
 - [x] (2026-03-14 00:17 +13:00) Ran required verification gate and full test discovery; all passed.
+- [x] (2026-03-14 01:13 +13:00) Added Case 4 fixture (`tests/fixtures/case4_auto_refine.json`) and Case 4 parity regression (`tests/regression/test_case4_auto_refine.py`) with the same hard/diagnostic gate policy as Case 3.
+- [x] (2026-03-14 01:13 +13:00) Extended deterministic search refinement to better cover low-angle circular families and toe-anchored entry behavior needed for Case 4 parity while keeping baseline verification unchanged.
+- [x] (2026-03-14 01:13 +13:00) Re-ran required gate and full test discovery after Case 4 integration; all passed.
+- [x] (2026-03-14 15:05 +13:00) Promoted Case 3 and Case 4 parity into built-in `python -m slope_stab.cli verify` with typed verification case handling.
+- [x] (2026-03-14 15:05 +13:00) Redesigned `cli verify` output to use per-case typed payloads (`case_type`, `solver`, `hard_checks`, `diagnostics`) while preserving top-level `all_passed`.
+- [x] (2026-03-14 15:05 +13:00) Updated docs (`AGENTS.md`, `README.md`, `docs/auto-refine-explainer.md`) and verification tests to match built-in Case 1-4 scope.
+- [x] (2026-03-14 15:05 +13:00) Closed this ExecPlan after full verify + unittest gate success.
 
 ## Surprises & Discoveries
 
@@ -186,6 +193,12 @@ Users can run either prescribed-surface Bishop analysis or deterministic auto-re
 
 - Observation: Straight iterative narrowing could drift away from toe/crest-adjacent minima for Case 3-like geometry.
   Evidence: Deterministic refinement improved parity when a bounded toe/crest local refinement pass was added after core iterations.
+
+- Observation: The previous tangent-angle lower-bound logic could exclude Case 4's Slide2 critical surface family.
+  Evidence: Case 4 expected geometry (`r = 43.234`, endpoints near `(30,25)` and `(58.068,45)`) implies a lower half-angle than the chord slope angle; enforcing `theta_min = chord slope` prevented those circles from being sampled.
+
+- Observation: Case 4 parity is highly sensitive to endpoint handling near the toe.
+  Evidence: Anchoring left endpoint at the toe and re-sweeping beta against the selected right endpoint reduced Case 4 FOS error from about `0.0555` to within the `0.001` gate.
 
 ## Decision Log
 
@@ -217,8 +230,16 @@ Users can run either prescribed-surface Bishop analysis or deterministic auto-re
   Rationale: Owner selected them as monitoring diagnostics, not hard gates.
   Date/Author: 2026-03-14 / Codex
 
-- Decision: Keep Case 3 parity outside `cli verify` initially.
-  Rationale: Owner selected separate regression coverage first while preserving built-in verification scope.
+- Decision: Promote Case 3 and Case 4 parity into built-in `cli verify` while keeping separate parity regressions.
+  Rationale: Enforces auto-refine parity in the default verification gate and retains dedicated diagnostics for debugging drift.
+  Date/Author: 2026-03-14 / Codex + Project Owner
+
+- Decision: Redesign `cli verify` case payloads to be type-specific.
+  Rationale: Prescribed benchmark and auto-refine parity checks need different hard-check structures; typed payloads make the contract explicit.
+  Date/Author: 2026-03-14 / Codex + Project Owner
+
+- Decision: Expand tangent-angle generation to always cover `(eps, 90 deg - eps)` and add a toe-locked beta refinement pass after toe/crest refinement.
+  Rationale: This deterministic extension admits the Case 4 Slide2 circle family and reaches Case 3 and Case 4 parity gates without introducing randomness.
   Date/Author: 2026-03-14 / Codex
 
 ## Outcomes & Retrospective
@@ -230,12 +251,18 @@ Delivered outcomes:
 - Integrated search dispatch into analysis workflow and metadata output.
 - Added unit tests for parser behavior, default limits, per-iteration surface counts, and deterministic repeatability.
 - Added separate Case 3 parity regression test.
+- Added separate Case 4 parity regression test using the same hard/diagnostic gate structure as Case 3.
+- Added deterministic low-angle and toe-locked refinement coverage in search to satisfy both Case 3 and Case 4 parity gates.
+- Promoted Case 3 and Case 4 into built-in `cli verify` with type-aware verification checks.
+- Updated `cli verify` JSON output contract to type-specific case payloads.
+- Updated verification documentation to state built-in Case 1-4 coverage.
 - Ran required gate and full test discovery with passing results.
 
 Gaps intentionally left:
 
-- Case 3 parity is intentionally outside built-in `cli verify`.
 - Additional/alternative search methods remain deferred.
+
+Plan status: Closed.
 
 ## Context and Orientation
 
@@ -244,7 +271,7 @@ Current baseline flow:
 `src/slope_stab/io/json_io.py` now parses mutually exclusive modes: prescribed-surface or search.
 `src/slope_stab/analysis.py` dispatches to prescribed solving or auto-refine search and returns one governing result.
 `src/slope_stab/search/auto_refine.py` contains deterministic search logic and diagnostics.
-`src/slope_stab/verification/cases.py` still contains Case 1 and Case 2 prescribed benchmarks only.
+`src/slope_stab/verification/cases.py` now contains typed verification definitions for Case 1-4 (prescribed benchmarks and auto-refine parity cases).
 
 Case 3 reference artifacts:
 
@@ -267,6 +294,25 @@ Case 3 target values captured from report/output:
 - Valid surfaces: `9696`, invalid surfaces: `0`
 - Total generated three-point surfaces: `19000`
 
+Case 4 reference artifacts:
+
+- `Verification/Bishop/Case 4/Case4/Case4-i.rfcreport`
+- `Verification/Bishop/Case 4/Case4.slmd`
+- `Verification/Bishop/Case 4/Case 4.pdf`
+
+Case 4 target values captured from report/output:
+
+- Search method: Auto Refine Search
+- Divisions along slope: `30`
+- Circles per division: `15`
+- Iterations: `15`
+- Divisions to use next iteration: `50%`
+- Global minimum FS: `1.234670`
+- Center: `(21.024, 67.292)`
+- Radius: `43.234`
+- Endpoints: left `(30.000, 25.000)`, right `(58.068, 45.000)`
+- Valid surfaces: `38360`, invalid surfaces: `0`
+
 ## Plan of Work
 
 Implemented sequence:
@@ -275,7 +321,11 @@ Implemented sequence:
 2. Implemented deterministic auto-refine search path and diagnostics.
 3. Integrated dispatch and output metadata without altering prescribed verification behavior.
 4. Added separate Case 3 fixture and tests.
-5. Validated against required gate and full test suite.
+5. Added separate Case 4 fixture and parity regression test with matching gates.
+6. Refined deterministic search angle/refinement handling to satisfy Case 4 parity while preserving Case 3 parity and baseline verification.
+7. Promoted Case 3/4 parity checks into built-in verification and updated typed verify output payloads.
+8. Updated docs and validation tests for Case 1-4 built-in verification scope.
+9. Validated against required gate and full test suite.
 
 ## Concrete Steps
 
@@ -285,29 +335,31 @@ Run all commands from repository root:
 
 Baseline safety check before code edits:
 
-    python -m slope_stab.cli verify
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
     python -m unittest discover -s tests -p "test_*.py"
 
 Run targeted search coverage:
 
     python -m unittest discover -s tests -p "test_*.py" -k auto_refine
     python -m slope_stab.cli analyze --input tests/fixtures/case3_auto_refine.json
+    python -m slope_stab.cli analyze --input tests/fixtures/case4_auto_refine.json
 
 Run full verification gate:
 
-    python -m slope_stab.cli verify
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
     python -m unittest discover -s tests -p "test_*.py"
 
 Expected high-level transcript markers after completion:
 
-    verify output reports all_passed=true for existing baseline cases.
-    case3 regression test passes in unittest discovery and enforces parity gates.
+    verify output reports all_passed=true for Case 1, Case 2, Case 3, and Case 4.
+    case3 and case4 regression tests pass in unittest discovery and enforce parity gates.
 
 ## Validation and Acceptance
 
 Non-regression gates (hard):
 
 - Existing Case 1 and Case 2 verification values and tolerances remain exactly unchanged.
+- Built-in `python -m slope_stab.cli verify` passes all four cases.
 - Existing verification and unit/regression commands complete successfully.
 
 Case 3 parity gates (hard):
@@ -317,6 +369,17 @@ Case 3 parity gates (hard):
 - radius relative error <= `10%`
 
 Case 3 diagnostic-only parity metrics:
+
+- center distance
+- valid/invalid surface counts
+
+Case 4 parity gates (hard):
+
+- `abs(FOS - 1.234670) <= 0.001`
+- endpoint coordinate absolute error <= `0.20 m` for each of `x_left, y_left, x_right, y_right`
+- radius relative error <= `10%`
+
+Case 4 diagnostic-only parity metrics:
 
 - center distance
 - valid/invalid surface counts
@@ -349,6 +412,20 @@ Case 3 external boundary snippet:
     30,25
     20,25
     20,20
+
+Case 4 extracted reference snippet:
+
+    Search Method: Auto Refine Search
+    Divisions along slope: 30
+    Circles per division: 15
+    Number of iterations: 15
+    Divisions to use in next iteration: 50%
+    FS: 1.234670
+    Center: 21.024, 67.292
+    Radius: 43.234
+    Left Endpoint: 30.000, 25.000
+    Right Endpoint: 58.068, 45.000
+    Number of Valid Surfaces: 38360
 
 ## Interfaces and Dependencies
 
@@ -385,6 +462,6 @@ Output includes winning prescribed circle, FOS result, generated/valid/invalid c
 
 Dependency policy: use only Python standard library and existing repository modules; no new external packages are required for this feature.
 
-Plan revision note: Updated on 2026-03-14 to reflect implemented behavior, resolved decisions, final parity gates, and verification outcomes.
+Plan revision note: Updated on 2026-03-14 to promote Case 3/4 parity into built-in `cli verify`, redesign typed verify payloads, and close the active plan after passing full validation.
 ```
 

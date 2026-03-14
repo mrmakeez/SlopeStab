@@ -27,15 +27,18 @@ def _cmd_verify(args: argparse.Namespace) -> int:
         "cases": [
             {
                 "name": o.name,
+                "case_type": o.case_type,
                 "passed": o.passed,
-                "fos": o.result.fos,
-                "fos_abs_error": o.fos_abs_error,
-                "driving_moment": o.result.driving_moment,
-                "driving_rel_error": o.driving_rel_error,
-                "resisting_moment": o.result.resisting_moment,
-                "resisting_rel_error": o.resisting_rel_error,
-                "iterations": o.result.iterations,
-                "residual": o.result.residual,
+                "solver": {
+                    "fos": o.result.fos,
+                    "driving_moment": o.result.driving_moment,
+                    "resisting_moment": o.result.resisting_moment,
+                    "iterations": o.result.iterations,
+                    "residual": o.result.residual,
+                    "converged": o.result.converged,
+                },
+                "hard_checks": o.hard_checks,
+                "diagnostics": o.diagnostics,
             }
             for o in outcomes
         ],

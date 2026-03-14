@@ -103,8 +103,8 @@ def _division_boundaries_and_midpoints(
     return boundaries, midpoints
 
 
-def _generate_tangent_angles(theta_min: float, count: int) -> list[float]:
-    lo = max(theta_min + TANGENT_EPS_RAD, TANGENT_EPS_RAD)
+def _generate_tangent_angles(_theta_min: float, count: int) -> list[float]:
+    lo = TANGENT_EPS_RAD
     hi = 0.5 * math.pi - TANGENT_EPS_RAD
     if lo >= hi:
         return []
@@ -318,6 +318,13 @@ def run_auto_refine_search(
             best_surface=best_surface,
             best_result=best_result,
         )
+        best_surface, best_result = _run_toe_locked_beta_refinement(
+            profile=profile,
+            config=config,
+            evaluate_surface=evaluate_surface,
+            best_surface=best_surface,
+            best_result=best_result,
+        )
 
     if best_result is None or best_surface is None:
         raise ConvergenceError("Auto-refine search did not produce any valid surfaces.")
@@ -393,5 +400,56 @@ def _run_toe_crest_refinement(
                     if candidate_key < best_key:
                         best_surface = candidate
                         best_result = result
+
+    return best_surface, best_result
+
+
+def _run_toe_locked_beta_refinement(
+    profile: UniformSlopeProfile,
+    config: AutoRefineSearchInput,
+    evaluate_surface: SurfaceEvaluator,
+    best_surface: PrescribedCircleInput,
+    best_result: AnalysisResult,
+) -> tuple[PrescribedCircleInput, AnalysisResult]:
+    # Preserve the current right endpoint and re-sweep beta with toe-anchored entry.
+    if not (config.search_limits.x_min <= profile.x_toe <= config.search_limits.x_max):
+        return best_surface, best_result
+
+    x_left = profile.x_toe
+    x_right = best_surface.x_right
+    if x_right <= x_left:
+        return best_surface, best_result
+
+    y_left = profile.y_ground(x_left)
+    y_right = profile.y_ground(x_right)
+    beta_samples = 61
+    theta_lo = TANGENT_EPS_RAD
+    theta_hi = 0.5 * math.pi - TANGENT_EPS_RAD
+
+    for k in range(beta_samples):
+        u = k / (beta_samples - 1)
+        beta = theta_lo + (theta_hi - theta_lo) * u
+        candidate = _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
+        if candidate is None:
+            continue
+        try:
+            result = evaluate_surface(candidate)
+        except (ConvergenceError, GeometryError, ValueError):
+            continue
+
+        if not math.isfinite(result.fos) or result.fos <= 0.0:
+            continue
+        if not math.isfinite(result.driving_moment) or abs(result.driving_moment) <= 1e-6:
+            continue
+
+        if result.fos < best_result.fos - _TIE_TOL:
+            best_surface = candidate
+            best_result = result
+        elif abs(result.fos - best_result.fos) <= _TIE_TOL:
+            candidate_key = (candidate.x_left, candidate.x_right, candidate.r)
+            best_key = (best_surface.x_left, best_surface.x_right, best_surface.r)
+            if candidate_key < best_key:
+                best_surface = candidate
+                best_result = result
 
     return best_surface, best_result

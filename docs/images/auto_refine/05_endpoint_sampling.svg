@@ -1,0 +1,19 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D5. Sample Endpoint Fractions Inside Each Division</text>
+  <rect x="120" y="80" width="740" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <polyline points="60,300 250,300 500,180 940,180" fill="none" stroke="#424242" stroke-width="4"/>
+
+  <rect x="225" y="100" width="105" height="220" fill="#FFEBEE" stroke="#E53935" stroke-width="2"/>
+  <rect x="540" y="100" width="160" height="220" fill="#FFEBEE" stroke="#E53935" stroke-width="2"/>
+
+  <circle cx="300" cy="278" r="8" fill="#E53935"/>
+  <circle cx="640" cy="180" r="8" fill="#E53935"/>
+
+  <line x1="300" y1="278" x2="360" y2="250" stroke="#E53935" stroke-width="2"/>
+  <line x1="640" y1="180" x2="710" y2="150" stroke="#E53935" stroke-width="2"/>
+  <text x="365" y="250" font-size="13" font-family="Segoe UI, Arial" fill="#B71C1C">f_left in (0,1)</text>
+  <text x="715" y="150" font-size="13" font-family="Segoe UI, Arial" fill="#B71C1C">f_right in (0,1)</text>
+
+  <text x="130" y="105" font-size="14" font-family="Segoe UI, Arial" fill="#B71C1C">Red dots = sampled endpoints used to build one circle candidate</text>
+</svg>

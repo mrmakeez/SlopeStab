@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D9. Build Next Iteration Window</text>
+  <rect x="120" y="80" width="740" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <rect x="320" y="95" width="300" height="225" fill="#C8E6C9" stroke="#43A047" stroke-width="2"/>
+  <polyline points="60,300 250,300 500,180 940,180" fill="none" stroke="#424242" stroke-width="4"/>
+
+  <line x1="120" y1="330" x2="120" y2="130" stroke="#1E88E5" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="860" y1="330" x2="860" y2="130" stroke="#1E88E5" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="320" y1="330" x2="320" y2="130" stroke="#43A047" stroke-width="3"/>
+  <line x1="620" y1="330" x2="620" y2="130" stroke="#43A047" stroke-width="3"/>
+
+  <text x="92" y="350" font-size="13" font-family="Segoe UI, Arial">old x_min</text>
+  <text x="829" y="350" font-size="13" font-family="Segoe UI, Arial">old x_max</text>
+  <text x="286" y="350" font-size="13" font-family="Segoe UI, Arial" fill="#2E7D32">new x_min</text>
+  <text x="586" y="350" font-size="13" font-family="Segoe UI, Arial" fill="#2E7D32">new x_max</text>
+
+  <text x="130" y="105" font-size="14" font-family="Segoe UI, Arial" fill="#1565C0">Blue = previous active range</text>
+  <text x="130" y="124" font-size="14" font-family="Segoe UI, Arial" fill="#2E7D32">Green = narrowed range for next iteration</text>
+</svg>

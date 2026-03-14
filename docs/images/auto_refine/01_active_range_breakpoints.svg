@@ -1,0 +1,19 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D1. Active Range and Slope Breakpoints</text>
+  <rect x="120" y="80" width="740" height="250" fill="#E6F4FF" stroke="#90CAF9"/>
+  <text x="130" y="102" font-size="14" font-family="Segoe UI, Arial" fill="#1565C0">Active range [x_min, x_max]</text>
+
+  <polyline points="60,300 250,300 500,180 940,180" fill="none" stroke="#424242" stroke-width="4"/>
+  <line x1="120" y1="330" x2="120" y2="140" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="250" y1="330" x2="250" y2="120" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="500" y1="330" x2="500" y2="120" stroke="#1E88E5" stroke-width="2"/>
+  <line x1="860" y1="330" x2="860" y2="120" stroke="#1E88E5" stroke-width="2"/>
+
+  <text x="95" y="350" font-size="14" font-family="Segoe UI, Arial">x_min</text>
+  <text x="228" y="350" font-size="14" font-family="Segoe UI, Arial">x_toe</text>
+  <text x="474" y="350" font-size="14" font-family="Segoe UI, Arial">x_crest</text>
+  <text x="836" y="350" font-size="14" font-family="Segoe UI, Arial">x_max</text>
+
+  <text x="64" y="320" font-size="13" font-family="Segoe UI, Arial" fill="#424242">Ground polyline</text>
+</svg>

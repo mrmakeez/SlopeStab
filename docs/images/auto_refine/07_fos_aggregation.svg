@@ -1,0 +1,29 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <text x="40" y="38" font-size="24" font-family="Segoe UI, Arial" fill="#111">D7. Aggregate FOS Contributions by Division</text>
+  <rect x="90" y="80" width="820" height="260" fill="#FAFAFA" stroke="#E0E0E0"/>
+
+  <line x1="130" y1="315" x2="860" y2="315" stroke="#78909C" stroke-width="2"/>
+  <line x1="130" y1="120" x2="130" y2="315" stroke="#78909C" stroke-width="2"/>
+
+  <rect x="165" y="190" width="45" height="125" fill="#B0BEC5"/>
+  <rect x="245" y="170" width="45" height="145" fill="#B0BEC5"/>
+  <rect x="325" y="205" width="45" height="110" fill="#B0BEC5"/>
+  <rect x="405" y="145" width="45" height="170" fill="#43A047"/>
+  <rect x="485" y="155" width="45" height="160" fill="#43A047"/>
+  <rect x="565" y="220" width="45" height="95" fill="#B0BEC5"/>
+  <rect x="645" y="180" width="45" height="135" fill="#B0BEC5"/>
+  <rect x="725" y="230" width="45" height="85" fill="#B0BEC5"/>
+
+  <text x="142" y="334" font-size="12" font-family="Segoe UI, Arial">d0</text>
+  <text x="222" y="334" font-size="12" font-family="Segoe UI, Arial">d1</text>
+  <text x="302" y="334" font-size="12" font-family="Segoe UI, Arial">d2</text>
+  <text x="382" y="334" font-size="12" font-family="Segoe UI, Arial">d3</text>
+  <text x="462" y="334" font-size="12" font-family="Segoe UI, Arial">d4</text>
+  <text x="542" y="334" font-size="12" font-family="Segoe UI, Arial">d5</text>
+  <text x="622" y="334" font-size="12" font-family="Segoe UI, Arial">d6</text>
+  <text x="702" y="334" font-size="12" font-family="Segoe UI, Arial">d7</text>
+
+  <text x="130" y="105" font-size="14" font-family="Segoe UI, Arial" fill="#455A64">Bar height = average FOS collected by each division</text>
+  <text x="130" y="124" font-size="14" font-family="Segoe UI, Arial" fill="#2E7D32">Green bars = divisions with lower average FOS (more critical)</text>
+</svg>

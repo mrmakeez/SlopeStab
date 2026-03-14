@@ -1,12 +1,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TypeAlias
 
-from slope_stab.models import AnalysisInput, GeometryInput, MaterialInput, PrescribedCircleInput, ProjectInput
+from slope_stab.models import (
+    AnalysisInput,
+    AutoRefineSearchInput,
+    GeometryInput,
+    MaterialInput,
+    PrescribedCircleInput,
+    ProjectInput,
+    SearchInput,
+    SearchLimitsInput,
+)
 
 
 @dataclass(frozen=True)
-class VerificationCase:
+class PrescribedVerificationCase:
+    case_type: str
     name: str
     project: ProjectInput
     expected_fos: float
@@ -16,8 +27,27 @@ class VerificationCase:
     moment_rel_tolerance: float
 
 
+@dataclass(frozen=True)
+class AutoRefineVerificationCase:
+    case_type: str
+    name: str
+    project: ProjectInput
+    expected_fos: float
+    fos_tolerance: float
+    expected_radius: float
+    radius_rel_tolerance: float
+    expected_center: tuple[float, float]
+    expected_left: tuple[float, float]
+    expected_right: tuple[float, float]
+    endpoint_abs_tolerance: float
+
+
+VerificationCase: TypeAlias = PrescribedVerificationCase | AutoRefineVerificationCase
+
+
 VERIFICATION_CASES: tuple[VerificationCase, ...] = (
-    VerificationCase(
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
         name="Case 1",
         project=ProjectInput(
             units="metric",
@@ -46,7 +76,8 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_resisting_moment=11710.2,
         moment_rel_tolerance=1e-3,
     ),
-    VerificationCase(
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
         name="Case 2",
         project=ProjectInput(
             units="metric",
@@ -74,5 +105,75 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_driving_moment=5715.12,
         expected_resisting_moment=12075.1,
         moment_rel_tolerance=1e-3,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        name="Case 3",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        expected_fos=0.986442,
+        fos_tolerance=0.001,
+        expected_radius=26.793,
+        radius_rel_tolerance=0.10,
+        expected_center=(30.259, 51.792),
+        expected_left=(30.0, 25.0),
+        expected_right=(51.137, 35.0),
+        endpoint_abs_tolerance=0.20,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        name="Case 4",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=30,
+                    circles_per_division=15,
+                    iterations=15,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        expected_fos=1.234670,
+        fos_tolerance=0.001,
+        expected_radius=43.234,
+        radius_rel_tolerance=0.10,
+        expected_center=(21.024, 67.292),
+        expected_left=(30.0, 25.0),
+        expected_right=(58.068, 45.0),
+        endpoint_abs_tolerance=0.20,
     ),
 )

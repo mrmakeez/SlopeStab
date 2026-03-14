@@ -52,7 +52,8 @@ Before merging any change, run:
 Expected:
 - Verification suite reports all cases passed.
 - Unit/integration/regression tests pass.
-- Case 3 auto-refine parity is validated by separate regression test `tests/regression/test_case3_auto_refine.py` and is intentionally not part of `cli verify`.
+- Built-in `cli verify` includes Case 1, Case 2, Case 3, and Case 4.
+- Dedicated Case 3/4 regression tests remain for parity-focused diagnostics (`tests/regression/test_case3_auto_refine.py`, `tests/regression/test_case4_auto_refine.py`).
 
 ## Implementation Guidance for Agents
 - Keep module boundaries clean:
