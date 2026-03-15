@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+  <rect width="900" height="360" fill="#ffffff"/>
+  <text x="24" y="36" font-family="Arial, sans-serif" font-size="20" fill="#1f2937">Stage 1: Deterministic DIRECT-style Prescan</text>
+
+  <rect x="70" y="70" width="300" height="240" fill="#f8fafc" stroke="#94a3b8"/>
+  <text x="85" y="95" font-family="Arial, sans-serif" font-size="13" fill="#334155">Normalized search box [0,1]^3 (projected)</text>
+  <rect x="95" y="120" width="250" height="165" fill="#e0f2fe" stroke="#38bdf8"/>
+  <line x1="178" y1="120" x2="178" y2="285" stroke="#7dd3fc" stroke-width="1"/>
+  <line x1="262" y1="120" x2="262" y2="285" stroke="#7dd3fc" stroke-width="1"/>
+  <line x1="95" y1="175" x2="345" y2="175" stroke="#7dd3fc" stroke-width="1"/>
+  <line x1="95" y1="230" x2="345" y2="230" stroke="#7dd3fc" stroke-width="1"/>
+  <circle cx="220" cy="202" r="5" fill="#ef4444"/>
+  <text x="232" y="206" font-family="Arial, sans-serif" font-size="12" fill="#ef4444">incumbent</text>
+
+  <rect x="420" y="70" width="420" height="110" fill="#fffbeb" stroke="#f59e0b"/>
+  <text x="435" y="98" font-family="Arial, sans-serif" font-size="13" fill="#92400e">Evaluate centers, split potentially optimal rectangles</text>
+  <text x="435" y="122" font-family="Arial, sans-serif" font-size="13" fill="#92400e">Deterministic ordering and tie-breaks</text>
+  <text x="435" y="146" font-family="Arial, sans-serif" font-size="13" fill="#92400e">Output: best point + elite seeds for CMA-ES</text>
+
+  <line x1="420" y1="240" x2="840" y2="240" stroke="#374151" stroke-width="2"/>
+  <polyline points="470,240 610,240 700,180 820,180" fill="none" stroke="#374151" stroke-width="3"/>
+  <path d="M520,240 A220,220 0 0 1 760,180" fill="none" stroke="#16a34a" stroke-width="3"/>
+  <circle cx="520" cy="240" r="4" fill="#dc2626"/>
+  <circle cx="760" cy="180" r="4" fill="#dc2626"/>
+  <text x="610" y="258" font-family="Arial, sans-serif" font-size="12" fill="#16a34a">sampled valid arc remains below ground</text>
+</svg>

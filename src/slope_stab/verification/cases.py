@@ -6,6 +6,7 @@ from typing import TypeAlias
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
+    CmaesGlobalSearchInput,
     CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
@@ -62,11 +63,21 @@ class CuckooGlobalSearchBenchmarkVerificationCase:
     margin: float
 
 
+@dataclass(frozen=True)
+class CmaesGlobalSearchBenchmarkVerificationCase:
+    case_type: str
+    name: str
+    project: ProjectInput
+    benchmark_fos: float
+    margin: float
+
+
 VerificationCase: TypeAlias = (
     PrescribedVerificationCase
     | AutoRefineVerificationCase
     | GlobalSearchBenchmarkVerificationCase
     | CuckooGlobalSearchBenchmarkVerificationCase
+    | CmaesGlobalSearchBenchmarkVerificationCase
 )
 
 
@@ -392,6 +403,120 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                     stall_iterations=30,
                     seed=0,
                     post_polish=True,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        benchmark_fos=1.234670,
+        margin=0.01,
+    ),
+    CmaesGlobalSearchBenchmarkVerificationCase(
+        case_type="cmaes_global_search_benchmark",
+        name="Case 2 (CMAES Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cmaes_global_circular",
+                cmaes_global_circular=CmaesGlobalSearchInput(
+                    max_evaluations=4500,
+                    direct_prescan_evaluations=600,
+                    cmaes_population_size=8,
+                    cmaes_max_iterations=180,
+                    cmaes_restarts=2,
+                    cmaes_sigma0=0.15,
+                    polish_max_evaluations=80,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    invalid_penalty=1e6,
+                    nonconverged_penalty=1e5,
+                    search_limits=SearchLimitsInput(x_min=2.5, x_max=40.0),
+                ),
+            ),
+        ),
+        benchmark_fos=2.11283,
+        margin=0.01,
+    ),
+    CmaesGlobalSearchBenchmarkVerificationCase(
+        case_type="cmaes_global_search_benchmark",
+        name="Case 3 (CMAES Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cmaes_global_circular",
+                cmaes_global_circular=CmaesGlobalSearchInput(
+                    max_evaluations=5500,
+                    direct_prescan_evaluations=800,
+                    cmaes_population_size=8,
+                    cmaes_max_iterations=200,
+                    cmaes_restarts=2,
+                    cmaes_sigma0=0.15,
+                    polish_max_evaluations=100,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    invalid_penalty=1e6,
+                    nonconverged_penalty=1e5,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        benchmark_fos=0.986442,
+        margin=0.01,
+    ),
+    CmaesGlobalSearchBenchmarkVerificationCase(
+        case_type="cmaes_global_search_benchmark",
+        name="Case 4 (CMAES Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cmaes_global_circular",
+                cmaes_global_circular=CmaesGlobalSearchInput(
+                    max_evaluations=7000,
+                    direct_prescan_evaluations=1200,
+                    cmaes_population_size=10,
+                    cmaes_max_iterations=250,
+                    cmaes_restarts=3,
+                    cmaes_sigma0=0.15,
+                    polish_max_evaluations=120,
+                    min_improvement=1e-4,
+                    stall_iterations=30,
+                    seed=0,
+                    post_polish=True,
+                    invalid_penalty=1e6,
+                    nonconverged_penalty=1e5,
                     search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
                 ),
             ),

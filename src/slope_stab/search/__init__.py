@@ -15,15 +15,23 @@ from slope_stab.search.cuckoo_global import (
     CuckooIterationDiagnostics,
     run_cuckoo_global_search,
 )
+from slope_stab.search.cmaes_global import (
+    CmaesGlobalSearchResult,
+    CmaesStageDiagnostics,
+    run_cmaes_global_search,
+)
 
 __all__ = [
     "AutoRefineIterationDiagnostics",
     "AutoRefineSearchResult",
+    "CmaesGlobalSearchResult",
+    "CmaesStageDiagnostics",
     "CuckooGlobalSearchResult",
     "CuckooIterationDiagnostics",
     "DirectGlobalSearchResult",
     "DirectIterationDiagnostics",
     "run_auto_refine_search",
+    "run_cmaes_global_search",
     "run_cuckoo_global_search",
     "run_direct_global_search",
 ]

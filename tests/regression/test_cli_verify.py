@@ -24,7 +24,7 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)
         payload = json.loads(proc.stdout)
         self.assertTrue(payload["all_passed"])
-        self.assertEqual(len(payload["cases"]), 10)
+        self.assertEqual(len(payload["cases"]), 13)
 
         cases = {item["name"]: item for item in payload["cases"]}
         self.assertEqual(
@@ -40,6 +40,9 @@ class CliRegressionTests(unittest.TestCase):
                 "Case 2 (Cuckoo Global Search Benchmark)",
                 "Case 3 (Cuckoo Global Search Benchmark)",
                 "Case 4 (Cuckoo Global Search Benchmark)",
+                "Case 2 (CMAES Global Search Benchmark)",
+                "Case 3 (CMAES Global Search Benchmark)",
+                "Case 4 (CMAES Global Search Benchmark)",
             },
         )
 
@@ -53,6 +56,9 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(cases["Case 2 (Cuckoo Global Search Benchmark)"]["case_type"], "cuckoo_global_search_benchmark")
         self.assertEqual(cases["Case 3 (Cuckoo Global Search Benchmark)"]["case_type"], "cuckoo_global_search_benchmark")
         self.assertEqual(cases["Case 4 (Cuckoo Global Search Benchmark)"]["case_type"], "cuckoo_global_search_benchmark")
+        self.assertEqual(cases["Case 2 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
+        self.assertEqual(cases["Case 3 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
+        self.assertEqual(cases["Case 4 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
 
         global_check = cases["Case 2 (Global Search Benchmark)"]["hard_checks"]["fos_vs_benchmark_plus_margin"]
         self.assertIn("value", global_check)

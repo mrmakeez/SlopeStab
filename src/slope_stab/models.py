@@ -81,11 +81,30 @@ class CuckooGlobalSearchInput:
 
 
 @dataclass(frozen=True)
+class CmaesGlobalSearchInput:
+    max_evaluations: int
+    direct_prescan_evaluations: int
+    cmaes_population_size: int
+    cmaes_max_iterations: int
+    cmaes_restarts: int
+    cmaes_sigma0: float
+    polish_max_evaluations: int
+    min_improvement: float
+    stall_iterations: int
+    seed: int
+    post_polish: bool
+    invalid_penalty: float
+    nonconverged_penalty: float
+    search_limits: SearchLimitsInput
+
+
+@dataclass(frozen=True)
 class SearchInput:
     method: str
     auto_refine_circular: AutoRefineSearchInput | None = None
     direct_global_circular: DirectGlobalSearchInput | None = None
     cuckoo_global_circular: CuckooGlobalSearchInput | None = None
+    cmaes_global_circular: CmaesGlobalSearchInput | None = None
 
 
 @dataclass(frozen=True)

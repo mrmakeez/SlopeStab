@@ -188,6 +188,69 @@ class SearchInputParsingTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
+    def test_parse_cmaes_global_mode_defaults(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "cmaes_global_circular",
+            "cmaes_global_circular": {},
+        }
+
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertEqual(project.search.method, "cmaes_global_circular")
+        self.assertIsNone(project.search.auto_refine_circular)
+        self.assertIsNone(project.search.direct_global_circular)
+        self.assertIsNone(project.search.cuckoo_global_circular)
+        self.assertIsNotNone(project.search.cmaes_global_circular)
+
+        cfg = project.search.cmaes_global_circular
+        self.assertEqual(cfg.max_evaluations, 5000)
+        self.assertEqual(cfg.direct_prescan_evaluations, 300)
+        self.assertEqual(cfg.cmaes_population_size, 8)
+        self.assertEqual(cfg.cmaes_max_iterations, 200)
+        self.assertEqual(cfg.cmaes_restarts, 2)
+        self.assertAlmostEqual(cfg.cmaes_sigma0, 0.15)
+        self.assertEqual(cfg.polish_max_evaluations, 80)
+        self.assertAlmostEqual(cfg.min_improvement, 1e-4)
+        self.assertEqual(cfg.stall_iterations, 25)
+        self.assertEqual(cfg.seed, 0)
+        self.assertTrue(cfg.post_polish)
+        self.assertAlmostEqual(cfg.invalid_penalty, 1e6)
+        self.assertAlmostEqual(cfg.nonconverged_penalty, 1e5)
+        self.assertAlmostEqual(cfg.search_limits.x_min, 20.0)
+        self.assertAlmostEqual(cfg.search_limits.x_max, 70.0)
+
+    def test_parse_rejects_missing_cmaes_payload(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "cmaes_global_circular",
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_invalid_cmaes_values(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "cmaes_global_circular",
+            "cmaes_global_circular": {
+                "max_evaluations": 10,
+                "direct_prescan_evaluations": 10,
+                "cmaes_population_size": 1,
+                "cmaes_max_iterations": 0,
+                "cmaes_restarts": -1,
+                "cmaes_sigma0": 0.0,
+                "polish_max_evaluations": 0,
+                "min_improvement": -1.0,
+                "stall_iterations": 0,
+                "seed": 0,
+                "post_polish": True,
+                "invalid_penalty": 1e4,
+                "nonconverged_penalty": 1e5
+            },
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
 
 class AutoRefineSearchTests(unittest.TestCase):
     def test_generated_surfaces_per_iteration_matches_formula(self) -> None:

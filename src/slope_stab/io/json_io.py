@@ -8,6 +8,7 @@ from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
     AutoRefineSearchInput,
+    CmaesGlobalSearchInput,
     CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
@@ -208,6 +209,86 @@ def _parse_cuckoo_global_search(
     )
 
 
+def _parse_cmaes_global_search(
+    cmaes_data: dict,
+    geometry: GeometryInput,
+) -> CmaesGlobalSearchInput:
+    key_prefix = "search.cmaes_global_circular"
+    limits = _parse_search_limits(cmaes_data.get("search_limits"), geometry, key_prefix)
+
+    max_evaluations = _as_int(cmaes_data.get("max_evaluations", 5000), f"{key_prefix}.max_evaluations")
+    direct_prescan_evaluations = _as_int(
+        cmaes_data.get("direct_prescan_evaluations", 300), f"{key_prefix}.direct_prescan_evaluations"
+    )
+    cmaes_population_size = _as_int(
+        cmaes_data.get("cmaes_population_size", 8), f"{key_prefix}.cmaes_population_size"
+    )
+    cmaes_max_iterations = _as_int(
+        cmaes_data.get("cmaes_max_iterations", 200), f"{key_prefix}.cmaes_max_iterations"
+    )
+    cmaes_restarts = _as_int(cmaes_data.get("cmaes_restarts", 2), f"{key_prefix}.cmaes_restarts")
+    cmaes_sigma0 = _as_float(cmaes_data.get("cmaes_sigma0", 0.15), f"{key_prefix}.cmaes_sigma0")
+    polish_max_evaluations = _as_int(
+        cmaes_data.get("polish_max_evaluations", 80), f"{key_prefix}.polish_max_evaluations"
+    )
+    min_improvement = _as_float(cmaes_data.get("min_improvement", 1e-4), f"{key_prefix}.min_improvement")
+    stall_iterations = _as_int(cmaes_data.get("stall_iterations", 25), f"{key_prefix}.stall_iterations")
+    seed = _as_int(cmaes_data.get("seed", 0), f"{key_prefix}.seed")
+    post_polish = _as_bool(cmaes_data.get("post_polish", True), f"{key_prefix}.post_polish")
+    invalid_penalty = _as_float(cmaes_data.get("invalid_penalty", 1e6), f"{key_prefix}.invalid_penalty")
+    nonconverged_penalty = _as_float(
+        cmaes_data.get("nonconverged_penalty", 1e5), f"{key_prefix}.nonconverged_penalty"
+    )
+
+    if max_evaluations <= 0:
+        raise InputValidationError(f"{key_prefix}.max_evaluations must be greater than zero.")
+    if direct_prescan_evaluations <= 0:
+        raise InputValidationError(f"{key_prefix}.direct_prescan_evaluations must be greater than zero.")
+    if direct_prescan_evaluations >= max_evaluations:
+        raise InputValidationError(f"{key_prefix}.direct_prescan_evaluations must be less than max_evaluations.")
+    if cmaes_population_size <= 1:
+        raise InputValidationError(f"{key_prefix}.cmaes_population_size must be greater than 1.")
+    if cmaes_max_iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.cmaes_max_iterations must be greater than zero.")
+    if cmaes_restarts < 0:
+        raise InputValidationError(f"{key_prefix}.cmaes_restarts must be greater than or equal to zero.")
+    if cmaes_sigma0 <= 0.0:
+        raise InputValidationError(f"{key_prefix}.cmaes_sigma0 must be greater than zero.")
+    if polish_max_evaluations <= 0:
+        raise InputValidationError(f"{key_prefix}.polish_max_evaluations must be greater than zero.")
+    if min_improvement < 0.0:
+        raise InputValidationError(f"{key_prefix}.min_improvement must be greater than or equal to zero.")
+    if stall_iterations <= 0:
+        raise InputValidationError(f"{key_prefix}.stall_iterations must be greater than zero.")
+    if invalid_penalty <= 0.0:
+        raise InputValidationError(f"{key_prefix}.invalid_penalty must be greater than zero.")
+    if nonconverged_penalty <= 0.0:
+        raise InputValidationError(f"{key_prefix}.nonconverged_penalty must be greater than zero.")
+    if invalid_penalty <= nonconverged_penalty:
+        raise InputValidationError(f"{key_prefix}.invalid_penalty must exceed nonconverged_penalty.")
+    if limits.x_max <= limits.x_min:
+        raise InputValidationError(
+            f"{key_prefix}.search_limits.x_max must exceed x_min."
+        )
+
+    return CmaesGlobalSearchInput(
+        max_evaluations=max_evaluations,
+        direct_prescan_evaluations=direct_prescan_evaluations,
+        cmaes_population_size=cmaes_population_size,
+        cmaes_max_iterations=cmaes_max_iterations,
+        cmaes_restarts=cmaes_restarts,
+        cmaes_sigma0=cmaes_sigma0,
+        polish_max_evaluations=polish_max_evaluations,
+        min_improvement=min_improvement,
+        stall_iterations=stall_iterations,
+        seed=seed,
+        post_polish=post_polish,
+        invalid_penalty=invalid_penalty,
+        nonconverged_penalty=nonconverged_penalty,
+        search_limits=limits,
+    )
+
+
 def parse_project_input(payload: dict) -> ProjectInput:
     units = str(_require_key(payload, "units")).strip().lower()
     if units not in {"metric", "metric_units"}:
@@ -318,10 +399,16 @@ def parse_project_input(payload: dict) -> ProjectInput:
                 raise InputValidationError("'search.cuckoo_global_circular' must be an object.")
             cuckoo = _parse_cuckoo_global_search(cuckoo_data, geometry)
             search = SearchInput(method=method, cuckoo_global_circular=cuckoo)
+        elif method == "cmaes_global_circular":
+            cmaes_data = _require_key(search_data, "cmaes_global_circular")
+            if not isinstance(cmaes_data, dict):
+                raise InputValidationError("'search.cmaes_global_circular' must be an object.")
+            cmaes = _parse_cmaes_global_search(cmaes_data, geometry)
+            search = SearchInput(method=method, cmaes_global_circular=cmaes)
         else:
             raise InputValidationError(
                 "Only search.method='auto_refine_circular', 'direct_global_circular', or "
-                "'cuckoo_global_circular' is supported."
+                "'cuckoo_global_circular', or 'cmaes_global_circular' is supported."
             )
 
     return ProjectInput(

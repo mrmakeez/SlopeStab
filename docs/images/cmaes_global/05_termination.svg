@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+  <rect width="900" height="360" fill="#ffffff"/>
+  <text x="24" y="36" font-family="Arial, sans-serif" font-size="20" fill="#1f2937">Termination and Diagnostics</text>
+
+  <rect x="70" y="75" width="320" height="225" fill="#f8fafc" stroke="#94a3b8"/>
+  <text x="85" y="102" font-family="Arial, sans-serif" font-size="13" fill="#334155">Stop when first condition is met:</text>
+  <text x="85" y="128" font-family="Arial, sans-serif" font-size="13" fill="#334155">- max_evaluations</text>
+  <text x="85" y="152" font-family="Arial, sans-serif" font-size="13" fill="#334155">- cmaes stall threshold</text>
+  <text x="85" y="176" font-family="Arial, sans-serif" font-size="13" fill="#334155">- sigma limit</text>
+  <text x="85" y="200" font-family="Arial, sans-serif" font-size="13" fill="#334155">- polish budget complete</text>
+  <text x="85" y="236" font-family="Arial, sans-serif" font-size="12" fill="#475569">Output includes per-stage iteration diagnostics.</text>
+
+  <rect x="430" y="75" width="390" height="225" fill="#f0fdf4" stroke="#4ade80"/>
+  <text x="445" y="102" font-family="Arial, sans-serif" font-size="13" fill="#166534">Winner selection:</text>
+  <text x="445" y="126" font-family="Arial, sans-serif" font-size="13" fill="#166534">min(FOS) among valid candidates</text>
+  <text x="445" y="150" font-family="Arial, sans-serif" font-size="13" fill="#166534">tie-break: (x_left, x_right, r)</text>
+  <line x1="445" y1="185" x2="805" y2="185" stroke="#166534" stroke-width="1"/>
+  <text x="445" y="208" font-family="Arial, sans-serif" font-size="12" fill="#166534">search.total_evaluations</text>
+  <text x="445" y="228" font-family="Arial, sans-serif" font-size="12" fill="#166534">search.valid_evaluations</text>
+  <text x="445" y="248" font-family="Arial, sans-serif" font-size="12" fill="#166534">search.infeasible_evaluations</text>
+  <text x="445" y="268" font-family="Arial, sans-serif" font-size="12" fill="#166534">search.termination_reason</text>
+</svg>
