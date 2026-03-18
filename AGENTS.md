@@ -35,6 +35,7 @@ Not supported in baseline:
 - Verification-first always: do not add new feature paths until baseline verification remains passing.
 - Do not alter Case 1/Case 2 benchmark targets or tolerances without explicit approval and documented rationale.
 - Preserve deterministic numerical behavior for existing verification paths.
+- Where possible code shall be written to be extensible to Future Roadmap items, such that they are easier to implement at a later date.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right
