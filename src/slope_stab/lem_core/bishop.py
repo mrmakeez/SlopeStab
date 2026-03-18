@@ -69,7 +69,10 @@ class BishopSimplifiedSolver(LEMSolver):
                 )
 
             normal = (weights - (cohesion_base_sin / f_k)) / m_alpha
-            numerator = float(np.sum(cohesion_base + normal * tan_phi))
+            friction_raw = normal * tan_phi
+            shear_strength_raw = cohesion_base + friction_raw
+            shear_strength = np.maximum(shear_strength_raw, 0.0)
+            numerator = float(np.sum(shear_strength))
 
             f_next = numerator / denominator
             if not math.isfinite(f_next):
@@ -97,9 +100,21 @@ class BishopSimplifiedSolver(LEMSolver):
             )
 
         m_alpha = cos_a + (sin_a * tan_phi) / f_k
+        below_threshold = m_alpha < 0.2
+        if np.any(below_threshold):
+            bad_idx = int(np.flatnonzero(below_threshold)[0])
+            raise ConvergenceError(
+                (
+                    f"Slice {int(slice_ids[bad_idx])}: final m_alpha "
+                    f"({float(m_alpha[bad_idx])}) is below minimum 0.2."
+                )
+            )
+
         normal = (weights - (cohesion_base_sin / f_k)) / m_alpha
-        friction = normal * tan_phi
-        shear_strength = cohesion_base + friction
+        friction_raw = normal * tan_phi
+        shear_strength_raw = cohesion_base + friction_raw
+        shear_strength = np.maximum(shear_strength_raw, 0.0)
+        friction = shear_strength - cohesion_base
 
         driving_moment = float(np.sum(weights * x_offset))
         resisting_moment = f_k * driving_moment

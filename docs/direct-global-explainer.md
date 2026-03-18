@@ -77,6 +77,9 @@ Rule:
 
 - What this computes: robust black-box objective for DIRECT.
 - Where it is used in implementation: `evaluate_point` inside `run_direct_global_search`.
+- Validity details from Bishop solver:
+  - reject candidate if final-iteration `m_alpha < 0.2` in any slice
+  - clamp base tension induced negative shear strength to zero
 
 ### D5. Cache Reuse
 

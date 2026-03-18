@@ -855,3 +855,186 @@ Dependency contract:
 
 Plan revision note: Added and closed on 2026-03-19 after full implementation, documentation updates, and gate validation.
 ```
+
+```md
+# Implement Final-Iteration M_alpha Validity Gate and Tension-Shear Clamp for Slide2 Parity
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and must be maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+After this change, Bishop calculations will follow the same two solver rules used in the provided Slide2 verification models: (1) any converged surface with final-iteration `M_alpha < 0.2` is treated as invalid, and (2) slice shear strength that would become negative due to base tension is clamped to zero. This should improve FOS parity against Slide2 reference files for prescribed and searched circular surfaces, and it will make oracle baselines internally consistent with the updated solver behavior.
+
+The user-visible outcome is that `python -m slope_stab.cli analyze ...` and all supported search modes continue to run, but candidates that violate the final `M_alpha` stability criterion are rejected and negative per-slice shear strengths are no longer allowed to reduce total resistance below zero. Verification output and regression fixtures remain deterministic for deterministic paths and fixed-seed repeatable for seeded paths.
+
+## Progress
+
+- [x] (2026-03-18 22:52 +13:00) Captured scope and acceptance requirements, including user clarification that the `M_alpha < 0.2` rule applies only to the final converged Bishop iteration.
+- [x] (2026-03-18 23:05 +13:00) Implemented solver updates in `src/slope_stab/lem_core/bishop.py`: final-iteration `m_alpha < 0.2` invalidation and non-negative shear clamp in iteration/final resistance aggregation.
+- [x] (2026-03-18 23:07 +13:00) Expanded `tests/unit/test_bishop_solver.py` with targeted coverage for final-iteration-only threshold behavior, final-threshold rejection, and shear clamp behavior.
+- [x] (2026-03-18 23:13 +13:00) Re-ran parity checks via `python -m slope_stab.cli verify`; Cases 1-4 parity gates remained passing without changing benchmark targets/tolerances.
+- [x] (2026-03-18 23:16 +13:00) Evaluated oracle impact via regression gates (`tests.regression.test_cuckoo_global_oracle`, `tests.regression.test_cmaes_global_oracle`) as part of full discovery run; existing oracle fixtures remained valid so no fixture recomputation/update was required.
+- [x] (2026-03-18 23:20 +13:00) Updated documentation in `AGENTS.md`, `README.md`, and solver/search explainer markdown files to document the new validity rules.
+- [x] (2026-03-18 23:22 +13:00) Ran required verification gate successfully: `python -m slope_stab.cli verify` and `python -m unittest discover -s tests -p "test_*.py"`.
+
+## Surprises & Discoveries
+
+- Observation: The user clarified that `M_alpha < 0.2` must be enforced only after convergence on the final iteration, not during intermediate fixed-point iterations.
+  Evidence: User note on 2026-03-18 in this thread: "M_alpha < 0.2 check is only required on the final iteration of the limit equilibrium calculation".
+
+- Observation: Global search methods already centralize invalid-candidate handling through shared evaluation wrappers, so solver-thrown invalidation will propagate naturally to `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  Evidence: `src/slope_stab/search/common.py::evaluate_surface_candidate` maps solver exceptions to invalid candidate outcomes.
+
+- Observation: Existing Case 1-4 verification and benchmark gates were unchanged after the solver update, indicating those current fixtures do not traverse surfaces that violate final `m_alpha >= 0.2` and do not rely on negative slice shear.
+  Evidence: `python -m slope_stab.cli verify` remained `all_passed=true` with Case 1-4 hard checks still passing under the same expected values/tolerances.
+
+## Decision Log
+
+- Decision: Keep near-zero `m_alpha` guards during iteration for numerical safety, and add the new `m_alpha < 0.2` rule only on the final converged iteration state.
+  Rationale: This follows user instruction while preserving existing convergence stability protections.
+  Date/Author: 2026-03-18 / Codex
+
+- Decision: Clamp total per-slice shear strength to `max(0.0, c*l + N*tan(phi))` before numerator aggregation and in emitted `slice_results`.
+  Rationale: The requirement is explicitly about negative shear strength under base tension; clamping at the final shear term is the most direct and auditable implementation.
+  Date/Author: 2026-03-18 / Codex
+
+- Decision: Treat surfaces failing the final `M_alpha` threshold as invalid by raising `ConvergenceError` from the solver, reusing existing invalid-surface plumbing.
+  Rationale: This avoids introducing search-method-specific branching and preserves current invalid-candidate handling contracts.
+  Date/Author: 2026-03-18 / Codex
+
+- Decision: Recompute oracle fixtures only after parity checks confirm expected Slide2 alignment with the new solver rules.
+  Rationale: Oracle values are objective-dependent and should be regenerated from the final accepted solver behavior, not from an intermediate state.
+  Date/Author: 2026-03-18 / Codex
+
+- Decision: Do not rewrite oracle fixture JSON in this change set because post-change oracle regression tests already pass with existing thresholds and endpoint tolerances.
+  Rationale: Rewriting fixture baselines without observed threshold/tolerance drift adds churn without increasing verification signal.
+  Date/Author: 2026-03-18 / Codex
+
+## Outcomes & Retrospective
+
+Implemented and validated the requested solver semantics in the Bishop path. The final-iteration `m_alpha` threshold (`< 0.2` invalid) is now enforced after convergence, and base tension induced negative shear strength is clamped to zero in both iterative numerator updates and final reported slice resistance.
+
+The required verification gate stayed green after the change. Case 1/Case 2 benchmark expectations and tolerances were not modified, Case 3/Case 4 parity checks remained passing, and global benchmark/oracle regressions remained passing.
+
+No oracle fixture rewrite was required in this pass because oracle regression contracts remained satisfied. If future datasets trigger more `m_alpha`-invalid candidates and materially shift best-found surfaces, recomputing oracle baselines should be revisited.
+
+## Context and Orientation
+
+The Bishop solver is implemented in `src/slope_stab/lem_core/bishop.py`. It currently computes iterative factor of safety using per-slice terms and already rejects numerically unstable states such as near-zero `m_alpha` and non-finite results. Search modes (`auto_refine_circular`, `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`) all evaluate surfaces through `src/slope_stab/analysis.py` and `src/slope_stab/search/common.py`, so solver-level invalidation affects all modes consistently.
+
+In this plan, `M_alpha` means the Bishop denominator term per slice:
+
+    M_alpha = cos(alpha) + sin(alpha) * tan(phi) / F
+
+where `alpha` is slice base angle, `phi` is friction angle, and `F` is current factor of safety iterate. "Final iteration" means the converged `F` that is returned as solver output candidate, not earlier trial iterates. "Base tension induced negative shear strength" means the computed slice shear resistance term (`c*l + N*tan(phi)`) is negative due to negative effective normal force; this value must be clamped to zero.
+
+Verification references and parity artifacts are in `Verification/Bishop/Case 1` through `Verification/Bishop/Case 4` (Slide2 reports and model outputs). Built-in verification expectations are defined in `src/slope_stab/verification/cases.py` and evaluated by `src/slope_stab/verification/runner.py`. Regression coverage for benchmarks and oracles is in `tests/regression/`, with oracle payloads in `tests/fixtures/*_oracle.json`.
+
+## Plan of Work
+
+First, take a baseline measurement by running the required verification gate and recording current Case 1-4 FOS and benchmark/oracle outcomes. This provides a pre-change anchor and ensures any later deltas are attributable to the new solver rules rather than unrelated drift.
+
+Second, implement the solver behavior changes in `src/slope_stab/lem_core/bishop.py`. Keep the existing iterative loop and finite checks intact, but after convergence recompute final `m_alpha` and reject the surface if any slice has `m_alpha < 0.2`. In the same final-term computation path, clamp per-slice shear strength to zero when negative and use the clamped value for the numerator, returned FOS, and slice diagnostics. Ensure warning/error messages include slice id and threshold context to support debugging.
+
+Third, expand tests. Add focused unit coverage in `tests/unit/test_bishop_solver.py` for (a) final-iteration-only `M_alpha` invalidation and (b) negative shear clamp behavior. Update or add regression assertions where needed so invalid surfaces from the new rule are handled as infeasible in search outputs rather than causing crashes. Keep deterministic/fixed-seed repeatability checks intact.
+
+Fourth, run parity checks against Slide2 artifacts for Cases 1-4. If FOS/reference-surface parity changes, update expected values in verification data and parity regressions with documented evidence from the Slide2 files. Respect the repository rule that Case 1/Case 2 targets/tolerances are not changed without explicit approval; if those values need adjustment, record evidence and obtain approval before finalizing edits.
+
+Fifth, regenerate objective-dependent oracle baselines (currently cuckoo and CMAES oracle fixtures) using the accepted updated solver behavior, then update fixture JSON and oracle regression expectations. Use deterministic generation settings and record generation parameters in fixture metadata.
+
+Finally, update documentation so future contributors can apply the same rules consistently. Update `AGENTS.md` solver conventions, update `README.md` behavior notes, update each method explainer (`docs/auto-refine-explainer.md`, `docs/direct-global-explainer.md`, `docs/cuckoo-global-explainer.md`, `docs/cmaes-global-explainer.md`) to describe invalidation/clamping semantics, and update this `PLANS.md` plan sections through completion.
+
+## Concrete Steps
+
+Run all commands from repository root `C:\Users\JamesMcKerrow\Stanley Gray Limited\SP - ENG\Technical\JAMES TECHNICAL\Codex\SlopeStab`.
+
+Baseline and post-change verification commands:
+
+    python -m slope_stab.cli verify
+    python -m unittest discover -s tests -p "test_*.py"
+    python -m unittest tests.unit.test_bishop_solver
+    python -m unittest tests.regression.test_case3_auto_refine
+    python -m unittest tests.regression.test_case4_auto_refine
+    python -m unittest tests.regression.test_global_search_benchmark
+    python -m unittest tests.regression.test_cuckoo_global_search_benchmark
+    python -m unittest tests.regression.test_cmaes_global_search_benchmark
+    python -m unittest tests.regression.test_cuckoo_global_oracle
+    python -m unittest tests.regression.test_cmaes_global_oracle
+
+If oracle recomputation tooling is added in this work, run it after solver changes are accepted and before updating oracle fixtures:
+
+    python tests/tools/recompute_oracles.py --fixture tests/fixtures/case2_cuckoo_oracle.json --write
+    python tests/tools/recompute_oracles.py --fixture tests/fixtures/case3_cuckoo_oracle.json --write
+    python tests/tools/recompute_oracles.py --fixture tests/fixtures/case2_cmaes_oracle.json --write
+    python tests/tools/recompute_oracles.py --fixture tests/fixtures/case3_cmaes_oracle.json --write
+
+Expected transcript characteristics:
+
+    - `cli verify` returns JSON with `"all_passed": true`.
+    - `unittest discover` reports all tests passing.
+    - Bishop unit tests include explicit pass/fail checks for final-iteration `M_alpha` thresholding and non-negative shear strength.
+    - Oracle regression tests pass using refreshed fixture values when refreshed values are required.
+
+## Validation and Acceptance
+
+Acceptance is met only when all of the following are true:
+
+The solver behavior is correct and observable. A surface that converges with any final-iteration slice `m_alpha < 0.2` is rejected as invalid, while intermediate iterations are not rejected solely for `m_alpha < 0.2`. Per-slice shear strength in final calculations and `slice_results` is never negative.
+
+Slide2 parity is improved or maintained for Cases 1-4 using the provided verification files in `Verification/Bishop/`. Any changed expected values are accompanied by explicit evidence and rationale. Case 1/Case 2 expected targets or tolerances are not changed without explicit approval.
+
+Required verification gates pass:
+
+    python -m slope_stab.cli verify
+    python -m unittest discover -s tests -p "test_*.py"
+
+Benchmark/oracle regressions remain valid with the updated solver semantics. If oracle fixtures were recomputed, fixture metadata and regression thresholds are internally consistent and reproducible.
+
+Documentation is complete and synchronized across `AGENTS.md`, `PLANS.md`, `README.md`, and relevant explainer markdown files.
+
+## Idempotence and Recovery
+
+All analysis and test commands above are rerunnable. If a partial edit breaks tests, restore local consistency by finishing solver/test/doc updates before re-running the full gate; avoid changing tolerances to force pass. If oracle regeneration produces unstable values, fix determinism inputs (grid resolution, seed, mapping rules) and regenerate rather than hand-editing oracle numbers.
+
+If parity updates require Case 1/Case 2 target modifications, stop and request explicit user approval before committing those target changes. Until approval is given, keep existing Case 1/Case 2 expected values unchanged and track parity deltas as diagnostics.
+
+## Artifacts and Notes
+
+Implementation evidence:
+
+    - Baseline: `python -m slope_stab.cli verify` (with `PYTHONPATH=src`) returned `all_passed=true` for all 13 built-in cases.
+    - Post-change: `python -m slope_stab.cli verify` (with `PYTHONPATH=src`) returned `all_passed=true` for all 13 built-in cases.
+    - Unit proof: `python -m unittest tests.unit.test_bishop_solver` ran 5 tests and passed, including:
+      - final-iteration-only `m_alpha` gate behavior
+      - rejection when final `m_alpha < 0.2`
+      - non-negative shear clamp behavior
+    - Full gate: `python -m unittest discover -s tests -p "test_*.py"` ran 31 tests and passed.
+    - Oracle impact check: oracle regression tests remained passing in full discovery run; no fixture JSON updates required.
+
+No runtime cache artifacts (`__pycache__/`, `*.pyc`) may be committed.
+
+## Interfaces and Dependencies
+
+Primary implementation interface:
+
+- `src/slope_stab/lem_core/bishop.py::BishopSimplifiedSolver.solve`
+
+Required end-state behavior contract:
+
+- Final converged `m_alpha` array is validated against threshold `0.2`.
+- Any slice with final `m_alpha < 0.2` causes solver invalidation via `ConvergenceError`.
+- Final per-slice shear strength used in numerator and reported diagnostics is `max(0.0, shear_strength_raw)`.
+- Existing numerical safety checks (finite values, near-zero denominator/`m_alpha`, convergence limits) remain in place.
+
+Likely touched verification and regression interfaces:
+
+- `src/slope_stab/verification/cases.py` for expected values when parity evidence requires updates.
+- `tests/unit/test_bishop_solver.py` for rule-focused unit coverage.
+- `tests/regression/test_*` and `tests/fixtures/*_oracle.json` for benchmark/oracle alignment.
+
+Dependencies remain unchanged and required: `numpy`, `scipy`, and `cma`.
+
+Plan revision note: Added on 2026-03-18 and closed on 2026-03-18 after implementing the solver-rule updates, adding focused unit coverage, updating documentation, and passing the required verification gate.
+```

@@ -31,6 +31,11 @@ Important orientation note:
 
 Invalid geometries or failed solver evaluations are treated as `+inf` objective value.
 
+Solver validity details:
+- candidate is invalid if any slice has final-iteration `m_alpha < 0.2`
+- this `m_alpha` threshold is checked on the final converged Bishop iteration
+- base tension induced negative shear strength is clamped to zero
+
 ## Iteration Flow
 
 Each iteration:

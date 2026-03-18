@@ -53,6 +53,8 @@ Not supported in baseline:
 - Slice base angle is from base chord endpoints.
 - Slice area/weight are boundary-consistent with current implementation.
 - Bishop iteration must enforce finite-term checks and convergence limits.
+- Slip surfaces are invalid if any slice has final-iteration `m_alpha < 0.2` (applies to the converged/final iteration only).
+- Base tension induced negative shear strength contributions are clamped to zero in Bishop resistance calculations.
 
 ## Required Verification Gate
 Before merging any change, run:

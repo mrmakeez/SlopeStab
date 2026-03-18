@@ -31,3 +31,8 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 - `search.method = cuckoo_global_circular` for seeded stochastic Cuckoo global search with deterministic repeatability per seed.
 - `search.method = cmaes_global_circular` for seeded hybrid DIRECT prescan + CMA-ES + Nelder-Mead polish.
 - Input settings and output diagnostics for each method are documented in the explainer files above.
+
+## Bishop Solver Validity Rules
+
+- Any converged slip surface with final-iteration `m_alpha < 0.2` in any slice is treated as invalid.
+- Base tension induced negative slice shear strength is clamped to zero.

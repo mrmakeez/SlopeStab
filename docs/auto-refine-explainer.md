@@ -173,6 +173,12 @@ Important implementation detail:
 - The refinement passes create circles by center/radius geometry.
 - The solver still evaluates the lower branch base (`y_base = yc - sqrt(...)`), not an upper arc above ground.
 
+## Bishop Validity Rules Used by Search
+
+- A candidate surface is invalid if any slice has final-iteration `m_alpha < 0.2`.
+- The `m_alpha` threshold is checked only on the converged/final Bishop iteration.
+- Base tension induced negative shear strength is clamped to zero during Bishop resistance aggregation.
+
 ## Hard and Diagnostic Parity Checks
 
 `fos_abs_error = abs(FOS_model - FOS_ref)` (hard gate `<= 0.001`)  
