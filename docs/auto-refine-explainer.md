@@ -103,11 +103,11 @@ Formulas:
 `d = c / (2 * tan(beta))`
 
 - What this computes: chord length, circle radius, and center offset for one candidate.
-- Where it is used in our implementation: `_circle_from_endpoints_and_tangent`, `_generate_tangent_angles`.
+- Where it is used in our implementation: `circle_from_endpoints_and_tangent`, `_generate_tangent_angles`.
 - Why it matters for Case 3/Case 4 parity: Case 4 needed low-angle circle families to be sampled.
 
 Important implementation detail:
-- Circles are parameterized with center above the endpoints (`yc > max(y1, y2)` in `_circle_from_endpoints_and_tangent`).
+- Circles are parameterized with center above the endpoints (`yc > max(y1, y2)` in `circle_from_endpoints_and_tangent`).
 - FOS uses the lower arc branch in `CircularSlipSurface.y_base`: `y_base = yc - sqrt(r^2 - (x - xc)^2)`.
 
 ### D7. Aggregate FOS by division

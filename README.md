@@ -32,6 +32,21 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 - `search.method = cmaes_global_circular` for seeded hybrid DIRECT prescan + CMA-ES + Nelder-Mead polish.
 - Input settings and output diagnostics for each method are documented in the explainer files above.
 
+## Search Architecture
+
+- Shared circular geometry and candidate validity rules: `src/slope_stab/search/common.py`
+- Shared objective/caching/evaluation counters for global methods: `src/slope_stab/search/objective_evaluator.py`
+- Shared DIRECT partition primitive used by DIRECT and CMAES prescan: `src/slope_stab/search/direct_partition.py`
+- Shared deterministic post-polish config for global methods: `src/slope_stab/search/post_polish.py`
+
+This keeps the method-specific files focused on their search strategy while preserving consistent scoring, tie-break, and invalid-candidate behavior.
+
+## Performance and Repeatability Notes
+
+- Deterministic paths (`auto_refine_circular`, `direct_global_circular`) remain deterministic.
+- Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
+- Non-gating performance snapshots can be captured with the fixture timing command documented in `PLANS.md` for regression tracking.
+
 ## Bishop Solver Validity Rules
 
 - Any converged slip surface with final-iteration `m_alpha < 0.2` in any slice is treated as invalid.

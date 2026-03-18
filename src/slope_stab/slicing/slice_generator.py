@@ -27,29 +27,6 @@ def _integration_nodes(x_edges: np.ndarray, profile: UniformSlopeProfile) -> np.
     return np.unique(merged)
 
 
-def _slice_area_piecewise(
-    profile: UniformSlopeProfile,
-    surface: CircularSlipSurface,
-    xl: float,
-    xr: float,
-) -> float:
-    nodes = _integration_nodes(np.asarray([xl, xr], dtype=float), profile)
-    y_top = profile.y_ground_array(nodes)
-    y_base = surface.y_base_array(nodes)
-    heights = y_top - y_base
-
-    if np.any(heights < -_NEG_HEIGHT_TOL):
-        bad_idx = int(np.flatnonzero(heights < -_NEG_HEIGHT_TOL)[0])
-        xa = float(nodes[max(0, bad_idx - 1)])
-        xb = float(nodes[min(len(nodes) - 1, bad_idx)])
-        raise GeometryError(
-            f"Negative slice height while integrating area segment [{xa}, {xb}]."
-        )
-
-    segment_areas = 0.5 * (heights[:-1] + heights[1:]) * (nodes[1:] - nodes[:-1])
-    return float(np.sum(segment_areas))
-
-
 def generate_vertical_slices(
     profile: UniformSlopeProfile,
     surface: CircularSlipSurface,

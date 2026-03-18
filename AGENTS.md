@@ -84,6 +84,10 @@ Expected:
 - Expose diagnostics that help reconcile per-slice terms and iteration history.
 - Prefer explicit validation errors over silent fallback behavior.
 - Keep deterministic behavior for deterministic paths and fixed-seed repeatability for cuckoo paths; do not alter Case 1/Case 2 benchmark behavior.
+- Keep global-search core logic centralized:
+  - candidate objective/caching behavior belongs in shared search-core utilities
+  - DIRECT partition selection/splitting behavior belongs in shared search-core utilities
+  - avoid duplicating these primitives across `direct_global.py`, `cuckoo_global.py`, and `cmaes_global.py`
 
 ## Change Policy
 When proposing extensions, sequence strictly:

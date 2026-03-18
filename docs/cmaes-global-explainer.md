@@ -2,6 +2,7 @@
 
 This document explains `search.method = "cmaes_global_circular"` in `src/slope_stab/search/cmaes_global.py`.
 Core circular geometry, tie-break keys, and candidate validity checks are shared via `src/slope_stab/search/common.py`.
+Objective/cache behavior is shared via `src/slope_stab/search/objective_evaluator.py`, and DIRECT prescan partition logic is shared via `src/slope_stab/search/direct_partition.py`.
 
 ## Goal
 
@@ -35,7 +36,7 @@ with:
 
 ### Stage 1: DIRECT-style Prescan
 
-The algorithm partitions normalized space, evaluates rectangle centers, and keeps splitting potentially optimal rectangles. This stage is deterministic and builds strong initial elites.
+The algorithm partitions normalized space, evaluates rectangle centers, and keeps splitting potentially optimal rectangles. This stage is deterministic and builds strong initial elites. The partition primitive is the same one used by `direct_global_circular`.
 
 ![C2 direct prescan](images/cmaes_global/02_direct_prescan.svg)
 
@@ -47,7 +48,10 @@ CMA-ES starts from elites from prescan and explores correlated directions in nor
 
 ### Stage 3: Deterministic Polish
 
-The best CMA vector is polished with bounded Nelder-Mead. Toe/crest refinement passes are then applied for parity-focused finishing.
+The best CMA vector is polished with bounded Nelder-Mead. Toe/crest refinement is then followed by a deterministic two-phase toe-locked sweep:
+
+1. coarse `61 x 61` grid over toe-locked right-endpoint/beta space,
+2. local `21 x 21` sweep centered on the best coarse cell.
 
 ![C4 polish](images/cmaes_global/04_polish.svg)
 
@@ -59,7 +63,7 @@ The final winner is the best valid surface found across all stages, with determi
 
 ## Objective and Penalties
 
-The shared objective cache is used across all stages.
+The shared objective cache/evaluator is used across all stages.
 
 - valid converged candidate: `score = FOS`
 - invalid geometry: `score = invalid_penalty` (large finite)

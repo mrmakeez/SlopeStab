@@ -44,6 +44,9 @@ class BishopSimplifiedSolver(LEMSolver):
         sin_a = np.sin(alpha)
         cos_a = np.cos(alpha)
         small_cos_mask = np.abs(cos_a) < 1e-10
+        if np.any(small_cos_mask):
+            for bad_idx in np.flatnonzero(small_cos_mask):
+                warnings.append(f"Slice {int(slice_ids[bad_idx])}: cos(alpha) is very small ({float(cos_a[bad_idx])}).")
 
         x_mid = 0.5 * (x_left + x_right)
         x_offset = x_mid - self._surface.xc
@@ -56,10 +59,6 @@ class BishopSimplifiedSolver(LEMSolver):
         cohesion_base_sin = cohesion_base * sin_a
 
         for iteration in range(1, self._analysis.max_iter + 1):
-            if np.any(small_cos_mask):
-                for bad_idx in np.flatnonzero(small_cos_mask):
-                    warnings.append(f"Slice {int(slice_ids[bad_idx])}: cos(alpha) is very small ({float(cos_a[bad_idx])}).")
-
             m_alpha = cos_a + (sin_a * tan_phi) / f_k
             near_zero = np.abs(m_alpha) < 1e-12
             if np.any(near_zero):

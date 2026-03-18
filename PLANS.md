@@ -1038,3 +1038,234 @@ Dependencies remain unchanged and required: `numpy`, `scipy`, and `cma`.
 
 Plan revision note: Added on 2026-03-18 and closed on 2026-03-18 after implementing the solver-rule updates, adding focused unit coverage, updating documentation, and passing the required verification gate.
 ```
+
+```md
+# Consolidate Global Search Core and Remove Optimization Redundancies (NumPy/SciPy/pycma)
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` were kept up to date through implementation and closure.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and was maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+Global search paths now share core objective/caching and DIRECT partition primitives, reducing duplicated logic while preserving benchmark and verification behavior. Runtime dependencies remain required (`numpy`, `scipy`, `cma`) with no fallback branches added. The user-visible behavior remains unchanged: same methods, same CLI surface, same verification policy.
+
+## Progress
+
+- [x] (2026-03-19 +13:00) Completed repository + subagent exploration and confirmed redundancy/performance hotspots.
+- [x] (2026-03-19 +13:00) Captured baseline gate status using `python -m slope_stab.cli verify` and `python -m unittest discover -s tests -p "test_*.py"`.
+- [x] (2026-03-19 +13:00) Added shared global objective evaluator module (`src/slope_stab/search/objective_evaluator.py`).
+- [x] (2026-03-19 +13:00) Added shared DIRECT partition primitive (`src/slope_stab/search/direct_partition.py`).
+- [x] (2026-03-19 +13:00) Added shared post-polish config helper (`src/slope_stab/search/post_polish.py`).
+- [x] (2026-03-19 +13:00) Refactored `direct_global.py` to use shared evaluator and shared DIRECT partition primitive.
+- [x] (2026-03-19 +13:00) Refactored `cuckoo_global.py` to use shared evaluator and precompute Levy `sigma_u` once per run.
+- [x] (2026-03-19 +13:00) Refactored `cmaes_global.py` to use shared evaluator + shared DIRECT prescan primitive and removed dead restart branch.
+- [x] (2026-03-19 +13:00) Applied bounded CMAES toe-locked tuning from fixed `81x81` sweep to deterministic two-phase (`61x61` coarse + `21x21` local) sweep.
+- [x] (2026-03-19 +13:00) Removed repeated per-iteration small-cos warning emission in `bishop.py` (now emitted once).
+- [x] (2026-03-19 +13:00) Removed unused `_slice_area_piecewise` in `slice_generator.py`.
+- [x] (2026-03-19 +13:00) De-duplicated regression benchmark scaffolding via shared helper (`tests/regression/global_search_benchmark_helpers.py`).
+- [x] (2026-03-19 +13:00) Updated documentation in `AGENTS.md`, `README.md`, and search explainers.
+- [x] (2026-03-19 +13:00) Re-ran full required gate; all tests and verification checks passed.
+
+## Surprises & Discoveries
+
+- Observation: Shared evaluator and DIRECT primitives can be extracted without changing benchmark outcomes when tie-break and ordering semantics are preserved exactly.
+  Evidence: Cases 2-4 benchmark gates stayed passing for direct/cuckoo/CMAES after refactor.
+
+- Observation: Removing duplicated repair/round paths via centralized vector normalization did not reduce repeatability for fixed-seed cuckoo/CMAES checks.
+  Evidence: `tests.regression.test_cuckoo_global_oracle` and `tests.regression.test_cmaes_global_oracle` passed.
+
+- Observation: Two-phase toe-locked CMAES polish changed some CMAES objective trajectories slightly but stayed within required benchmark margins.
+  Evidence: built-in `cli verify` still passed Case 2/3/4 CMAES benchmark checks (`<= benchmark + 0.01`).
+
+- Observation: The previous benchmark perf capture command emitted very large metadata payloads due full iteration diagnostics.
+  Evidence: baseline command output was extremely large; a compact fixture timing summary was added for post-change reporting.
+
+## Decision Log
+
+- Decision: Keep refactor behavior-preserving for direct and cuckoo paths while allowing bounded CMAES polish tuning.
+  Rationale: matches approved scope and minimizes risk to deterministic/repeatability contracts.
+  Date/Author: 2026-03-19 / Codex + User
+
+- Decision: Centralize evaluator and partition logic into shared modules rather than partial helper extraction.
+  Rationale: this removes multiple duplicate implementations and reduces future drift risk.
+  Date/Author: 2026-03-19 / Codex
+
+- Decision: Keep performance checks non-gating and evidence-oriented.
+  Rationale: avoids environment-dependent flakiness while still recording regressions.
+  Date/Author: 2026-03-19 / Codex + User
+
+- Decision: De-dup verification scaffolding in regression helpers in this cycle; leave `verification/cases.py` data layout unchanged.
+  Rationale: preserve fixture readability and reduce churn risk while still removing repeated assertion logic.
+  Date/Author: 2026-03-19 / Codex
+
+## Outcomes & Retrospective
+
+Completed goals:
+
+- Reduced search-core duplication by introducing shared objective and DIRECT partition primitives.
+- Preserved required verification behavior and benchmark gate outcomes.
+- Applied bounded CMAES toe-locked tuning with deterministic sampling.
+- Removed low-risk local inefficiencies (`bishop` warning duplication, dead slicing helper, repeated Levy constant math).
+- Updated governance and explainer docs to match current implementation architecture.
+
+Remaining technical debt:
+
+- `src/slope_stab/verification/cases.py` still has repeated case payload blocks and can be further deduplicated in a follow-up without touching expected values.
+
+## Context and Orientation
+
+Primary touched runtime modules:
+
+- `src/slope_stab/search/objective_evaluator.py`
+- `src/slope_stab/search/direct_partition.py`
+- `src/slope_stab/search/post_polish.py`
+- `src/slope_stab/search/direct_global.py`
+- `src/slope_stab/search/cuckoo_global.py`
+- `src/slope_stab/search/cmaes_global.py`
+- `src/slope_stab/lem_core/bishop.py`
+- `src/slope_stab/slicing/slice_generator.py`
+
+Primary touched regression/docs modules:
+
+- `tests/regression/global_search_benchmark_helpers.py`
+- `tests/regression/test_global_search_benchmark.py`
+- `tests/regression/test_cuckoo_global_search_benchmark.py`
+- `tests/regression/test_cmaes_global_search_benchmark.py`
+- `AGENTS.md`
+- `README.md`
+- `docs/direct-global-explainer.md`
+- `docs/cuckoo-global-explainer.md`
+- `docs/cmaes-global-explainer.md`
+- `docs/auto-refine-explainer.md`
+
+## Plan of Work
+
+Implementation followed the planned sequence:
+
+1. Baseline gate check.
+2. Shared core extraction (objective evaluator + DIRECT partition + polish config).
+3. Refactor direct/cuckoo/CMAES onto shared core.
+4. Apply bounded CMAES tuning.
+5. Remove low-risk local inefficiencies.
+6. De-duplicate benchmark regression assertions.
+7. Update docs.
+8. Re-run full verification and test gates.
+
+## Concrete Steps
+
+Run from repository root:
+
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
+    $env:PYTHONPATH='src'; python -m unittest discover -s tests -p "test_*.py"
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_global_search_benchmark
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_cuckoo_global_search_benchmark
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_cmaes_global_search_benchmark
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_cuckoo_global_oracle
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_cmaes_global_oracle
+
+Compact post-change perf snapshot command:
+
+    $env:PYTHONPATH='src'; @'
+    import json, time
+    from slope_stab.io.json_io import load_project_input
+    from slope_stab.analysis import run_analysis
+    fixtures = [
+      "tests/fixtures/case2_direct_global.json",
+      "tests/fixtures/case3_direct_global.json",
+      "tests/fixtures/case4_direct_global.json",
+      "tests/fixtures/case2_cuckoo_global.json",
+      "tests/fixtures/case3_cuckoo_global.json",
+      "tests/fixtures/case4_cuckoo_global.json",
+      "tests/fixtures/case2_cmaes_global.json",
+      "tests/fixtures/case3_cmaes_global.json",
+      "tests/fixtures/case4_cmaes_global.json",
+    ]
+    rows = []
+    for fixture in fixtures:
+        project = load_project_input(fixture)
+        t0 = time.perf_counter()
+        result = run_analysis(project)
+        dt = time.perf_counter() - t0
+        search = result.metadata.get("search", {})
+        rows.append({
+            "fixture": fixture,
+            "seconds": round(dt, 4),
+            "fos": result.fos,
+            "total_evaluations": search.get("total_evaluations"),
+            "valid_evaluations": search.get("valid_evaluations"),
+            "infeasible_evaluations": search.get("infeasible_evaluations"),
+            "termination_reason": search.get("termination_reason"),
+        })
+    print(json.dumps(rows, indent=2))
+    '@ | python -
+
+## Validation and Acceptance
+
+All required acceptance checks passed:
+
+- `python -m slope_stab.cli verify` passed all built-in cases.
+- `python -m unittest discover -s tests -p "test_*.py"` passed (31 tests).
+- Case 1 and Case 2 targets/tolerances were unchanged.
+- Cases 2-4 benchmark checks for direct/cuckoo/CMAES remained passing.
+- Cuckoo/CMAES oracle regressions remained passing for fixed seeds.
+- Documentation updates were applied to AGENTS/README/explainers.
+
+## Idempotence and Recovery
+
+Commands above are rerunnable. If a future change causes benchmark drift, first disable new tuning paths (for example CMAES toe-locked sampling changes) and keep shared-core structural refactor intact, then re-run the full verification gate.
+
+Do not adjust Case 1/Case 2 benchmark tolerances as a recovery action.
+
+## Artifacts and Notes
+
+Functional gate evidence:
+
+- Baseline verify: passed all built-in cases.
+- Baseline unittest discover: passed.
+- Post-change verify: passed all built-in cases.
+- Post-change unittest discover: passed (31 tests).
+
+Performance evidence (non-gating):
+
+- Baseline sample timings captured before refactor included:
+  - `case2_direct_global`: `1.1571s`
+  - `case3_direct_global`: `1.6624s`
+  - `case4_direct_global`: `1.4333s`
+  - `case2_cuckoo_global`: `1.2992s`
+- Post-change compact timings:
+  - `case2_direct_global`: `0.9886s`
+  - `case3_direct_global`: `1.6160s`
+  - `case4_direct_global`: `1.6701s`
+  - `case2_cuckoo_global`: `1.4800s`
+  - `case3_cuckoo_global`: `3.1493s`
+  - `case4_cuckoo_global`: `2.5165s`
+  - `case2_cmaes_global`: `3.4924s`
+  - `case3_cmaes_global`: `3.9215s`
+  - `case4_cmaes_global`: `4.3879s`
+- No benchmark-gate regressions were introduced while applying bounded CMAES tuning and shared-core refactors.
+
+No runtime cache artifacts (`__pycache__/`, `*.pyc`) were added.
+
+## Interfaces and Dependencies
+
+Public interfaces unchanged:
+
+- CLI contract unchanged.
+- Input schema unchanged.
+- Supported methods unchanged.
+
+New internal interfaces:
+
+- `CachedObjectiveEvaluator` and scoring policy in `src/slope_stab/search/objective_evaluator.py`.
+- `DirectRectangle`, `select_potentially_optimal`, `split_rectangle`, and seeded center helper in `src/slope_stab/search/direct_partition.py`.
+- `default_post_polish_refine_config` in `src/slope_stab/search/post_polish.py`.
+
+Dependencies unchanged and required:
+
+- `numpy`, `scipy`, `cma`.
+
+Plan status: Closed.
+
+Plan revision note: Added and closed on 2026-03-19 after implementing shared search-core refactors, bounded CMAES polish tuning, documentation alignment, and full gate validation.
+```

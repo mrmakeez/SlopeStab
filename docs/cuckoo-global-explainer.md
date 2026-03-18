@@ -2,6 +2,7 @@
 
 This document explains `search.method = "cuckoo_global_circular"` in `src/slope_stab/search/cuckoo_global.py`.
 This method shares circular mapping, tie-break keys, and candidate validity checks via `src/slope_stab/search/common.py`.
+Objective/cache/counter handling is shared via `src/slope_stab/search/objective_evaluator.py`.
 
 ## Goal
 
@@ -49,6 +50,9 @@ Each iteration:
 ![Cuckoo iteration loop](images/cuckoo_global/02_iteration_loop.svg)
 
 Tie-breaks for equal FOS use `(x_left, x_right, r)` to keep deterministic ordering.
+
+Implementation note:
+- the Levy `sigma_u` constant is computed once per run (fixed `levy_beta`) and reused each iteration.
 
 ### Replacement and Abandonment
 

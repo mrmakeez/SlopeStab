@@ -1,7 +1,7 @@
 # DIRECT Global Circular Search Explained (Super Simple)
 
 This document explains the current implementation in `src/slope_stab/search/direct_global.py`.
-Direct-global now reuses shared normalized-to-circle mapping, tie-break keys, and candidate validity checks from `src/slope_stab/search/common.py`.
+Direct-global reuses shared normalized-to-circle mapping and candidate validity checks from `src/slope_stab/search/common.py`, shared objective/caching logic from `src/slope_stab/search/objective_evaluator.py`, and shared DIRECT partition primitives from `src/slope_stab/search/direct_partition.py`.
 
 Goal in one sentence: run a deterministic DIRECT-style global search over circular surface parameters, then apply deterministic local polishing.
 
@@ -28,7 +28,7 @@ Formulas:
 `u = (u_left, u_span, u_beta) in [0,1]^3`
 
 - What this computes: bounded physical domain and normalized search coordinates.
-- Where it is used in implementation: `run_direct_global_search` and `_map_to_surface`.
+- Where it is used in implementation: `run_direct_global_search` and `map_vector_to_surface` (via the shared objective evaluator).
 
 ### D2. Map `u` to Circular Surface
 
@@ -48,7 +48,7 @@ Key v1 constants:
 `beta range = [0.5 deg, 89.5 deg]`
 
 - What this computes: one candidate circular surface from one normalized point.
-- Where it is used in implementation: `_map_to_surface`, `_circle_from_endpoints_and_tangent`.
+- Where it is used in implementation: `map_vector_to_surface`, `circle_from_endpoints_and_tangent`.
 
 ### D3. Deterministic 3x3x3 Initialization
 
@@ -76,7 +76,7 @@ Rule:
 `objective = +inf` otherwise
 
 - What this computes: robust black-box objective for DIRECT.
-- Where it is used in implementation: `evaluate_point` inside `run_direct_global_search`.
+- Where it is used in implementation: `CachedObjectiveEvaluator.evaluate_vector` used by `run_direct_global_search`.
 - Validity details from Bishop solver:
   - reject candidate if final-iteration `m_alpha < 0.2` in any slice
   - clamp base tension induced negative shear strength to zero
@@ -92,7 +92,7 @@ Formula:
 `key = (round(u_left,15), round(u_span,15), round(u_beta,15))`
 
 - What this computes: deterministic, repeatable memoization.
-- Where it is used in implementation: `cache` lookup/store in `evaluate_point`.
+- Where it is used in implementation: `CachedObjectiveEvaluator` cache key lookup/store.
 
 ### D6. Potentially-Optimal Selection
 
@@ -106,7 +106,7 @@ Formula:
 `K in {0, 10^-6, ..., 10^6}`
 
 - What this computes: rectangles eligible for subdivision this iteration.
-- Where it is used in implementation: `_best_rect_per_size`, `_select_potentially_optimal`.
+- Where it is used in implementation: `best_rectangles_per_size` and `select_potentially_optimal` in `src/slope_stab/search/direct_partition.py`.
 
 ### D7. Longest-Dimension Trisection
 
@@ -120,7 +120,7 @@ Rules:
 Tie-break: lowest index dimension
 
 - What this computes: deterministic spatial refinement.
-- Where it is used in implementation: subdivision loop in `run_direct_global_search`.
+- Where it is used in implementation: `split_rectangle` in `src/slope_stab/search/direct_partition.py` and the DIRECT iteration loop in `run_direct_global_search`.
 
 ### D8. Incumbent Update and Tie-Break
 
@@ -136,7 +136,7 @@ If tied within `tol`, compare key `(x_left, x_right, r)`.
 `tol = 1e-12`
 
 - What this computes: deterministic incumbent state.
-- Where it is used in implementation: incumbent update in `evaluate_point`.
+- Where it is used in implementation: incumbent update in `CachedObjectiveEvaluator`.
 
 ### D9. Stopping Criteria
 
