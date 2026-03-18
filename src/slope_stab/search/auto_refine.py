@@ -7,10 +7,15 @@ from typing import Callable
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, AutoRefineSearchInput, PrescribedCircleInput
+from slope_stab.search.common import (
+    TIE_TOL,
+    circle_from_endpoints_and_tangent,
+    evaluate_surface_candidate,
+    surface_key,
+)
 
 
 TANGENT_EPS_RAD = math.radians(0.5)
-_TIE_TOL = 1e-12
 _DIVISION_EDGE_EPS = 1e-4
 
 
@@ -138,63 +143,6 @@ def _sample_fractions(index: int, total: int) -> tuple[float, float]:
     return (left, right)
 
 
-def _circle_from_endpoints_and_tangent(
-    p_left: tuple[float, float],
-    p_right: tuple[float, float],
-    theta: float,
-) -> PrescribedCircleInput | None:
-    x1, y1 = p_left
-    x2, y2 = p_right
-    if x2 <= x1:
-        return None
-
-    dx = x2 - x1
-    dy = y2 - y1
-    chord = math.hypot(dx, dy)
-    if chord <= 0.0:
-        return None
-
-    beta = theta
-    if beta <= 0.0 or beta >= 0.5 * math.pi:
-        return None
-
-    sin_beta = math.sin(beta)
-    tan_beta = math.tan(beta)
-    if abs(sin_beta) <= 1e-12 or abs(tan_beta) <= 1e-12:
-        return None
-
-    radius = chord / (2.0 * sin_beta)
-    center_offset = chord / (2.0 * tan_beta)
-    if radius <= 0.0 or not math.isfinite(radius) or not math.isfinite(center_offset):
-        return None
-
-    mid_x = 0.5 * (x1 + x2)
-    mid_y = 0.5 * (y1 + y2)
-
-    normal_x = -dy / chord
-    normal_y = dx / chord
-    if normal_y < 0.0:
-        normal_x = -normal_x
-        normal_y = -normal_y
-
-    xc = mid_x + center_offset * normal_x
-    yc = mid_y + center_offset * normal_y
-    if not math.isfinite(xc) or not math.isfinite(yc):
-        return None
-    if yc <= max(y1, y2) + 1e-9:
-        return None
-
-    return PrescribedCircleInput(
-        xc=xc,
-        yc=yc,
-        r=radius,
-        x_left=x1,
-        y_left=y1,
-        x_right=x2,
-        y_right=y2,
-    )
-
-
 def run_auto_refine_search(
     profile: UniformSlopeProfile,
     config: AutoRefineSearchInput,
@@ -240,35 +188,29 @@ def run_auto_refine_search(
                     frac_right = min(max(frac_right, _DIVISION_EDGE_EPS), 1.0 - _DIVISION_EDGE_EPS)
                     p_left = _interpolate_point(left_start, left_end, frac_left)
                     p_right = _interpolate_point(right_start, right_end, frac_right)
-                    surface = _circle_from_endpoints_and_tangent(p_left, p_right, theta)
-                    if surface is None:
+                    surface = circle_from_endpoints_and_tangent(p_left, p_right, theta)
+                    evaluation = evaluate_surface_candidate(surface, evaluate_surface, driving_moment_tol=1e-6)
+                    if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                         continue
-                    try:
-                        result = evaluate_surface(surface)
-                    except (ConvergenceError, GeometryError, ValueError):
-                        continue
-                    if not math.isfinite(result.fos) or result.fos <= 0.0:
-                        continue
-                    if not math.isfinite(result.driving_moment) or abs(result.driving_moment) <= 1e-6:
-                        continue
+                    result = evaluation.result
 
                     valid += 1
                     division_fos[i].append(result.fos)
                     division_fos[j].append(result.fos)
 
-                    if iter_min_fos is None or result.fos < iter_min_fos - _TIE_TOL:
+                    if iter_min_fos is None or result.fos < iter_min_fos - TIE_TOL:
                         iter_min_fos = result.fos
 
-                    if best_result is None or result.fos < best_result.fos - _TIE_TOL:
-                        best_surface = surface
+                    if best_result is None or result.fos < best_result.fos - TIE_TOL:
+                        best_surface = evaluation.surface
                         best_result = result
-                    elif best_result is not None and abs(result.fos - best_result.fos) <= _TIE_TOL:
+                    elif best_result is not None and abs(result.fos - best_result.fos) <= TIE_TOL:
                         # Deterministic tie-break using left, right, then radius.
                         assert best_surface is not None
-                        candidate_key = (surface.x_left, surface.x_right, surface.r)
-                        best_key = (best_surface.x_left, best_surface.x_right, best_surface.r)
+                        candidate_key = surface_key(evaluation.surface)
+                        best_key = surface_key(best_surface)
                         if candidate_key < best_key:
-                            best_surface = surface
+                            best_surface = evaluation.surface
                             best_result = result
 
         total_generated += generated
@@ -378,27 +320,20 @@ def _run_toe_crest_refinement(
             for k in range(beta_samples):
                 u = k / (beta_samples - 1)
                 beta = theta_lo + (theta_hi - theta_lo) * (u * u)
-                candidate = _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-                if candidate is None:
+                candidate = circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
+                evaluation = evaluate_surface_candidate(candidate, evaluate_surface, driving_moment_tol=1e-6)
+                if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                     continue
-                try:
-                    result = evaluate_surface(candidate)
-                except (ConvergenceError, GeometryError, ValueError):
-                    continue
+                result = evaluation.result
 
-                if not math.isfinite(result.fos) or result.fos <= 0.0:
-                    continue
-                if not math.isfinite(result.driving_moment) or abs(result.driving_moment) <= 1e-6:
-                    continue
-
-                if result.fos < best_result.fos - _TIE_TOL:
-                    best_surface = candidate
+                if result.fos < best_result.fos - TIE_TOL:
+                    best_surface = evaluation.surface
                     best_result = result
-                elif abs(result.fos - best_result.fos) <= _TIE_TOL:
-                    candidate_key = (candidate.x_left, candidate.x_right, candidate.r)
-                    best_key = (best_surface.x_left, best_surface.x_right, best_surface.r)
+                elif abs(result.fos - best_result.fos) <= TIE_TOL:
+                    candidate_key = surface_key(evaluation.surface)
+                    best_key = surface_key(best_surface)
                     if candidate_key < best_key:
-                        best_surface = candidate
+                        best_surface = evaluation.surface
                         best_result = result
 
     return best_surface, best_result
@@ -429,27 +364,20 @@ def _run_toe_locked_beta_refinement(
     for k in range(beta_samples):
         u = k / (beta_samples - 1)
         beta = theta_lo + (theta_hi - theta_lo) * u
-        candidate = _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-        if candidate is None:
+        candidate = circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
+        evaluation = evaluate_surface_candidate(candidate, evaluate_surface, driving_moment_tol=1e-6)
+        if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
             continue
-        try:
-            result = evaluate_surface(candidate)
-        except (ConvergenceError, GeometryError, ValueError):
-            continue
+        result = evaluation.result
 
-        if not math.isfinite(result.fos) or result.fos <= 0.0:
-            continue
-        if not math.isfinite(result.driving_moment) or abs(result.driving_moment) <= 1e-6:
-            continue
-
-        if result.fos < best_result.fos - _TIE_TOL:
-            best_surface = candidate
+        if result.fos < best_result.fos - TIE_TOL:
+            best_surface = evaluation.surface
             best_result = result
-        elif abs(result.fos - best_result.fos) <= _TIE_TOL:
-            candidate_key = (candidate.x_left, candidate.x_right, candidate.r)
-            best_key = (best_surface.x_left, best_surface.x_right, best_surface.r)
+        elif abs(result.fos - best_result.fos) <= TIE_TOL:
+            candidate_key = surface_key(evaluation.surface)
+            best_key = surface_key(best_surface)
             if candidate_key < best_key:
-                best_surface = candidate
+                best_surface = evaluation.surface
                 best_result = result
 
     return best_surface, best_result

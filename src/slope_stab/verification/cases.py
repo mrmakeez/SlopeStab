@@ -48,24 +48,7 @@ class AutoRefineVerificationCase:
 @dataclass(frozen=True)
 class GlobalSearchBenchmarkVerificationCase:
     case_type: str
-    name: str
-    project: ProjectInput
-    benchmark_fos: float
-    margin: float
-
-
-@dataclass(frozen=True)
-class CuckooGlobalSearchBenchmarkVerificationCase:
-    case_type: str
-    name: str
-    project: ProjectInput
-    benchmark_fos: float
-    margin: float
-
-
-@dataclass(frozen=True)
-class CmaesGlobalSearchBenchmarkVerificationCase:
-    case_type: str
+    search_method: str
     name: str
     project: ProjectInput
     benchmark_fos: float
@@ -76,8 +59,6 @@ VerificationCase: TypeAlias = (
     PrescribedVerificationCase
     | AutoRefineVerificationCase
     | GlobalSearchBenchmarkVerificationCase
-    | CuckooGlobalSearchBenchmarkVerificationCase
-    | CmaesGlobalSearchBenchmarkVerificationCase
 )
 
 
@@ -214,6 +195,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
     ),
     GlobalSearchBenchmarkVerificationCase(
         case_type="global_search_benchmark",
+        search_method="direct_global_circular",
         name="Case 2 (Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -244,6 +226,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
     ),
     GlobalSearchBenchmarkVerificationCase(
         case_type="global_search_benchmark",
+        search_method="direct_global_circular",
         name="Case 3 (Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -274,6 +257,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
     ),
     GlobalSearchBenchmarkVerificationCase(
         case_type="global_search_benchmark",
+        search_method="direct_global_circular",
         name="Case 4 (Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -302,8 +286,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         benchmark_fos=1.234670,
         margin=0.01,
     ),
-    CuckooGlobalSearchBenchmarkVerificationCase(
+    GlobalSearchBenchmarkVerificationCase(
         case_type="cuckoo_global_search_benchmark",
+        search_method="cuckoo_global_circular",
         name="Case 2 (Cuckoo Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -338,8 +323,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         benchmark_fos=2.11283,
         margin=0.01,
     ),
-    CuckooGlobalSearchBenchmarkVerificationCase(
+    GlobalSearchBenchmarkVerificationCase(
         case_type="cuckoo_global_search_benchmark",
+        search_method="cuckoo_global_circular",
         name="Case 3 (Cuckoo Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -374,8 +360,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         benchmark_fos=0.986442,
         margin=0.01,
     ),
-    CuckooGlobalSearchBenchmarkVerificationCase(
+    GlobalSearchBenchmarkVerificationCase(
         case_type="cuckoo_global_search_benchmark",
+        search_method="cuckoo_global_circular",
         name="Case 4 (Cuckoo Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -410,8 +397,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         benchmark_fos=1.234670,
         margin=0.01,
     ),
-    CmaesGlobalSearchBenchmarkVerificationCase(
+    GlobalSearchBenchmarkVerificationCase(
         case_type="cmaes_global_search_benchmark",
+        search_method="cmaes_global_circular",
         name="Case 2 (CMAES Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -448,8 +436,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         benchmark_fos=2.11283,
         margin=0.01,
     ),
-    CmaesGlobalSearchBenchmarkVerificationCase(
+    GlobalSearchBenchmarkVerificationCase(
         case_type="cmaes_global_search_benchmark",
+        search_method="cmaes_global_circular",
         name="Case 3 (CMAES Global Search Benchmark)",
         project=ProjectInput(
             units="metric",
@@ -486,8 +475,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         benchmark_fos=0.986442,
         margin=0.01,
     ),
-    CmaesGlobalSearchBenchmarkVerificationCase(
+    GlobalSearchBenchmarkVerificationCase(
         case_type="cmaes_global_search_benchmark",
+        search_method="cmaes_global_circular",
         name="Case 4 (CMAES Global Search Benchmark)",
         project=ProjectInput(
             units="metric",

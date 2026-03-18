@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import numpy as np
 
 
 @dataclass(frozen=True)
@@ -30,3 +31,15 @@ class UniformSlopeProfile:
         if x >= self.crest_x:
             return self.crest_y
         return self.y_toe + self.slope_gradient * (x - self.x_toe)
+
+    def y_ground_array(self, x: np.ndarray) -> np.ndarray:
+        x_arr = np.asarray(x, dtype=float)
+        return np.where(
+            x_arr <= self.x_toe,
+            self.y_toe,
+            np.where(
+                x_arr >= self.crest_x,
+                self.crest_y,
+                self.y_toe + self.slope_gradient * (x_arr - self.x_toe),
+            ),
+        )

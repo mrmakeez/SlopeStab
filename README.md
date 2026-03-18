@@ -2,6 +2,15 @@
 
 Verification-first Bishop simplified slope stability program.
 
+## Runtime Dependencies
+
+- Python `>=3.11`
+- `numpy`
+- `scipy`
+- `cma` (pycma)
+
+The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementations are intentionally not provided.
+
 ## Quick Start
 
 1. `python -m slope_stab.cli analyze --input tests/fixtures/case1.json`

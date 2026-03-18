@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 import random
-from typing import Callable
 
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
@@ -14,15 +13,23 @@ from slope_stab.models import (
     PrescribedCircleInput,
 )
 from slope_stab.search.auto_refine import _run_toe_crest_refinement
+from slope_stab.search.common import (
+    BETA_MAX_RAD,
+    CACHE_ROUND,
+    TIE_TOL,
+    X_SEP_MIN,
+    SurfaceEvaluator,
+    circle_from_endpoints_and_tangent,
+    clip01,
+    evaluate_surface_candidate,
+    is_better_score,
+    map_vector_to_surface,
+    repair_vector_reflect,
+    round_vector,
+    surface_key,
+)
 
 
-SurfaceEvaluator = Callable[[PrescribedCircleInput], AnalysisResult]
-
-_X_SEP_MIN = 0.05
-_BETA_MIN_RAD = math.radians(0.5)
-_BETA_MAX_RAD = math.radians(89.5)
-_TIE_TOL = 1e-12
-_CACHE_ROUND = 15
 _SIZE_ROUND = 15
 _DIMENSIONS = 3
 _LIPSCHITZ_POWERS = tuple(range(-6, 7))
@@ -70,114 +77,6 @@ class _Rectangle:
         return max(self.half_sizes)
 
 
-def _clip01(value: float) -> float:
-    return min(1.0, max(0.0, value))
-
-
-def _reflect01(value: float) -> float:
-    x = float(value)
-    while x < 0.0 or x > 1.0:
-        if x < 0.0:
-            x = -x
-        if x > 1.0:
-            x = 2.0 - x
-    return _clip01(x)
-
-
-def _repair_vector(vector: tuple[float, float, float]) -> tuple[float, float, float]:
-    return (_reflect01(vector[0]), _reflect01(vector[1]), _reflect01(vector[2]))
-
-
-def _round_vector(vector: tuple[float, float, float]) -> tuple[float, float, float]:
-    return (round(vector[0], _CACHE_ROUND), round(vector[1], _CACHE_ROUND), round(vector[2], _CACHE_ROUND))
-
-
-def _surface_key(surface: PrescribedCircleInput) -> tuple[float, float, float]:
-    return (surface.x_left, surface.x_right, surface.r)
-
-
-def _map_to_surface(
-    profile: UniformSlopeProfile,
-    x_min: float,
-    x_max: float,
-    vector: tuple[float, float, float],
-) -> PrescribedCircleInput | None:
-    u_left, u_span, u_beta = _repair_vector(vector)
-    width = x_max - x_min
-    if width <= _X_SEP_MIN:
-        return None
-
-    left_range = width - _X_SEP_MIN
-    x_left = x_min + u_left * left_range
-    right_range = x_max - x_left - _X_SEP_MIN
-    if right_range < 0.0:
-        return None
-
-    x_right = x_left + _X_SEP_MIN + u_span * right_range
-    if x_right <= x_left:
-        return None
-
-    y_left = profile.y_ground(x_left)
-    y_right = profile.y_ground(x_right)
-    beta = _BETA_MIN_RAD + u_beta * (_BETA_MAX_RAD - _BETA_MIN_RAD)
-    return _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-
-
-def _circle_from_endpoints_and_tangent(
-    p_left: tuple[float, float],
-    p_right: tuple[float, float],
-    beta: float,
-) -> PrescribedCircleInput | None:
-    x1, y1 = p_left
-    x2, y2 = p_right
-    if x2 <= x1:
-        return None
-    if beta <= 0.0 or beta >= 0.5 * math.pi:
-        return None
-
-    dx = x2 - x1
-    dy = y2 - y1
-    chord = math.hypot(dx, dy)
-    if chord <= 0.0:
-        return None
-
-    sin_beta = math.sin(beta)
-    tan_beta = math.tan(beta)
-    if abs(sin_beta) <= 1e-12 or abs(tan_beta) <= 1e-12:
-        return None
-
-    radius = chord / (2.0 * sin_beta)
-    center_offset = chord / (2.0 * tan_beta)
-    if radius <= 0.0 or not math.isfinite(radius) or not math.isfinite(center_offset):
-        return None
-
-    mid_x = 0.5 * (x1 + x2)
-    mid_y = 0.5 * (y1 + y2)
-
-    normal_x = -dy / chord
-    normal_y = dx / chord
-    if normal_y < 0.0:
-        normal_x = -normal_x
-        normal_y = -normal_y
-
-    xc = mid_x + center_offset * normal_x
-    yc = mid_y + center_offset * normal_y
-    if not math.isfinite(xc) or not math.isfinite(yc):
-        return None
-    if yc <= max(y1, y2) + 1e-9:
-        return None
-
-    return PrescribedCircleInput(
-        xc=xc,
-        yc=yc,
-        r=radius,
-        x_left=x1,
-        y_left=y1,
-        x_right=x2,
-        y_right=y2,
-    )
-
-
 class _ObjectiveEvaluator:
     def __init__(
         self,
@@ -200,7 +99,7 @@ class _ObjectiveEvaluator:
         self.best_vector: tuple[float, float, float] = (0.5, 0.5, 0.5)
 
     def evaluate_vector(self, vector: tuple[float, float, float]) -> _Evaluation:
-        key = _round_vector(_repair_vector(vector))
+        key = round_vector(repair_vector_reflect(vector), digits=CACHE_ROUND)
         cached = self.cache.get(key)
         if cached is not None:
             return cached
@@ -217,57 +116,33 @@ class _ObjectiveEvaluator:
             return evaluation
 
         self.total_evaluations += 1
-        surface = _map_to_surface(self.profile, self.x_min, self.x_max, key)
-        if surface is None:
-            self.infeasible_evaluations += 1
-            evaluation = _Evaluation(
-                score=self.config.invalid_penalty,
-                surface=None,
-                result=None,
-                valid=False,
-                reason="invalid_geometry",
-            )
-            self.cache[key] = evaluation
-            return evaluation
+        surface = map_vector_to_surface(
+            profile=self.profile,
+            x_min=self.x_min,
+            x_max=self.x_max,
+            vector=key,
+            repair_vector=repair_vector_reflect,
+        )
+        candidate = evaluate_surface_candidate(surface, self.evaluate_surface, driving_moment_tol=1e-9)
 
-        try:
-            result = self.evaluate_surface(surface)
-        except (ConvergenceError, GeometryError, ValueError):
+        if not candidate.valid or candidate.surface is None or candidate.result is None:
             self.infeasible_evaluations += 1
+            penalty = self.config.invalid_penalty if candidate.reason == "invalid_geometry" else self.config.nonconverged_penalty
             evaluation = _Evaluation(
-                score=self.config.nonconverged_penalty,
-                surface=surface,
-                result=None,
+                score=penalty,
+                surface=candidate.surface,
+                result=candidate.result,
                 valid=False,
-                reason="evaluation_exception",
-            )
-            self.cache[key] = evaluation
-            return evaluation
-
-        if (
-            (not result.converged)
-            or (not math.isfinite(result.fos))
-            or result.fos <= 0.0
-            or (not math.isfinite(result.driving_moment))
-            or abs(result.driving_moment) <= 1e-9
-            or (not math.isfinite(result.resisting_moment))
-        ):
-            self.infeasible_evaluations += 1
-            evaluation = _Evaluation(
-                score=self.config.nonconverged_penalty,
-                surface=surface,
-                result=result,
-                valid=False,
-                reason="nonconverged_or_invalid_fos",
+                reason=candidate.reason,
             )
             self.cache[key] = evaluation
             return evaluation
 
         self.valid_evaluations += 1
         evaluation = _Evaluation(
-            score=result.fos,
-            surface=surface,
-            result=result,
+            score=candidate.result.fos,
+            surface=candidate.surface,
+            result=candidate.result,
             valid=True,
             reason="valid",
         )
@@ -278,23 +153,12 @@ class _ObjectiveEvaluator:
     def _update_incumbent(self, vector: tuple[float, float, float], evaluation: _Evaluation) -> None:
         if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
             return
-        if self.best_surface is None or self.best_result is None:
+        if is_better_score(evaluation.score, evaluation.surface, self.best_score, self.best_surface):
             self.best_surface = evaluation.surface
             self.best_result = evaluation.result
             self.best_score = evaluation.score
             self.best_vector = vector
-            return
-        if evaluation.score < self.best_score - _TIE_TOL:
-            self.best_surface = evaluation.surface
-            self.best_result = evaluation.result
-            self.best_score = evaluation.score
-            self.best_vector = vector
-            return
-        if abs(evaluation.score - self.best_score) <= _TIE_TOL and _surface_key(evaluation.surface) < _surface_key(self.best_surface):
-            self.best_surface = evaluation.surface
-            self.best_result = evaluation.result
-            self.best_score = evaluation.score
-            self.best_vector = vector
+
 
 def _best_rect_per_size(rectangles: list[_Rectangle]) -> list[_Rectangle]:
     best_by_size: dict[float, _Rectangle] = {}
@@ -304,10 +168,10 @@ def _best_rect_per_size(rectangles: list[_Rectangle]) -> list[_Rectangle]:
         if current is None:
             best_by_size[key] = rect
             continue
-        if rect.evaluation.score < current.evaluation.score - _TIE_TOL:
+        if rect.evaluation.score < current.evaluation.score - TIE_TOL:
             best_by_size[key] = rect
             continue
-        if abs(rect.evaluation.score - current.evaluation.score) <= _TIE_TOL and rect.rect_id < current.rect_id:
+        if abs(rect.evaluation.score - current.evaluation.score) <= TIE_TOL and rect.rect_id < current.rect_id:
             best_by_size[key] = rect
     return sorted(best_by_size.values(), key=lambda r: (r.size_metric, r.evaluation.score, r.rect_id))
 
@@ -356,7 +220,8 @@ def _run_direct_prescan(
 
     iteration = 0
     reason = "direct_budget_reached"
-    while evaluator.total_evaluations < min(config.max_evaluations, config.direct_prescan_evaluations):
+    target_budget = min(config.max_evaluations, config.direct_prescan_evaluations)
+    while evaluator.total_evaluations < target_budget:
         iteration += 1
         selected = _select_potentially_optimal(rectangles)
         if not selected:
@@ -368,7 +233,7 @@ def _run_direct_prescan(
         for rect in selected:
             half_sizes = rect.half_sizes
             split_dim = min(
-                (i for i in range(_DIMENSIONS) if abs(half_sizes[i] - max(half_sizes)) <= _TIE_TOL),
+                (i for i in range(_DIMENSIONS) if abs(half_sizes[i] - max(half_sizes)) <= TIE_TOL),
                 default=0,
             )
             delta = half_sizes[split_dim] / 3.0
@@ -377,12 +242,12 @@ def _run_direct_prescan(
             child_half_sizes = (new_half_sizes[0], new_half_sizes[1], new_half_sizes[2])
             for shift in (-delta, 0.0, delta):
                 child_center = list(rect.center)
-                child_center[split_dim] = _clip01(child_center[split_dim] + shift)
+                child_center[split_dim] = clip01(child_center[split_dim] + shift)
                 child = make_rectangle((child_center[0], child_center[1], child_center[2]), child_half_sizes)
                 next_rectangles.append(child)
-                if evaluator.total_evaluations >= min(config.max_evaluations, config.direct_prescan_evaluations):
+                if evaluator.total_evaluations >= target_budget:
                     break
-            if evaluator.total_evaluations >= min(config.max_evaluations, config.direct_prescan_evaluations):
+            if evaluator.total_evaluations >= target_budget:
                 break
 
         rectangles = next_rectangles
@@ -408,7 +273,7 @@ def _run_direct_prescan(
             for key, value in evaluator.cache.items()
             if value.valid and value.surface is not None
         ),
-        key=lambda item: (item[1], _surface_key(item[2])),
+        key=lambda item: (item[1], surface_key(item[2])),
     )
     elites = [point[0] for point in valid_points[:20]]
     if not elites:
@@ -424,11 +289,10 @@ def _run_cmaes_stage(
 ) -> str:
     try:
         import cma  # type: ignore
-    except Exception:
-        return _run_fallback_seeded_stage(evaluator, config, diagnostics)
+    except Exception as exc:
+        raise RuntimeError("CMA-ES dependency 'cma' is required for cmaes_global_circular.") from exc
 
     restart_count = config.cmaes_restarts + 1
-    best_history: list[float] = []
     reason = "cmaes_max_iterations"
     rng = random.Random(config.seed)
 
@@ -470,8 +334,9 @@ def _run_cmaes_stage(
             before_best = evaluator.best_score
 
             for candidate in solutions:
-                vector = _round_vector(
-                    _repair_vector((float(candidate[0]), float(candidate[1]), float(candidate[2])))
+                vector = round_vector(
+                    repair_vector_reflect((float(candidate[0]), float(candidate[1]), float(candidate[2]))),
+                    digits=CACHE_ROUND,
                 )
                 evaluation = evaluator.evaluate_vector(vector)
                 repaired.append([vector[0], vector[1], vector[2]])
@@ -499,7 +364,6 @@ def _run_cmaes_stage(
                 )
             )
 
-            best_history.append(current_best)
             improvement = before_best - current_best
             if improvement < config.min_improvement:
                 stall_counter += 1
@@ -522,62 +386,6 @@ def _run_cmaes_stage(
     return reason
 
 
-def _run_fallback_seeded_stage(
-    evaluator: _ObjectiveEvaluator,
-    config: CmaesGlobalSearchInput,
-    diagnostics: list[CmaesStageDiagnostics],
-) -> str:
-    rng = random.Random(config.seed)
-    best_history: list[float] = []
-    reason = "fallback_max_iterations"
-    current = evaluator.best_vector
-
-    total_iters = max(1, config.cmaes_max_iterations * (config.cmaes_restarts + 1))
-    for iteration in range(1, total_iters + 1):
-        if evaluator.total_evaluations >= config.max_evaluations:
-            return "max_evaluations"
-        alpha = max(0.01, config.cmaes_sigma0 * math.exp(-2.0 * iteration / total_iters))
-        before_best = evaluator.best_score
-        for _ in range(config.cmaes_population_size):
-            trial = _round_vector(
-                _repair_vector(
-                    (
-                        current[0] + rng.gauss(0.0, alpha),
-                        current[1] + rng.gauss(0.0, alpha),
-                        current[2] + rng.gauss(0.0, alpha),
-                    )
-                )
-            )
-            evaluator.evaluate_vector(trial)
-            if evaluator.total_evaluations >= config.max_evaluations:
-                return "max_evaluations"
-        current = evaluator.best_vector
-        incumbent_fos = evaluator.best_result.fos if evaluator.best_result is not None else float("inf")
-        diagnostics.append(
-            CmaesStageDiagnostics(
-                stage="cmaes",
-                iteration=iteration,
-                total_evaluations=evaluator.total_evaluations,
-                incumbent_fos=incumbent_fos,
-                extra={
-                    "fallback": True,
-                    "alpha": alpha,
-                    "valid_evaluations": evaluator.valid_evaluations,
-                    "infeasible_evaluations": evaluator.infeasible_evaluations,
-                },
-            )
-        )
-        best_history.append(evaluator.best_score)
-        if len(best_history) > config.stall_iterations:
-            prev = best_history[-config.stall_iterations - 1]
-            curr = best_history[-1]
-            if (prev - curr) < config.min_improvement:
-                reason = "fallback_stall_tolerance_reached"
-                break
-
-    return reason
-
-
 def _run_polish_stage(
     evaluator: _ObjectiveEvaluator,
     config: CmaesGlobalSearchInput,
@@ -595,11 +403,11 @@ def _run_polish_stage(
 
     try:
         from scipy.optimize import minimize  # type: ignore
-    except Exception:
-        return _run_fallback_polish(evaluator, config, diagnostics, stage_budget)
+    except Exception as exc:
+        raise RuntimeError("SciPy dependency is required for cmaes_global_circular polish stage.") from exc
 
     def objective(x: list[float]) -> float:
-        vector = _round_vector(_repair_vector((float(x[0]), float(x[1]), float(x[2]))))
+        vector = round_vector(repair_vector_reflect((float(x[0]), float(x[1]), float(x[2]))), digits=CACHE_ROUND)
         evaluation = evaluator.evaluate_vector(vector)
         return evaluation.score
 
@@ -631,7 +439,6 @@ def _run_polish_stage(
         )
     )
 
-    # Final deterministic toe/crest-focused refinement for parity consistency.
     if evaluator.best_surface is not None and evaluator.best_result is not None:
         refine_config = AutoRefineSearchInput(
             divisions_along_slope=2,
@@ -659,51 +466,6 @@ def _run_polish_stage(
         evaluator.best_score = best_result.fos
 
     return "polish_complete"
-
-
-def _run_fallback_polish(
-    evaluator: _ObjectiveEvaluator,
-    config: CmaesGlobalSearchInput,
-    diagnostics: list[CmaesStageDiagnostics],
-    stage_budget: int,
-) -> str:
-    current = evaluator.best_vector
-    step = 0.06
-    used = 0
-    while used < stage_budget:
-        improved = False
-        for dim in range(3):
-            for sign in (-1.0, 1.0):
-                if used >= stage_budget:
-                    break
-                trial = list(current)
-                trial[dim] = trial[dim] + sign * step
-                trial_vec = _round_vector(_repair_vector((trial[0], trial[1], trial[2])))
-                before = evaluator.best_score
-                evaluator.evaluate_vector(trial_vec)
-                used += 1
-                if evaluator.best_score < before - _TIE_TOL:
-                    current = evaluator.best_vector
-                    improved = True
-        step *= 0.7
-        if not improved and step < 1e-3:
-            break
-
-    incumbent_fos = evaluator.best_result.fos if evaluator.best_result is not None else float("inf")
-    diagnostics.append(
-        CmaesStageDiagnostics(
-            stage="polish",
-            iteration=1,
-            total_evaluations=evaluator.total_evaluations,
-            incumbent_fos=incumbent_fos,
-            extra={
-                "fallback": True,
-                "used_evaluations": used,
-                "final_step": step,
-            },
-        )
-    )
-    return "fallback_polish_complete"
 
 
 def _run_toe_locked_grid_refinement(
@@ -734,28 +496,14 @@ def _run_toe_locked_grid_refinement(
         y_right = profile.y_ground(x_right)
         for k in range(beta_samples):
             u = k / (beta_samples - 1)
-            beta = _TANGENT_EPS_RAD + (_BETA_MAX_RAD - _TANGENT_EPS_RAD) * u
-            candidate = _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-            if candidate is None:
+            beta = _TANGENT_EPS_RAD + (BETA_MAX_RAD - _TANGENT_EPS_RAD) * u
+            candidate = circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
+            evaluation = evaluate_surface_candidate(candidate, evaluate_surface, driving_moment_tol=1e-6)
+            if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                 continue
-            try:
-                result = evaluate_surface(candidate)
-            except (ConvergenceError, GeometryError, ValueError):
-                continue
-            if not math.isfinite(result.fos) or result.fos <= 0.0:
-                continue
-            if not math.isfinite(result.driving_moment) or abs(result.driving_moment) <= 1e-6:
-                continue
-
-            if result.fos < best_result.fos - _TIE_TOL:
-                best_surface = candidate
-                best_result = result
-            elif abs(result.fos - best_result.fos) <= _TIE_TOL:
-                candidate_key = (candidate.x_left, candidate.x_right, candidate.r)
-                best_key = (best_surface.x_left, best_surface.x_right, best_surface.r)
-                if candidate_key < best_key:
-                    best_surface = candidate
-                    best_result = result
+            if is_better_score(evaluation.result.fos, evaluation.surface, best_result.fos, best_surface):
+                best_surface = evaluation.surface
+                best_result = evaluation.result
 
     return best_surface, best_result
 
@@ -767,17 +515,8 @@ def run_cmaes_global_search(
 ) -> CmaesGlobalSearchResult:
     x_min = config.search_limits.x_min
     x_max = config.search_limits.x_max
-    if x_max - x_min <= _X_SEP_MIN:
+    if x_max - x_min <= X_SEP_MIN:
         raise GeometryError("CMA-ES search limits must satisfy x_max - x_min > 0.05 m.")
-
-    # Force reproducible RNG state for all downstream stochastic libraries.
-    try:
-        import numpy as np  # type: ignore
-
-        np.random.seed(config.seed)
-    except Exception:
-        pass
-    random.seed(config.seed)
 
     evaluator = _ObjectiveEvaluator(profile=profile, config=config, evaluate_surface=evaluate_surface)
     diagnostics: list[CmaesStageDiagnostics] = []
@@ -795,7 +534,7 @@ def run_cmaes_global_search(
     termination_reason = polish_reason
     if evaluator.total_evaluations >= config.max_evaluations:
         termination_reason = "max_evaluations"
-    elif cma_reason.startswith("cmaes_") or cma_reason.startswith("fallback_"):
+    elif cma_reason.startswith("cmaes_"):
         termination_reason = cma_reason
     elif direct_reason.startswith("direct_"):
         termination_reason = direct_reason

@@ -2,21 +2,25 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import Callable
 
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, AutoRefineSearchInput, DirectGlobalSearchInput, PrescribedCircleInput
 from slope_stab.search.auto_refine import _run_toe_crest_refinement, _run_toe_locked_beta_refinement
+from slope_stab.search.common import (
+    CACHE_ROUND,
+    TIE_TOL,
+    X_SEP_MIN,
+    SurfaceEvaluator,
+    clip01,
+    evaluate_surface_candidate,
+    is_better_score,
+    map_vector_to_surface,
+    repair_vector_clip,
+    round_vector,
+)
 
 
-SurfaceEvaluator = Callable[[PrescribedCircleInput], AnalysisResult]
-
-_X_SEP_MIN = 0.05
-_BETA_MIN_RAD = math.radians(0.5)
-_BETA_MAX_RAD = math.radians(89.5)
-_TIE_TOL = 1e-12
-_CACHE_ROUND = 15
 _SIZE_ROUND = 15
 _DIMENSIONS = 3
 _LIPSCHITZ_POWERS = tuple(range(-6, 7))
@@ -63,95 +67,6 @@ class _Rectangle:
         return max(self.half_sizes)
 
 
-def _clip01(value: float) -> float:
-    return min(1.0, max(0.0, value))
-
-
-def _map_to_surface(
-    profile: UniformSlopeProfile,
-    x_min: float,
-    x_max: float,
-    u: tuple[float, float, float],
-) -> PrescribedCircleInput | None:
-    u_left, u_span, u_beta = (_clip01(u[0]), _clip01(u[1]), _clip01(u[2]))
-    width = x_max - x_min
-    if width <= _X_SEP_MIN:
-        return None
-
-    left_range = width - _X_SEP_MIN
-    x_left = x_min + u_left * left_range
-    right_range = x_max - x_left - _X_SEP_MIN
-    if right_range < 0.0:
-        return None
-    x_right = x_left + _X_SEP_MIN + u_span * right_range
-    if x_right <= x_left:
-        return None
-
-    y_left = profile.y_ground(x_left)
-    y_right = profile.y_ground(x_right)
-    beta = _BETA_MIN_RAD + u_beta * (_BETA_MAX_RAD - _BETA_MIN_RAD)
-    return _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-
-
-def _circle_from_endpoints_and_tangent(
-    p_left: tuple[float, float],
-    p_right: tuple[float, float],
-    beta: float,
-) -> PrescribedCircleInput | None:
-    x1, y1 = p_left
-    x2, y2 = p_right
-    if x2 <= x1:
-        return None
-    if beta <= 0.0 or beta >= 0.5 * math.pi:
-        return None
-
-    dx = x2 - x1
-    dy = y2 - y1
-    chord = math.hypot(dx, dy)
-    if chord <= 0.0:
-        return None
-
-    sin_beta = math.sin(beta)
-    tan_beta = math.tan(beta)
-    if abs(sin_beta) <= 1e-12 or abs(tan_beta) <= 1e-12:
-        return None
-
-    radius = chord / (2.0 * sin_beta)
-    center_offset = chord / (2.0 * tan_beta)
-    if radius <= 0.0 or not math.isfinite(radius) or not math.isfinite(center_offset):
-        return None
-
-    mid_x = 0.5 * (x1 + x2)
-    mid_y = 0.5 * (y1 + y2)
-
-    normal_x = -dy / chord
-    normal_y = dx / chord
-    if normal_y < 0.0:
-        normal_x = -normal_x
-        normal_y = -normal_y
-
-    xc = mid_x + center_offset * normal_x
-    yc = mid_y + center_offset * normal_y
-    if not math.isfinite(xc) or not math.isfinite(yc):
-        return None
-    if yc <= max(y1, y2) + 1e-9:
-        return None
-
-    return PrescribedCircleInput(
-        xc=xc,
-        yc=yc,
-        r=radius,
-        x_left=x1,
-        y_left=y1,
-        x_right=x2,
-        y_right=y2,
-    )
-
-
-def _surface_key(surface: PrescribedCircleInput) -> tuple[float, float, float]:
-    return (surface.x_left, surface.x_right, surface.r)
-
-
 def _best_rect_per_size(rectangles: list[_Rectangle]) -> list[_Rectangle]:
     best_by_size: dict[float, _Rectangle] = {}
     for rect in rectangles:
@@ -160,10 +75,10 @@ def _best_rect_per_size(rectangles: list[_Rectangle]) -> list[_Rectangle]:
         if current is None:
             best_by_size[key] = rect
             continue
-        if rect.value < current.value - _TIE_TOL:
+        if rect.value < current.value - TIE_TOL:
             best_by_size[key] = rect
             continue
-        if abs(rect.value - current.value) <= _TIE_TOL and rect.rect_id < current.rect_id:
+        if abs(rect.value - current.value) <= TIE_TOL and rect.rect_id < current.rect_id:
             best_by_size[key] = rect
 
     return sorted(best_by_size.values(), key=lambda r: (r.size_metric, r.value, r.rect_id))
@@ -203,7 +118,7 @@ def run_direct_global_search(
 ) -> DirectGlobalSearchResult:
     x_min = config.search_limits.x_min
     x_max = config.search_limits.x_max
-    if x_max - x_min <= _X_SEP_MIN:
+    if x_max - x_min <= X_SEP_MIN:
         raise GeometryError("DIRECT search limits must satisfy x_max - x_min > 0.05 m.")
 
     cache: dict[tuple[float, float, float], _Evaluation] = {}
@@ -220,7 +135,7 @@ def run_direct_global_search(
         nonlocal total_evaluations, valid_evaluations, infeasible_evaluations
         nonlocal best_surface, best_result, best_value
 
-        key = (round(u[0], _CACHE_ROUND), round(u[1], _CACHE_ROUND), round(u[2], _CACHE_ROUND))
+        key = round_vector(u, digits=CACHE_ROUND)
         cached = cache.get(key)
         if cached is not None:
             return cached
@@ -231,41 +146,25 @@ def run_direct_global_search(
             return eval_result
 
         total_evaluations += 1
-        surface = _map_to_surface(profile=profile, x_min=x_min, x_max=x_max, u=key)
-        if surface is None:
-            infeasible_evaluations += 1
-            eval_result = _Evaluation(value=float("inf"), surface=None, result=None)
-            cache[key] = eval_result
-            return eval_result
-
-        try:
-            result = evaluate_surface(surface)
-        except (ConvergenceError, GeometryError, ValueError):
-            infeasible_evaluations += 1
-            eval_result = _Evaluation(value=float("inf"), surface=None, result=None)
-            cache[key] = eval_result
-            return eval_result
-
-        if (
-            (not result.converged)
-            or (not math.isfinite(result.fos))
-            or result.fos <= 0.0
-            or (not math.isfinite(result.driving_moment))
-            or abs(result.driving_moment) <= 1e-9
-            or (not math.isfinite(result.resisting_moment))
-        ):
+        surface = map_vector_to_surface(
+            profile=profile,
+            x_min=x_min,
+            x_max=x_max,
+            vector=key,
+            repair_vector=repair_vector_clip,
+        )
+        evaluation = evaluate_surface_candidate(surface, evaluate_surface, driving_moment_tol=1e-9)
+        if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
             infeasible_evaluations += 1
             eval_result = _Evaluation(value=float("inf"), surface=None, result=None)
             cache[key] = eval_result
             return eval_result
 
         valid_evaluations += 1
+        result = evaluation.result
+        surface = evaluation.surface
         value = result.fos
-        if (value < best_value - _TIE_TOL) or (
-            abs(value - best_value) <= _TIE_TOL
-            and best_surface is not None
-            and _surface_key(surface) < _surface_key(best_surface)
-        ):
+        if is_better_score(value, surface, best_value, best_surface):
             best_value = value
             best_surface = surface
             best_result = result
@@ -324,7 +223,7 @@ def run_direct_global_search(
         for rect in selected:
             half_sizes = rect.half_sizes
             split_dim = min(
-                (i for i in range(_DIMENSIONS) if abs(half_sizes[i] - max(half_sizes)) <= _TIE_TOL),
+                (i for i in range(_DIMENSIONS) if abs(half_sizes[i] - max(half_sizes)) <= TIE_TOL),
                 default=0,
             )
             delta = half_sizes[split_dim] / 3.0
@@ -334,7 +233,7 @@ def run_direct_global_search(
 
             for shift in (-delta, 0.0, delta):
                 child_center = list(rect.center)
-                child_center[split_dim] = _clip01(child_center[split_dim] + shift)
+                child_center[split_dim] = clip01(child_center[split_dim] + shift)
                 child = make_rectangle(
                     center=(child_center[0], child_center[1], child_center[2]),
                     half_sizes=child_half_sizes,

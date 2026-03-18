@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import math
 
+import numpy as np
+
 from slope_stab.exceptions import ConvergenceError
 from slope_stab.lem_core.base import LEMSolver
 from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
@@ -32,30 +34,42 @@ class BishopSimplifiedSolver(LEMSolver):
         if f_k <= 0:
             raise ConvergenceError("Initial FOS must be greater than zero.")
 
+        slice_ids = np.fromiter((s.slice_id for s in slices), dtype=int)
+        x_left = np.fromiter((s.x_left for s in slices), dtype=float)
+        x_right = np.fromiter((s.x_right for s in slices), dtype=float)
+        weights = np.fromiter((s.weight for s in slices), dtype=float)
+        alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
+        base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
+
+        sin_a = np.sin(alpha)
+        cos_a = np.cos(alpha)
+        small_cos_mask = np.abs(cos_a) < 1e-10
+
+        x_mid = 0.5 * (x_left + x_right)
+        x_offset = x_mid - self._surface.xc
+        driving_component = weights * (x_offset / self._surface.r)
+        denominator = float(np.sum(driving_component))
+        if abs(denominator) < 1e-12:
+            raise ConvergenceError("Driving denominator is numerically zero.")
+
+        cohesion_base = cohesion * base_lengths
+        cohesion_base_sin = cohesion_base * sin_a
+
         for iteration in range(1, self._analysis.max_iter + 1):
-            numerator = 0.0
-            denominator = 0.0
+            if np.any(small_cos_mask):
+                for bad_idx in np.flatnonzero(small_cos_mask):
+                    warnings.append(f"Slice {int(slice_ids[bad_idx])}: cos(alpha) is very small ({float(cos_a[bad_idx])}).")
 
-            for s in slices:
-                sin_a = math.sin(s.alpha_rad)
-                cos_a = math.cos(s.alpha_rad)
-                if abs(cos_a) < 1e-10:
-                    warnings.append(f"Slice {s.slice_id}: cos(alpha) is very small ({cos_a}).")
+            m_alpha = cos_a + (sin_a * tan_phi) / f_k
+            near_zero = np.abs(m_alpha) < 1e-12
+            if np.any(near_zero):
+                bad_idx = int(np.flatnonzero(near_zero)[0])
+                raise ConvergenceError(
+                    f"Slice {int(slice_ids[bad_idx])}: m_alpha approaches zero at iteration {iteration}."
+                )
 
-                m_alpha = cos_a + (sin_a * tan_phi) / f_k
-                if abs(m_alpha) < 1e-12:
-                    raise ConvergenceError(
-                        f"Slice {s.slice_id}: m_alpha approaches zero at iteration {iteration}."
-                    )
-
-                normal = (s.weight - (cohesion * s.base_length * sin_a) / f_k) / m_alpha
-                numerator += cohesion * s.base_length + normal * tan_phi
-
-                x_mid = 0.5 * (s.x_left + s.x_right)
-                denominator += s.weight * ((x_mid - self._surface.xc) / self._surface.r)
-
-            if abs(denominator) < 1e-12:
-                raise ConvergenceError("Driving denominator is numerically zero.")
+            normal = (weights - (cohesion_base_sin / f_k)) / m_alpha
+            numerator = float(np.sum(cohesion_base + normal * tan_phi))
 
             f_next = numerator / denominator
             if not math.isfinite(f_next):
@@ -82,23 +96,16 @@ class BishopSimplifiedSolver(LEMSolver):
                 f"Bishop simplified did not converge in {self._analysis.max_iter} iterations."
             )
 
+        m_alpha = cos_a + (sin_a * tan_phi) / f_k
+        normal = (weights - (cohesion_base_sin / f_k)) / m_alpha
+        friction = normal * tan_phi
+        shear_strength = cohesion_base + friction
+
+        driving_moment = float(np.sum(weights * x_offset))
+        resisting_moment = f_k * driving_moment
+
         slice_results: list[SliceResult] = []
-        driving_moment = 0.0
-
-        for s in slices:
-            sin_a = math.sin(s.alpha_rad)
-            cos_a = math.cos(s.alpha_rad)
-            m_alpha = cos_a + (sin_a * tan_phi) / f_k
-            normal = (s.weight - (cohesion * s.base_length * sin_a) / f_k) / m_alpha
-
-            friction = normal * tan_phi
-            cohesion_component = cohesion * s.base_length
-            shear_strength = cohesion_component + friction
-
-            x_mid = 0.5 * (s.x_left + s.x_right)
-            driving_component = s.weight * ((x_mid - self._surface.xc) / self._surface.r)
-            driving_moment += s.weight * (x_mid - self._surface.xc)
-
+        for idx, s in enumerate(slices):
             slice_results.append(
                 SliceResult(
                     slice_id=s.slice_id,
@@ -109,16 +116,14 @@ class BishopSimplifiedSolver(LEMSolver):
                     weight=s.weight,
                     alpha_deg=math.degrees(s.alpha_rad),
                     base_length=s.base_length,
-                    normal=normal,
-                    shear_strength=shear_strength,
-                    driving_component=driving_component,
-                    friction_component=friction,
-                    cohesion_component=cohesion_component,
-                    m_alpha=m_alpha,
+                    normal=float(normal[idx]),
+                    shear_strength=float(shear_strength[idx]),
+                    driving_component=float(driving_component[idx]),
+                    friction_component=float(friction[idx]),
+                    cohesion_component=float(cohesion_base[idx]),
+                    m_alpha=float(m_alpha[idx]),
                 )
             )
-
-        resisting_moment = f_k * driving_moment
 
         return AnalysisResult(
             fos=f_k,

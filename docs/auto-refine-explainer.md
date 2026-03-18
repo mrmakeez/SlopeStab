@@ -1,6 +1,7 @@
 ﻿# Auto-Refine Circular Search Explained (Super Simple)
 
 This document explains the current implementation in `src/slope_stab/search/auto_refine.py`.
+Shared circular geometry helpers used by search paths live in `src/slope_stab/search/common.py`.
 
 Goal in one sentence: try many circular slip surfaces, keep the most critical zone, repeat, then do final local refinements.
 

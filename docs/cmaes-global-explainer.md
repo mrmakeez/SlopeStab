@@ -1,6 +1,7 @@
 # CMAES Global Circular Search Explained
 
 This document explains `search.method = "cmaes_global_circular"` in `src/slope_stab/search/cmaes_global.py`.
+Core circular geometry, tie-break keys, and candidate validity checks are shared via `src/slope_stab/search/common.py`.
 
 ## Goal
 
@@ -12,6 +13,7 @@ Find a low factor-of-safety circular slip surface using a hybrid pipeline:
 
 The method is stochastic in the CMA stage and uses fixed seeds for reproducibility.
 Expect numerically close repeat runs for the same seed (not strict bit-for-bit identity in all environments).
+`cma` and `scipy` are required runtime dependencies for this path.
 
 ## Parameter Space
 
@@ -45,7 +47,7 @@ CMA-ES starts from elites from prescan and explores correlated directions in nor
 
 ### Stage 3: Deterministic Polish
 
-The best CMA vector is polished with bounded Nelder-Mead (or deterministic fallback if SciPy is unavailable). Toe/crest refinement passes are then applied for parity-focused finishing.
+The best CMA vector is polished with bounded Nelder-Mead. Toe/crest refinement passes are then applied for parity-focused finishing.
 
 ![C4 polish](images/cmaes_global/04_polish.svg)
 

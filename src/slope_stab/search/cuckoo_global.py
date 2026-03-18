@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 import random
-from typing import Callable
 
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
@@ -14,15 +13,20 @@ from slope_stab.models import (
     PrescribedCircleInput,
 )
 from slope_stab.search.auto_refine import _run_toe_crest_refinement, _run_toe_locked_beta_refinement
+from slope_stab.search.common import (
+    CACHE_ROUND,
+    TIE_TOL,
+    X_SEP_MIN,
+    SurfaceEvaluator,
+    evaluate_surface_candidate,
+    is_better_score,
+    map_vector_to_surface,
+    repair_vector_clip,
+    round_vector,
+    surface_key,
+)
 
 
-SurfaceEvaluator = Callable[[PrescribedCircleInput], AnalysisResult]
-
-_X_SEP_MIN = 0.05
-_BETA_MIN_RAD = math.radians(0.5)
-_BETA_MAX_RAD = math.radians(89.5)
-_TIE_TOL = 1e-12
-_CACHE_ROUND = 15
 _VALID_INIT_ATTEMPTS_FACTOR = 200
 
 
@@ -62,104 +66,6 @@ class _Nest:
     evaluation: _Evaluation
 
 
-def _clip01(value: float) -> float:
-    return min(1.0, max(0.0, value))
-
-
-def _repair_vector(vector: tuple[float, float, float]) -> tuple[float, float, float]:
-    return (_clip01(vector[0]), _clip01(vector[1]), _clip01(vector[2]))
-
-
-def _surface_key(surface: PrescribedCircleInput) -> tuple[float, float, float]:
-    return (surface.x_left, surface.x_right, surface.r)
-
-
-def _round_vector(vector: tuple[float, float, float]) -> tuple[float, float, float]:
-    return (round(vector[0], _CACHE_ROUND), round(vector[1], _CACHE_ROUND), round(vector[2], _CACHE_ROUND))
-
-
-def _map_to_surface(
-    profile: UniformSlopeProfile,
-    x_min: float,
-    x_max: float,
-    vector: tuple[float, float, float],
-) -> PrescribedCircleInput | None:
-    u_left, u_span, u_beta = _repair_vector(vector)
-    width = x_max - x_min
-    if width <= _X_SEP_MIN:
-        return None
-
-    left_range = width - _X_SEP_MIN
-    x_left = x_min + u_left * left_range
-    right_range = x_max - x_left - _X_SEP_MIN
-    if right_range < 0.0:
-        return None
-
-    x_right = x_left + _X_SEP_MIN + u_span * right_range
-    if x_right <= x_left:
-        return None
-
-    y_left = profile.y_ground(x_left)
-    y_right = profile.y_ground(x_right)
-    beta = _BETA_MIN_RAD + u_beta * (_BETA_MAX_RAD - _BETA_MIN_RAD)
-    return _circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-
-
-def _circle_from_endpoints_and_tangent(
-    p_left: tuple[float, float],
-    p_right: tuple[float, float],
-    beta: float,
-) -> PrescribedCircleInput | None:
-    x1, y1 = p_left
-    x2, y2 = p_right
-    if x2 <= x1:
-        return None
-    if beta <= 0.0 or beta >= 0.5 * math.pi:
-        return None
-
-    dx = x2 - x1
-    dy = y2 - y1
-    chord = math.hypot(dx, dy)
-    if chord <= 0.0:
-        return None
-
-    sin_beta = math.sin(beta)
-    tan_beta = math.tan(beta)
-    if abs(sin_beta) <= 1e-12 or abs(tan_beta) <= 1e-12:
-        return None
-
-    radius = chord / (2.0 * sin_beta)
-    center_offset = chord / (2.0 * tan_beta)
-    if radius <= 0.0 or not math.isfinite(radius) or not math.isfinite(center_offset):
-        return None
-
-    mid_x = 0.5 * (x1 + x2)
-    mid_y = 0.5 * (y1 + y2)
-
-    normal_x = -dy / chord
-    normal_y = dx / chord
-    if normal_y < 0.0:
-        normal_x = -normal_x
-        normal_y = -normal_y
-
-    xc = mid_x + center_offset * normal_x
-    yc = mid_y + center_offset * normal_y
-    if not math.isfinite(xc) or not math.isfinite(yc):
-        return None
-    if yc <= max(y1, y2) + 1e-9:
-        return None
-
-    return PrescribedCircleInput(
-        xc=xc,
-        yc=yc,
-        r=radius,
-        x_left=x1,
-        y_left=y1,
-        x_right=x2,
-        y_right=y2,
-    )
-
-
 def _alpha_for_iteration(config: CuckooGlobalSearchInput, iteration: int) -> float:
     if config.max_iterations <= 1:
         return config.alpha_min
@@ -191,15 +97,15 @@ def _candidate_rank(evaluation: _Evaluation) -> tuple[float, tuple[float, float,
         return (float("inf"), (float("inf"), float("inf"), float("inf")))
     if evaluation.surface is None:
         return (evaluation.value, (float("inf"), float("inf"), float("inf")))
-    return (evaluation.value, _surface_key(evaluation.surface))
+    return (evaluation.value, surface_key(evaluation.surface))
 
 
 def _is_better(candidate: _Evaluation, incumbent: _Evaluation) -> bool:
     cand_rank = _candidate_rank(candidate)
     inc_rank = _candidate_rank(incumbent)
-    if cand_rank[0] < inc_rank[0] - _TIE_TOL:
+    if cand_rank[0] < inc_rank[0] - TIE_TOL:
         return True
-    if abs(cand_rank[0] - inc_rank[0]) <= _TIE_TOL and cand_rank[1] < inc_rank[1]:
+    if abs(cand_rank[0] - inc_rank[0]) <= TIE_TOL and cand_rank[1] < inc_rank[1]:
         return True
     return False
 
@@ -211,7 +117,7 @@ def run_cuckoo_global_search(
 ) -> CuckooGlobalSearchResult:
     x_min = config.search_limits.x_min
     x_max = config.search_limits.x_max
-    if x_max - x_min <= _X_SEP_MIN:
+    if x_max - x_min <= X_SEP_MIN:
         raise GeometryError("Cuckoo search limits must satisfy x_max - x_min > 0.05 m.")
 
     rng = random.Random(config.seed)
@@ -228,7 +134,7 @@ def run_cuckoo_global_search(
         nonlocal total_evaluations, valid_evaluations, infeasible_evaluations
         nonlocal best_surface, best_result, best_value
 
-        key = _round_vector(_repair_vector(vector))
+        key = round_vector(repair_vector_clip(vector), digits=CACHE_ROUND)
         cached = cache.get(key)
         if cached is not None:
             return cached
@@ -239,42 +145,25 @@ def run_cuckoo_global_search(
             return evaluation
 
         total_evaluations += 1
-        surface = _map_to_surface(profile=profile, x_min=x_min, x_max=x_max, vector=key)
-        if surface is None:
-            infeasible_evaluations += 1
-            evaluation = _Evaluation(value=float("inf"), surface=None, result=None)
-            cache[key] = evaluation
-            return evaluation
-
-        try:
-            result = evaluate_surface(surface)
-        except (ConvergenceError, GeometryError, ValueError):
-            infeasible_evaluations += 1
-            evaluation = _Evaluation(value=float("inf"), surface=None, result=None)
-            cache[key] = evaluation
-            return evaluation
-
-        if (
-            (not result.converged)
-            or (not math.isfinite(result.fos))
-            or result.fos <= 0.0
-            or (not math.isfinite(result.driving_moment))
-            or abs(result.driving_moment) <= 1e-9
-            or (not math.isfinite(result.resisting_moment))
-        ):
+        surface = map_vector_to_surface(
+            profile=profile,
+            x_min=x_min,
+            x_max=x_max,
+            vector=key,
+            repair_vector=repair_vector_clip,
+        )
+        candidate = evaluate_surface_candidate(surface, evaluate_surface, driving_moment_tol=1e-9)
+        if not candidate.valid or candidate.surface is None or candidate.result is None:
             infeasible_evaluations += 1
             evaluation = _Evaluation(value=float("inf"), surface=None, result=None)
             cache[key] = evaluation
             return evaluation
 
         valid_evaluations += 1
+        result = candidate.result
+        surface = candidate.surface
         value = result.fos
-
-        if (value < best_value - _TIE_TOL) or (
-            abs(value - best_value) <= _TIE_TOL
-            and best_surface is not None
-            and _surface_key(surface) < _surface_key(best_surface)
-        ):
+        if is_better_score(value, surface, best_value, best_surface):
             best_value = value
             best_surface = surface
             best_result = result
@@ -298,12 +187,12 @@ def run_cuckoo_global_search(
         vector = random_vector()
         evaluation = evaluate_point(vector)
         if math.isfinite(evaluation.value):
-            population.append(_Nest(vector=_round_vector(vector), evaluation=evaluation))
+            population.append(_Nest(vector=round_vector(vector, digits=CACHE_ROUND), evaluation=evaluation))
 
     while len(population) < config.population_size:
         vector = random_vector()
         evaluation = evaluate_point(vector)
-        population.append(_Nest(vector=_round_vector(vector), evaluation=evaluation))
+        population.append(_Nest(vector=round_vector(vector, digits=CACHE_ROUND), evaluation=evaluation))
 
     if best_surface is None or best_result is None:
         raise ConvergenceError("Cuckoo search did not produce any valid surfaces in initialization.")
@@ -327,14 +216,14 @@ def run_cuckoo_global_search(
                 break
 
             step = _levy_step(rng, config.levy_beta)
-            trial_vector = _repair_vector(
+            trial_vector = repair_vector_clip(
                 (
                     nest.vector[0] + alpha * step[0],
                     nest.vector[1] + alpha * step[1],
                     nest.vector[2] + alpha * step[2],
                 )
             )
-            trial_vector = _round_vector(trial_vector)
+            trial_vector = round_vector(trial_vector, digits=CACHE_ROUND)
             trial_eval = evaluate_point(trial_vector)
 
             target_idx = rng.randrange(len(population))
@@ -354,7 +243,7 @@ def run_cuckoo_global_search(
                 if total_evaluations >= config.max_evaluations:
                     termination_reason = "max_evaluations"
                     break
-                vector = _round_vector(random_vector())
+                vector = round_vector(random_vector(), digits=CACHE_ROUND)
                 evaluation = evaluate_point(vector)
                 population[idx] = _Nest(vector=vector, evaluation=evaluation)
                 abandoned += 1

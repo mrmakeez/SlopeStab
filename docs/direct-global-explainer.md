@@ -1,6 +1,7 @@
 # DIRECT Global Circular Search Explained (Super Simple)
 
 This document explains the current implementation in `src/slope_stab/search/direct_global.py`.
+Direct-global now reuses shared normalized-to-circle mapping, tie-break keys, and candidate validity checks from `src/slope_stab/search/common.py`.
 
 Goal in one sentence: run a deterministic DIRECT-style global search over circular surface parameters, then apply deterministic local polishing.
 

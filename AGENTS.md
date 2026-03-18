@@ -36,6 +36,8 @@ Not supported in baseline:
 - Do not alter Case 1/Case 2 benchmark targets or tolerances without explicit approval and documented rationale.
 - Preserve deterministic numerical behavior for existing verification paths.
 - Where possible code shall be written to be extensible to Future Roadmap items, such that they are easier to implement at a later date.
+- Runtime dependencies for optimization paths are required (no fallback paths): `numpy`, `scipy`, and `cma`.
+- Do not commit runtime cache artifacts (`__pycache__/`, `*.pyc`).
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right
@@ -90,7 +92,7 @@ When proposing extensions, sequence strictly:
 5. Re-run full verification gate.
 
 ## ExecPlans
-When writing complex features or significant refactors, use an ExecPlan (as described in .agent/PLANS.md) from design to implementation.
+When writing complex features or significant refactors, use an ExecPlan (as described in `PLANS.md`) from design to implementation.
 
 ## Future Roadmap (Deferred)
 Deferred until explicitly approved:

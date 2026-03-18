@@ -686,3 +686,172 @@ Plan status: Closed.
 Plan revision note: Added on 2026-03-15 to close the cuckoo implementation in repo-root planning records and align governance docs with shipped behavior.
 ```
 
+```md
+# Implement NumPy/SciPy/pycma Modernization and Redundancy Cleanup
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` were maintained through implementation and closure.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and maintained in accordance with `PLANS.md`.
+
+## Purpose / Big Picture
+
+Users can run the same analysis and verification workflows with reduced internal duplication, vectorized high-cost solver/slicing internals, and dependency-explicit CMA-ES execution. Existing verification gates remain passing while the optimization/search implementation is cleaner and easier to extend.
+
+## Progress
+
+- [x] (2026-03-18 22:00 +13:00) Captured baseline evidence (`cli verify`, full `unittest discover`, and cProfile top cumulative functions).
+- [x] (2026-03-18 22:30 +13:00) Added shared circular-search core (`src/slope_stab/search/common.py`) and migrated direct/cuckoo/cmaes to shared mapping/tie-break/validation helpers.
+- [x] (2026-03-18 22:55 +13:00) Vectorized slicing and solver internals using NumPy in `src/slope_stab/slicing/slice_generator.py` and `src/slope_stab/lem_core/bishop.py`.
+- [x] (2026-03-18 23:20 +13:00) Removed CMA-ES fallback search/polish branches and replaced them with explicit required-dependency errors in `src/slope_stab/search/cmaes_global.py`.
+- [x] (2026-03-18 23:40 +13:00) Refactored repeated search dispatch payload assembly via method registry in `src/slope_stab/analysis.py`.
+- [x] (2026-03-18 23:50 +13:00) Unified repeated global benchmark verification case dataclasses into one method-tagged class in `src/slope_stab/verification/cases.py` and simplified runner dispatch.
+- [x] (2026-03-18 23:55 +13:00) Added `.gitignore` and removed tracked bytecode/cache artifacts from git index.
+- [x] (2026-03-19 00:05 +13:00) Updated governance/docs (`AGENTS.md`, `README.md`, and search explainers).
+- [x] (2026-03-19 00:20 +13:00) Re-ran full verification gate and full unittest discovery; all passed.
+
+## Surprises & Discoveries
+
+- Observation: Centralizing candidate validation in one helper increased call concentration but reduced total call volume significantly.
+  Evidence: total function calls in cProfile dropped from ~190M baseline to ~73.5M after shared helper + vectorization.
+
+- Observation: Slicing became materially cheaper after vectorization, while bishop became the dominant hotspot.
+  Evidence: `generate_vertical_slices` cumulative time reduced from ~42.1s baseline profile to ~31.7s post-change profile.
+
+- Observation: Removing fallback branches required tightening documentation language that previously implied fallback behavior.
+  Evidence: `docs/cmaes-global-explainer.md` Stage 3 wording updated to remove fallback references and call out required deps.
+
+## Decision Log
+
+- Decision: Keep quality-improve policy while retaining all current benchmark gates.
+  Rationale: Approved by project owner; allows better minima without relaxing acceptance criteria.
+  Date/Author: 2026-03-18 / User + Codex
+
+- Decision: Require runtime `cma` and `scipy` for CMA-ES path, no runtime fallback algorithms.
+  Rationale: Dependencies are present in project config and required by policy choice.
+  Date/Author: 2026-03-18 / User + Codex
+
+- Decision: Use qualitative performance evidence instead of fixed percentage SLA.
+  Rationale: Approved by project owner for this modernization pass.
+  Date/Author: 2026-03-18 / User + Codex
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- Added a shared search core (`search/common.py`) and removed duplicated mapping/tie-break/validation logic from direct/cuckoo/cmaes modules.
+- Vectorized high-cost slicing and bishop internals with NumPy while preserving gate behavior.
+- Removed CMA fallback algorithm branches and made missing deps explicit errors.
+- Replaced repetitive search dispatch branches in `analysis.py` with method registry handlers while preserving metadata contract.
+- Collapsed repeated verification benchmark dataclasses into one method-tagged benchmark type.
+- Added `.gitignore` and de-tracked committed bytecode cache artifacts.
+- Updated AGENTS/README/explainer docs to match shipped behavior.
+- Re-ran required verification gate and full test discovery with passing results.
+
+Residual caveat:
+
+- CMA-ES repeatability remains seed-stable at test tolerances, but as documented, exact bitwise identity across all environments is not guaranteed.
+
+Plan status: Closed.
+
+## Context and Orientation
+
+Primary implementation files:
+
+- `src/slope_stab/search/common.py`
+- `src/slope_stab/search/direct_global.py`
+- `src/slope_stab/search/cuckoo_global.py`
+- `src/slope_stab/search/cmaes_global.py`
+- `src/slope_stab/slicing/slice_generator.py`
+- `src/slope_stab/lem_core/bishop.py`
+- `src/slope_stab/analysis.py`
+- `src/slope_stab/verification/cases.py`
+- `src/slope_stab/verification/runner.py`
+- `AGENTS.md`, `README.md`, and `docs/*-explainer.md`
+
+## Plan of Work
+
+Implemented sequence:
+
+1. Gathered baseline runtime and regression evidence.
+2. Centralized shared circular search primitives.
+3. Migrated global search methods to shared primitives.
+4. Vectorized slice generation and bishop iteration arithmetic.
+5. Removed CMA fallback logic and enforced dependency-required behavior.
+6. Refactored non-library redundancies (analysis dispatch, verification case duplication, repo hygiene).
+7. Updated governance and explainer documentation.
+8. Re-ran full verification and test gates.
+
+## Concrete Steps
+
+Run from repository root:
+
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
+    python -m unittest discover -s tests -p "test_*.py"
+
+Profiling command used for before/after evidence:
+
+    $env:PYTHONPATH='src'; @'
+    import cProfile, pstats, io
+    from slope_stab.verification.runner import run_verification_suite
+    pr = cProfile.Profile(); pr.enable(); run_verification_suite(); pr.disable()
+    s = io.StringIO(); pstats.Stats(pr, stream=s).sort_stats('cumtime').print_stats(20)
+    print(s.getvalue())
+    '@ | python -
+
+Structural duplication check command:
+
+    rg "def _map_to_surface|def _circle_from_endpoints_and_tangent|def _surface_key|def _clip01" src/slope_stab/search
+
+Bytecode tracking check command:
+
+    git ls-files | rg "(__pycache__/|\.pyc$)"
+
+## Validation and Acceptance
+
+Hard acceptance checks met:
+
+- `python -m slope_stab.cli verify` passed all 13 built-in cases.
+- `python -m unittest discover -s tests -p "test_*.py"` passed (28 tests).
+- Case 1/2 benchmark targets/tolerances were not modified.
+- Cases 2-4 benchmark gates for direct/cuckoo/cmaes remained passing.
+- Deterministic and fixed-seed repeatability regressions remained passing.
+- No CMA fallback stage remains; dependency absence now fails explicitly.
+
+Qualitative performance evidence met:
+
+- cProfile total function calls reduced from ~190M to ~73.5M.
+- `generate_vertical_slices` cumulative profile time reduced from ~42.1s to ~31.7s.
+
+## Idempotence and Recovery
+
+All commands above are rerunnable. If future tuning regresses verification gates, treat as regression and adjust implementation details rather than loosening benchmark tolerances.
+
+## Artifacts and Notes
+
+Baseline summary:
+
+- `cli verify`: passed
+- `unittest discover`: passed
+- profile top hotspots included `generate_vertical_slices`, `_slice_area_piecewise`, and `BishopSimplifiedSolver.solve`
+
+Post-change summary:
+
+- `cli verify`: passed
+- `unittest discover`: passed
+- profile top hotspots shifted to shared candidate evaluation plus bishop and vectorized slicing
+
+## Interfaces and Dependencies
+
+Added shared search interfaces in `src/slope_stab/search/common.py`:
+
+- `map_vector_to_surface(...)`
+- `circle_from_endpoints_and_tangent(...)`
+- `evaluate_surface_candidate(...)`
+- tie-break/repair/round helpers and shared constants
+
+Dependency contract:
+
+- `numpy`, `scipy`, and `cma` are required for optimization path behavior; fallback algorithm branches are removed.
+
+Plan revision note: Added and closed on 2026-03-19 after full implementation, documentation updates, and gate validation.
+```
