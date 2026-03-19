@@ -11,6 +11,7 @@ from slope_stab.models import AnalysisResult, PrescribedCircleInput
 
 Vector3 = tuple[float, float, float]
 SurfaceEvaluator = Callable[[PrescribedCircleInput], AnalysisResult]
+SurfaceBatchEvaluator = Callable[[list[PrescribedCircleInput], float], list["CandidateEvaluation"]]
 
 X_SEP_MIN = 0.05
 BETA_MIN_RAD = math.radians(0.5)
@@ -168,6 +169,14 @@ def evaluate_surface_candidate(
     except (ConvergenceError, GeometryError, ValueError):
         return CandidateEvaluation(surface=surface, result=None, valid=False, reason="evaluation_exception")
 
+    return candidate_from_result(surface, result, driving_moment_tol=driving_moment_tol)
+
+
+def candidate_from_result(
+    surface: PrescribedCircleInput,
+    result: AnalysisResult,
+    driving_moment_tol: float = 1e-9,
+) -> CandidateEvaluation:
     if (
         (not result.converged)
         or (not math.isfinite(result.fos))
@@ -179,3 +188,49 @@ def evaluate_surface_candidate(
         return CandidateEvaluation(surface=surface, result=result, valid=False, reason="nonconverged_or_invalid_fos")
 
     return CandidateEvaluation(surface=surface, result=result, valid=True, reason="valid")
+
+
+def evaluate_surface_candidates_batch(
+    surfaces: list[PrescribedCircleInput | None],
+    evaluate_surface: SurfaceEvaluator,
+    driving_moment_tol: float = 1e-9,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
+) -> list[CandidateEvaluation]:
+    if not surfaces:
+        return []
+
+    evaluations: list[CandidateEvaluation | None] = [None] * len(surfaces)
+    valid_surfaces: list[PrescribedCircleInput] = []
+    valid_indices: list[int] = []
+
+    for idx, surface in enumerate(surfaces):
+        if surface is None:
+            evaluations[idx] = CandidateEvaluation(
+                surface=None,
+                result=None,
+                valid=False,
+                reason="invalid_geometry",
+            )
+            continue
+        valid_surfaces.append(surface)
+        valid_indices.append(idx)
+
+    if valid_surfaces:
+        if batch_evaluate_surfaces is None:
+            batch_results = [
+                evaluate_surface_candidate(
+                    surface,
+                    evaluate_surface=evaluate_surface,
+                    driving_moment_tol=driving_moment_tol,
+                )
+                for surface in valid_surfaces
+            ]
+        else:
+            batch_results = batch_evaluate_surfaces(valid_surfaces, driving_moment_tol)
+            if len(batch_results) != len(valid_surfaces):
+                raise RuntimeError("Batch evaluator returned inconsistent result count.")
+
+        for idx, result in zip(valid_indices, batch_results):
+            evaluations[idx] = result
+
+    return [item for item in evaluations if item is not None]

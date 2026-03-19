@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from dataclasses import dataclass
 import math
 from typing import Any
@@ -167,30 +168,45 @@ def _evaluate_global_search_benchmark_case(
     return hard_checks, diagnostics, passed
 
 
-def run_verification_suite() -> list[VerificationOutcome]:
-    outcomes: list[VerificationOutcome] = []
+def _evaluate_case(case_index: int) -> VerificationOutcome:
+    case = VERIFICATION_CASES[case_index]
+    result = run_analysis(case.project, forced_parallel_workers=1)
+    if isinstance(case, PrescribedVerificationCase):
+        hard_checks, diagnostics, passed = _evaluate_prescribed_case(case, result)
+    elif isinstance(case, AutoRefineVerificationCase):
+        hard_checks, diagnostics, passed = _evaluate_auto_refine_case(case, result)
+    elif isinstance(case, GlobalSearchBenchmarkVerificationCase):
+        hard_checks, diagnostics, passed = _evaluate_global_search_benchmark_case(case, result)
+    else:
+        raise TypeError(f"Unsupported verification case type: {type(case)!r}")
 
-    for case in VERIFICATION_CASES:
-        result = run_analysis(case.project)
-        if isinstance(case, PrescribedVerificationCase):
-            hard_checks, diagnostics, passed = _evaluate_prescribed_case(case, result)
-        elif isinstance(case, AutoRefineVerificationCase):
-            hard_checks, diagnostics, passed = _evaluate_auto_refine_case(case, result)
-        elif isinstance(case, GlobalSearchBenchmarkVerificationCase):
-            hard_checks, diagnostics, passed = _evaluate_global_search_benchmark_case(case, result)
-        else:
-            raise TypeError(f"Unsupported verification case type: {type(case)!r}")
+    return VerificationOutcome(
+        name=case.name,
+        case_type=case.case_type,
+        analysis_method=case.analysis_method,
+        result=result,
+        hard_checks=hard_checks,
+        diagnostics=diagnostics,
+        passed=passed,
+    )
 
-        outcomes.append(
-            VerificationOutcome(
-                name=case.name,
-                case_type=case.case_type,
-                analysis_method=case.analysis_method,
-                result=result,
-                hard_checks=hard_checks,
-                diagnostics=diagnostics,
-                passed=passed,
-            )
-        )
 
-    return outcomes
+def run_verification_suite(workers: int = 1) -> list[VerificationOutcome]:
+    if workers <= 1:
+        return [_evaluate_case(case_index) for case_index in range(len(VERIFICATION_CASES))]
+
+    outcomes: list[VerificationOutcome | None] = [None] * len(VERIFICATION_CASES)
+    try:
+        executor_cm = ProcessPoolExecutor(max_workers=workers)
+    except (OSError, PermissionError):
+        executor_cm = ThreadPoolExecutor(max_workers=workers)
+
+    with executor_cm as executor:
+        futures = [executor.submit(_evaluate_case, idx) for idx in range(len(VERIFICATION_CASES))]
+        for idx, future in enumerate(futures):
+            try:
+                outcomes[idx] = future.result()
+            except Exception as exc:
+                raise RuntimeError(f"Verification worker failed for case index {idx}.") from exc
+
+    return [outcome for outcome in outcomes if outcome is not None]

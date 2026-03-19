@@ -267,6 +267,69 @@ class SearchInputParsingTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
+    def test_parse_parallel_defaults(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertIsNotNone(project.search.parallel)
+        self.assertFalse(project.search.parallel.enabled)
+        self.assertEqual(project.search.parallel.workers, 1)
+        self.assertEqual(project.search.parallel.min_batch_size, 1)
+        self.assertIsNone(project.search.parallel.timeout_seconds)
+
+    def test_parse_parallel_custom_values(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "parallel": {
+                "enabled": True,
+                "workers": 2,
+                "min_batch_size": 8,
+                "timeout_seconds": 30.0,
+            },
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertIsNotNone(project.search.parallel)
+        self.assertTrue(project.search.parallel.enabled)
+        self.assertEqual(project.search.parallel.workers, 2)
+        self.assertEqual(project.search.parallel.min_batch_size, 8)
+        self.assertAlmostEqual(project.search.parallel.timeout_seconds, 30.0)
+
+    def test_parse_rejects_invalid_parallel_values(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "parallel": {
+                "enabled": True,
+                "workers": 0,
+                "min_batch_size": 0,
+            },
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
 
 class AutoRefineSearchTests(unittest.TestCase):
     def test_generated_surfaces_per_iteration_matches_formula(self) -> None:

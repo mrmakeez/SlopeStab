@@ -197,6 +197,12 @@ This implementation is deterministic because ordering is fixed for:
 
 No random-seed field is used for this auto-refine path.
 
+## Parallel Candidate Scoring (Opt-In)
+
+When `search.parallel.enabled = true` and `search.parallel.workers > 1`, candidate circles can be scored in batches. The merge path remains ordered and deterministic: cache checks, budget limits, and incumbent updates follow the same logical order as serial evaluation.
+
+Worker failures (timeout, startup failure, invalid payload, runtime exception) raise explicit errors and abort the run.
+
 ## If Diagrams Do Not Render
 
 If your viewer cannot render SVG/Mermaid, the formulas and text are still valid.

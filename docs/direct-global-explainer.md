@@ -213,6 +213,12 @@ This method is deterministic because ordering is fixed for:
 
 No random-seed field is used for this direct-global path.
 
+## Parallel Candidate Scoring (Opt-In)
+
+DIRECT center evaluations may run in batches when `search.parallel.enabled = true` and `search.parallel.workers > 1`. Ordered merge semantics are preserved for cache lookup, budget handling, and incumbent updates, so deterministic behavior is retained.
+
+Worker failures raise explicit runtime errors and abort the run.
+
 ## If Diagrams Do Not Render
 
 If your viewer cannot render SVG, the formulas and text are still valid.

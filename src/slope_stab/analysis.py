@@ -3,112 +3,33 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any, Callable
 
-from slope_stab.exceptions import ConvergenceError
-from slope_stab.exceptions import GeometryError
+from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
-from slope_stab.lem_core.base import LEMSolver
-from slope_stab.lem_core.bishop import BishopSimplifiedSolver
-from slope_stab.lem_core.spencer import SpencerSolver
-from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
-from slope_stab.models import AnalysisResult, PrescribedCircleInput, ProjectInput
+from slope_stab.models import AnalysisResult, ParallelExecutionInput, PrescribedCircleInput, ProjectInput
 from slope_stab.search.auto_refine import run_auto_refine_search
 from slope_stab.search.cmaes_global import run_cmaes_global_search
+from slope_stab.search.common import SurfaceBatchEvaluator
 from slope_stab.search.cuckoo_global import run_cuckoo_global_search
 from slope_stab.search.direct_global import run_direct_global_search
-from slope_stab.slicing.slice_generator import generate_vertical_slices
-from slope_stab.surfaces.circular import CircularSlipSurface
+from slope_stab.search.parallel_executor import ParallelSurfaceExecutor
+from slope_stab.search.surface_solver import (
+    AnalysisWorkerContext,
+    build_profile,
+    build_worker_context,
+    solve_surface_for_context,
+)
 
 
-POINT_TOL = 1e-6
-SearchRunner = Callable[[ProjectInput, UniformSlopeProfile, Callable[[PrescribedCircleInput], AnalysisResult]], tuple[AnalysisResult, PrescribedCircleInput, dict[str, Any]]]
-
-
-def _validate_prescribed_surface_alignment(
-    profile: UniformSlopeProfile,
-    surface: CircularSlipSurface,
-    x: float,
-    y: float,
-    label: str,
-) -> None:
-    y_ground = profile.y_ground(x)
-    y_base = surface.y_base(x)
-
-    if abs(y - y_ground) > 2e-3:
-        raise GeometryError(
-            f"{label} endpoint does not align with slope ground profile: |y - y_ground|={abs(y-y_ground)}"
-        )
-    if abs(y - y_base) > 2e-3:
-        raise GeometryError(
-            f"{label} endpoint does not align with prescribed circle: |y - y_circle|={abs(y-y_base)}"
-        )
-
-
-def _build_profile(project: ProjectInput) -> UniformSlopeProfile:
-    return UniformSlopeProfile(
-        h=project.geometry.h,
-        l=project.geometry.l,
-        x_toe=project.geometry.x_toe,
-        y_toe=project.geometry.y_toe,
-    )
-
-
-def _solve_prescribed_surface(
-    project: ProjectInput,
-    profile: UniformSlopeProfile,
-    surface_input: PrescribedCircleInput,
-) -> AnalysisResult:
-    surface = CircularSlipSurface(xc=surface_input.xc, yc=surface_input.yc, r=surface_input.r)
-
-    _validate_prescribed_surface_alignment(
-        profile,
-        surface,
-        surface_input.x_left,
-        surface_input.y_left,
-        "Left",
-    )
-    _validate_prescribed_surface_alignment(
-        profile,
-        surface,
-        surface_input.x_right,
-        surface_input.y_right,
-        "Right",
-    )
-
-    slices = generate_vertical_slices(
-        profile=profile,
-        surface=surface,
-        n_slices=project.analysis.n_slices,
-        x_left=surface_input.x_left,
-        x_right=surface_input.x_right,
-        gamma=project.material.gamma,
-    )
-
-    solver = _build_solver(project, surface)
-
-    return solver.solve(slices)
-
-
-def _build_solver(project: ProjectInput, surface: CircularSlipSurface) -> LEMSolver:
-    material = MohrCoulombMaterial(
-        gamma=project.material.gamma,
-        cohesion=project.material.c,
-        phi_deg=project.material.phi_deg,
-    )
-
-    if project.analysis.method == "bishop_simplified":
-        return BishopSimplifiedSolver(
-            material=material,
-            analysis=project.analysis,
-            surface=surface,
-        )
-    if project.analysis.method == "spencer":
-        return SpencerSolver(
-            material=material,
-            analysis=project.analysis,
-            surface=surface,
-        )
-
-    raise GeometryError(f"Unsupported analysis method: {project.analysis.method}")
+SearchRunner = Callable[
+    [
+        ProjectInput,
+        UniformSlopeProfile,
+        Callable[[PrescribedCircleInput], AnalysisResult],
+        SurfaceBatchEvaluator | None,
+        int,
+    ],
+    tuple[AnalysisResult, PrescribedCircleInput, dict[str, Any]],
+]
 
 
 def _surface_to_dict(surface: PrescribedCircleInput) -> dict[str, float]:
@@ -127,19 +48,47 @@ def _attach_prescribed_metadata(project: ProjectInput, result: AnalysisResult, s
     metadata = dict(result.metadata)
     metadata.update(
         {
-        "units": project.units,
-        "method": project.analysis.method,
-        "n_slices": project.analysis.n_slices,
-        "prescribed_surface": _surface_to_dict(surface),
+            "units": project.units,
+            "method": project.analysis.method,
+            "n_slices": project.analysis.n_slices,
+            "prescribed_surface": _surface_to_dict(surface),
         }
     )
     result.metadata = metadata
+
+
+def _resolve_parallel_settings(
+    project: ProjectInput,
+    forced_parallel_workers: int | None,
+) -> ParallelExecutionInput:
+    defaults = ParallelExecutionInput(
+        enabled=False,
+        workers=1,
+        min_batch_size=1,
+        timeout_seconds=None,
+    )
+    if project.search is None:
+        return defaults
+
+    configured = project.search.parallel or defaults
+    if forced_parallel_workers is None:
+        return configured
+
+    workers = max(1, forced_parallel_workers)
+    return ParallelExecutionInput(
+        enabled=workers > 1,
+        workers=workers,
+        min_batch_size=configured.min_batch_size,
+        timeout_seconds=configured.timeout_seconds,
+    )
 
 
 def _run_auto_refine_mode(
     project: ProjectInput,
     profile: UniformSlopeProfile,
     evaluate_surface: Callable[[PrescribedCircleInput], AnalysisResult],
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
 ) -> tuple[AnalysisResult, PrescribedCircleInput, dict[str, Any]]:
     search = project.search
     if search is None or search.auto_refine_circular is None:
@@ -150,6 +99,8 @@ def _run_auto_refine_mode(
         profile=profile,
         config=config,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
 
     search_payload = {
@@ -177,6 +128,8 @@ def _run_direct_global_mode(
     project: ProjectInput,
     profile: UniformSlopeProfile,
     evaluate_surface: Callable[[PrescribedCircleInput], AnalysisResult],
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
 ) -> tuple[AnalysisResult, PrescribedCircleInput, dict[str, Any]]:
     search = project.search
     if search is None or search.direct_global_circular is None:
@@ -187,6 +140,8 @@ def _run_direct_global_mode(
         profile=profile,
         config=config,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
 
     search_payload = {
@@ -216,6 +171,8 @@ def _run_cuckoo_global_mode(
     project: ProjectInput,
     profile: UniformSlopeProfile,
     evaluate_surface: Callable[[PrescribedCircleInput], AnalysisResult],
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
 ) -> tuple[AnalysisResult, PrescribedCircleInput, dict[str, Any]]:
     search = project.search
     if search is None or search.cuckoo_global_circular is None:
@@ -226,6 +183,8 @@ def _run_cuckoo_global_mode(
         profile=profile,
         config=config,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
 
     search_payload = {
@@ -261,6 +220,8 @@ def _run_cmaes_global_mode(
     project: ProjectInput,
     profile: UniformSlopeProfile,
     evaluate_surface: Callable[[PrescribedCircleInput], AnalysisResult],
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
 ) -> tuple[AnalysisResult, PrescribedCircleInput, dict[str, Any]]:
     search = project.search
     if search is None or search.cmaes_global_circular is None:
@@ -271,6 +232,8 @@ def _run_cmaes_global_mode(
         profile=profile,
         config=config,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
 
     search_payload = {
@@ -312,11 +275,22 @@ _SEARCH_RUNNERS: dict[str, SearchRunner] = {
 }
 
 
-def run_analysis(project: ProjectInput) -> AnalysisResult:
-    profile = _build_profile(project)
+def _evaluate_surface_for_context(
+    context: AnalysisWorkerContext,
+    surface: PrescribedCircleInput,
+) -> AnalysisResult:
+    return solve_surface_for_context(context, surface)
+
+
+def run_analysis(
+    project: ProjectInput,
+    forced_parallel_workers: int | None = None,
+) -> AnalysisResult:
+    context = build_worker_context(project)
+    profile = build_profile(project.geometry)
 
     if project.prescribed_surface is not None and project.search is None:
-        result = _solve_prescribed_surface(project, profile, project.prescribed_surface)
+        result = solve_surface_for_context(context, project.prescribed_surface)
         _attach_prescribed_metadata(project, result, project.prescribed_surface)
         return result
 
@@ -325,8 +299,42 @@ def run_analysis(project: ProjectInput) -> AnalysisResult:
         if runner is None:
             raise GeometryError(f"Unsupported search method: {project.search.method}")
 
-        evaluate_surface = lambda s: _solve_prescribed_surface(project, profile, s)
-        result, winning_surface, search_payload = runner(project, profile, evaluate_surface)
+        evaluate_surface = lambda s: _evaluate_surface_for_context(context, s)
+        parallel = _resolve_parallel_settings(project, forced_parallel_workers=forced_parallel_workers)
+        batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None
+        parallel_backend = "serial"
+
+        if parallel.enabled and parallel.workers > 1:
+            with ParallelSurfaceExecutor(
+                context=context,
+                workers=parallel.workers,
+                timeout_seconds=parallel.timeout_seconds,
+            ) as executor:
+                parallel_backend = executor.backend
+                batch_evaluate_surfaces = executor.evaluate_surfaces
+                result, winning_surface, search_payload = runner(
+                    project,
+                    profile,
+                    evaluate_surface,
+                    batch_evaluate_surfaces,
+                    parallel.min_batch_size,
+                )
+        else:
+            result, winning_surface, search_payload = runner(
+                project,
+                profile,
+                evaluate_surface,
+                None,
+                1,
+            )
+
+        search_payload["parallel"] = {
+            "enabled": parallel.enabled and parallel.workers > 1,
+            "workers": parallel.workers,
+            "min_batch_size": parallel.min_batch_size,
+            "timeout_seconds": parallel.timeout_seconds,
+            "backend": parallel_backend,
+        }
         result.metadata = {
             "units": project.units,
             "method": project.analysis.method,

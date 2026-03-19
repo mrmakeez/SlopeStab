@@ -9,10 +9,11 @@ from slope_stab.models import AnalysisResult, CmaesGlobalSearchInput, Prescribed
 from slope_stab.search.auto_refine import _run_toe_crest_refinement
 from slope_stab.search.common import (
     BETA_MAX_RAD,
+    SurfaceBatchEvaluator,
     SurfaceEvaluator,
     X_SEP_MIN,
     circle_from_endpoints_and_tangent,
-    evaluate_surface_candidate,
+    evaluate_surface_candidates_batch,
     is_better_score,
     repair_vector_reflect,
     surface_key,
@@ -72,9 +73,12 @@ def _run_direct_prescan(
     rectangles: list[DirectRectangle[ObjectiveEvaluation]] = []
     next_rect_id = 0
 
-    def make_rectangle(center: tuple[float, float, float], half_sizes: tuple[float, float, float]) -> DirectRectangle[ObjectiveEvaluation]:
+    def make_rectangle(
+        center: tuple[float, float, float],
+        half_sizes: tuple[float, float, float],
+        eval_result: ObjectiveEvaluation,
+    ) -> DirectRectangle[ObjectiveEvaluation]:
         nonlocal next_rect_id
-        eval_result = evaluator.evaluate_vector(center)
         rect = DirectRectangle(
             rect_id=next_rect_id,
             center=center,
@@ -87,10 +91,14 @@ def _run_direct_prescan(
 
     centers_1d = seeded_centers_3x3x3()
     base_half_sizes = (1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0)
+    initial_centers: list[tuple[float, float, float]] = []
     for u0 in centers_1d:
         for u1 in centers_1d:
             for u2 in centers_1d:
-                rectangles.append(make_rectangle((u0, u1, u2), base_half_sizes))
+                initial_centers.append((u0, u1, u2))
+    initial_evals = evaluator.evaluate_vectors_batch(initial_centers)
+    for center, eval_result in zip(initial_centers, initial_evals):
+        rectangles.append(make_rectangle(center, base_half_sizes, eval_result))
 
     iteration = 0
     reason = "direct_budget_reached"
@@ -106,12 +114,15 @@ def _run_direct_prescan(
         next_rectangles: list[DirectRectangle[ObjectiveEvaluation]] = [
             rect for rect in rectangles if rect.rect_id not in selected_ids
         ]
+        child_specs: list[tuple[tuple[float, float, float], tuple[float, float, float]]] = []
         for rect in selected:
             for child_center, child_half_sizes in split_rectangle(rect):
-                child = make_rectangle(child_center, child_half_sizes)
-                next_rectangles.append(child)
-                if evaluator.total_evaluations >= target_budget:
-                    break
+                child_specs.append((child_center, child_half_sizes))
+
+        child_evals = evaluator.evaluate_vectors_batch([center for center, _ in child_specs])
+        for (child_center, child_half_sizes), eval_result in zip(child_specs, child_evals):
+            child = make_rectangle(child_center, child_half_sizes, eval_result)
+            next_rectangles.append(child)
             if evaluator.total_evaluations >= target_budget:
                 break
 
@@ -200,8 +211,12 @@ def _run_cmaes_stage(
             scores: list[float] = []
             before_best = evaluator.best_score
 
-            for candidate in solutions:
-                evaluation = evaluator.evaluate_vector((float(candidate[0]), float(candidate[1]), float(candidate[2])))
+            candidate_vectors = [
+                (float(candidate[0]), float(candidate[1]), float(candidate[2]))
+                for candidate in solutions
+            ]
+            evals = evaluator.evaluate_vectors_batch(candidate_vectors)
+            for evaluation in evals:
                 repaired.append([evaluation.vector[0], evaluation.vector[1], evaluation.vector[2]])
                 scores.append(float(evaluation.score))
                 if evaluator.total_evaluations >= config.max_evaluations:
@@ -252,6 +267,8 @@ def _run_cmaes_stage(
 def _toe_locked_sweep(
     profile: UniformSlopeProfile,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
     x_left: float,
@@ -266,9 +283,18 @@ def _toe_locked_sweep(
         if x_right <= x_left:
             continue
         y_right = profile.y_ground(x_right)
+        candidates: list[PrescribedCircleInput | None] = []
         for beta in beta_values:
-            candidate = circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-            evaluation = evaluate_surface_candidate(candidate, evaluate_surface, driving_moment_tol=1e-6)
+            candidates.append(circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
+
+        use_batch = batch_evaluate_surfaces is not None and len(candidates) >= max(1, min_batch_size)
+        evaluations = evaluate_surface_candidates_batch(
+            surfaces=candidates,
+            evaluate_surface=evaluate_surface,
+            driving_moment_tol=1e-6,
+            batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
+        )
+        for evaluation in evaluations:
             if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                 continue
             if is_better_score(evaluation.result.fos, evaluation.surface, best_result.fos, best_surface):
@@ -283,6 +309,8 @@ def _toe_locked_sweep(
 def _run_toe_locked_grid_refinement(
     profile: UniformSlopeProfile,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
     search_limits_x_min: float,
     search_limits_x_max: float,
     best_surface: PrescribedCircleInput,
@@ -307,6 +335,8 @@ def _run_toe_locked_grid_refinement(
     best_surface, best_result, best_x_right, best_beta = _toe_locked_sweep(
         profile=profile,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
         best_surface=best_surface,
         best_result=best_result,
         x_left=x_left,
@@ -328,6 +358,8 @@ def _run_toe_locked_grid_refinement(
     best_surface, best_result, _, _ = _toe_locked_sweep(
         profile=profile,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
         best_surface=best_surface,
         best_result=best_result,
         x_left=x_left,
@@ -343,6 +375,8 @@ def _run_polish_stage(
     evaluator: CachedObjectiveEvaluator,
     config: CmaesGlobalSearchInput,
     diagnostics: list[CmaesStageDiagnostics],
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
 ) -> str:
     if not config.post_polish:
         return "post_polish_disabled"
@@ -397,12 +431,16 @@ def _run_polish_stage(
             profile=evaluator.profile,
             config=refine_config,
             evaluate_surface=evaluator.evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
             best_surface=evaluator.best_surface,
             best_result=evaluator.best_result,
         )
         best_surface, best_result = _run_toe_locked_grid_refinement(
             profile=evaluator.profile,
             evaluate_surface=evaluator.evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
             search_limits_x_min=config.search_limits.x_min,
             search_limits_x_max=config.search_limits.x_max,
             best_surface=best_surface,
@@ -419,6 +457,8 @@ def run_cmaes_global_search(
     profile: UniformSlopeProfile,
     config: CmaesGlobalSearchInput,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
+    min_batch_size: int = 1,
 ) -> CmaesGlobalSearchResult:
     x_min = config.search_limits.x_min
     x_max = config.search_limits.x_max
@@ -439,6 +479,8 @@ def run_cmaes_global_search(
             keep_invalid_payload=True,
         ),
         driving_moment_tol=1e-9,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
     diagnostics: list[CmaesStageDiagnostics] = []
 
@@ -447,7 +489,13 @@ def run_cmaes_global_search(
         raise ConvergenceError("CMA-ES global search did not produce any valid surfaces in DIRECT prescan.")
 
     cma_reason = _run_cmaes_stage(evaluator, config, elites, diagnostics)
-    polish_reason = _run_polish_stage(evaluator, config, diagnostics)
+    polish_reason = _run_polish_stage(
+        evaluator,
+        config,
+        diagnostics,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
+    )
 
     if evaluator.best_surface is None or evaluator.best_result is None:
         raise ConvergenceError("CMA-ES global search did not produce any valid surfaces.")

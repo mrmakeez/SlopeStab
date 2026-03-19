@@ -46,6 +46,14 @@ class SearchLimitsInput:
 
 
 @dataclass(frozen=True)
+class ParallelExecutionInput:
+    enabled: bool = False
+    workers: int = 1
+    min_batch_size: int = 1
+    timeout_seconds: float | None = None
+
+
+@dataclass(frozen=True)
 class AutoRefineSearchInput:
     divisions_along_slope: int
     circles_per_division: int
@@ -105,6 +113,7 @@ class SearchInput:
     direct_global_circular: DirectGlobalSearchInput | None = None
     cuckoo_global_circular: CuckooGlobalSearchInput | None = None
     cmaes_global_circular: CmaesGlobalSearchInput | None = None
+    parallel: ParallelExecutionInput | None = None
 
 
 @dataclass(frozen=True)

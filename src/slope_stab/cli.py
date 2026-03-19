@@ -19,7 +19,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
 
 
 def _cmd_verify(args: argparse.Namespace) -> int:
-    outcomes = run_verification_suite()
+    outcomes = run_verification_suite(workers=max(1, int(args.workers)))
     all_passed = all(o.passed for o in outcomes)
 
     summary = {
@@ -65,6 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify = sub.add_parser("verify", help="Run built-in verification cases")
     verify.add_argument("--output", help="Optional output JSON path")
+    verify.add_argument("--workers", type=int, default=1, help="Number of parallel verification workers")
     verify.set_defaults(func=_cmd_verify)
 
     return parser

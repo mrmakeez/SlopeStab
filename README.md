@@ -14,7 +14,7 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 ## Quick Start
 
 1. `python -m slope_stab.cli analyze --input tests/fixtures/case1.json`
-2. `python -m slope_stab.cli verify` (built-in verification covers Case 1-4, DIRECT global benchmarks for Cases 2-4, Cuckoo global benchmarks for Cases 2-4, and CMAES global benchmarks for Cases 2-4)
+2. `python -m slope_stab.cli verify` (or `python -m slope_stab.cli verify --workers 2` for parallel case execution)
 3. `python -m unittest discover -s tests -p "test_*.py"`
 
 ## Documentation
@@ -48,10 +48,26 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 
 This keeps the method-specific files focused on their search strategy while preserving consistent scoring, tie-break, and invalid-candidate behavior.
 
+## Parallel Execution (Opt-In)
+
+Search runs are serial by default. Parallel candidate scoring is enabled only when `search.parallel.enabled = true` and `search.parallel.workers > 1`.
+
+Supported config fields:
+
+- `search.parallel.enabled` (bool, default `false`)
+- `search.parallel.workers` (int, default `1`)
+- `search.parallel.min_batch_size` (int, default `1`)
+- `search.parallel.timeout_seconds` (optional float)
+
+The implementation preserves ordered deterministic merge semantics for cache/budget/incumbent updates. Worker failures raise explicit runtime errors; silent partial continuation is not allowed.
+
+Note: environments that cannot create process workers use a controlled thread-worker fallback while preserving deterministic merge and failure semantics. The selected backend is reported in output metadata at `search.parallel.backend`.
+
 ## Performance and Repeatability Notes
 
 - Deterministic paths (`auto_refine_circular`, `direct_global_circular`) remain deterministic.
 - Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
+- `cli verify --workers N` runs cases in parallel workers and preserves case ordering in output.
 - Non-gating performance snapshots can be captured with the fixture timing command documented in `PLANS.md` for regression tracking.
 
 ## Solver Validity Rules

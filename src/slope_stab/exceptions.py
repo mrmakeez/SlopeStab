@@ -11,3 +11,7 @@ class GeometryError(ValueError):
 
 class ConvergenceError(RuntimeError):
     """Raised when iterative FOS calculation fails to converge."""
+
+
+class ParallelExecutionError(RuntimeError):
+    """Raised when a parallel worker fails or returns invalid payloads."""

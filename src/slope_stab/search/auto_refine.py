@@ -8,9 +8,10 @@ from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, AutoRefineSearchInput, PrescribedCircleInput
 from slope_stab.search.common import (
+    SurfaceBatchEvaluator,
     TIE_TOL,
     circle_from_endpoints_and_tangent,
-    evaluate_surface_candidate,
+    evaluate_surface_candidates_batch,
     surface_key,
 )
 
@@ -147,6 +148,8 @@ def run_auto_refine_search(
     profile: UniformSlopeProfile,
     config: AutoRefineSearchInput,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
+    min_batch_size: int = 1,
 ) -> AutoRefineSearchResult:
     current_x_min = config.search_limits.x_min
     current_x_max = config.search_limits.x_max
@@ -181,15 +184,24 @@ def run_auto_refine_search(
                     p_right_mid[0] - p_left_mid[0],
                 )
                 angles = _generate_tangent_angles(theta_min, config.circles_per_division)
+                candidate_surfaces: list[PrescribedCircleInput | None] = []
                 for angle_index, theta in enumerate(angles):
-                    generated += 1
                     frac_left, frac_right = _sample_fractions(angle_index, len(angles))
                     frac_left = min(max(frac_left, _DIVISION_EDGE_EPS), 1.0 - _DIVISION_EDGE_EPS)
                     frac_right = min(max(frac_right, _DIVISION_EDGE_EPS), 1.0 - _DIVISION_EDGE_EPS)
                     p_left = _interpolate_point(left_start, left_end, frac_left)
                     p_right = _interpolate_point(right_start, right_end, frac_right)
-                    surface = circle_from_endpoints_and_tangent(p_left, p_right, theta)
-                    evaluation = evaluate_surface_candidate(surface, evaluate_surface, driving_moment_tol=1e-6)
+                    candidate_surfaces.append(circle_from_endpoints_and_tangent(p_left, p_right, theta))
+
+                generated += len(candidate_surfaces)
+                use_batch = batch_evaluate_surfaces is not None and len(candidate_surfaces) >= max(1, min_batch_size)
+                evaluations = evaluate_surface_candidates_batch(
+                    surfaces=candidate_surfaces,
+                    evaluate_surface=evaluate_surface,
+                    driving_moment_tol=1e-6,
+                    batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
+                )
+                for evaluation in evaluations:
                     if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                         continue
                     result = evaluation.result
@@ -257,6 +269,8 @@ def run_auto_refine_search(
             profile=profile,
             config=config,
             evaluate_surface=evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
         )
@@ -264,6 +278,8 @@ def run_auto_refine_search(
             profile=profile,
             config=config,
             evaluate_surface=evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
         )
@@ -291,6 +307,8 @@ def _run_toe_crest_refinement(
     profile: UniformSlopeProfile,
     config: AutoRefineSearchInput,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
@@ -317,11 +335,20 @@ def _run_toe_crest_refinement(
             if theta_lo >= theta_hi:
                 continue
 
+            candidates: list[PrescribedCircleInput | None] = []
             for k in range(beta_samples):
                 u = k / (beta_samples - 1)
                 beta = theta_lo + (theta_hi - theta_lo) * (u * u)
-                candidate = circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-                evaluation = evaluate_surface_candidate(candidate, evaluate_surface, driving_moment_tol=1e-6)
+                candidates.append(circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
+
+            use_batch = batch_evaluate_surfaces is not None and len(candidates) >= max(1, min_batch_size)
+            evaluations = evaluate_surface_candidates_batch(
+                surfaces=candidates,
+                evaluate_surface=evaluate_surface,
+                driving_moment_tol=1e-6,
+                batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
+            )
+            for evaluation in evaluations:
                 if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                     continue
                 result = evaluation.result
@@ -343,6 +370,8 @@ def _run_toe_locked_beta_refinement(
     profile: UniformSlopeProfile,
     config: AutoRefineSearchInput,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
@@ -361,11 +390,20 @@ def _run_toe_locked_beta_refinement(
     theta_lo = TANGENT_EPS_RAD
     theta_hi = 0.5 * math.pi - TANGENT_EPS_RAD
 
+    candidates: list[PrescribedCircleInput | None] = []
     for k in range(beta_samples):
         u = k / (beta_samples - 1)
         beta = theta_lo + (theta_hi - theta_lo) * u
-        candidate = circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta)
-        evaluation = evaluate_surface_candidate(candidate, evaluate_surface, driving_moment_tol=1e-6)
+        candidates.append(circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
+
+    use_batch = batch_evaluate_surfaces is not None and len(candidates) >= max(1, min_batch_size)
+    evaluations = evaluate_surface_candidates_batch(
+        surfaces=candidates,
+        evaluate_surface=evaluate_surface,
+        driving_moment_tol=1e-6,
+        batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
+    )
+    for evaluation in evaluations:
         if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
             continue
         result = evaluation.result

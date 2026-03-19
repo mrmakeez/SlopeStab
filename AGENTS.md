@@ -38,6 +38,13 @@ Not supported in baseline:
 - Where possible code shall be written to be extensible to Future Roadmap items, such that they are easier to implement at a later date.
 - Runtime dependencies for optimization paths are required (no fallback paths): `numpy`, `scipy`, and `cma`.
 - Do not commit runtime cache artifacts (`__pycache__/`, `*.pyc`).
+- Parallel search execution is opt-in via `search.parallel`; default behavior remains serial.
+- Parallel candidate evaluation must preserve deterministic ordered-merge semantics:
+  - normalize candidates in input order
+  - cache lookup before evaluation-budget accounting
+  - budget-cap uncached evaluations deterministically
+  - apply cache/counter/incumbent updates in the same logical order as serial evaluation
+- Worker failures (startup error, timeout, invalid payload, runtime exception) must fail deterministically via explicit error paths; never silently continue with partial state.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right
@@ -89,6 +96,7 @@ Expected:
 - Expose diagnostics that help reconcile per-slice terms and iteration history.
 - Prefer explicit validation errors over silent fallback behavior.
 - Keep deterministic behavior for deterministic paths and fixed-seed repeatability for cuckoo paths; do not alter Case 1/Case 2 benchmark behavior.
+- For seeded stochastic paths (cuckoo/CMAES), random proposal generation and population state updates must remain deterministic in serial order even when candidate scoring is batched.
 - Keep global-search core logic centralized:
   - candidate objective/caching behavior belongs in shared search-core utilities
   - DIRECT partition selection/splitting behavior belongs in shared search-core utilities

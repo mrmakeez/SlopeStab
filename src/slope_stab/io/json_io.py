@@ -13,6 +13,7 @@ from slope_stab.models import (
     DirectGlobalSearchInput,
     GeometryInput,
     MaterialInput,
+    ParallelExecutionInput,
     PrescribedCircleInput,
     ProjectInput,
     SearchInput,
@@ -66,6 +67,43 @@ def _parse_search_limits(
     return SearchLimitsInput(
         x_min=_as_float(_require_key(limits_data, "x_min"), f"{key_prefix}.search_limits.x_min"),
         x_max=_as_float(_require_key(limits_data, "x_max"), f"{key_prefix}.search_limits.x_max"),
+    )
+
+
+def _parse_parallel_execution(parallel_data: object) -> ParallelExecutionInput:
+    key_prefix = "search.parallel"
+    if parallel_data is None:
+        return ParallelExecutionInput(
+            enabled=False,
+            workers=1,
+            min_batch_size=1,
+            timeout_seconds=None,
+        )
+    if not isinstance(parallel_data, dict):
+        raise InputValidationError(f"'{key_prefix}' must be an object.")
+
+    enabled = _as_bool(parallel_data.get("enabled", False), f"{key_prefix}.enabled")
+    workers = _as_int(parallel_data.get("workers", 1), f"{key_prefix}.workers")
+    min_batch_size = _as_int(parallel_data.get("min_batch_size", 1), f"{key_prefix}.min_batch_size")
+    timeout_raw = parallel_data.get("timeout_seconds")
+    timeout_seconds: float | None
+    if timeout_raw is None:
+        timeout_seconds = None
+    else:
+        timeout_seconds = _as_float(timeout_raw, f"{key_prefix}.timeout_seconds")
+
+    if workers <= 0:
+        raise InputValidationError(f"{key_prefix}.workers must be greater than zero.")
+    if min_batch_size <= 0:
+        raise InputValidationError(f"{key_prefix}.min_batch_size must be greater than zero.")
+    if timeout_seconds is not None and timeout_seconds <= 0.0:
+        raise InputValidationError(f"{key_prefix}.timeout_seconds must be greater than zero.")
+
+    return ParallelExecutionInput(
+        enabled=enabled,
+        workers=workers,
+        min_batch_size=min_batch_size,
+        timeout_seconds=timeout_seconds,
     )
 
 
@@ -366,6 +404,8 @@ def parse_project_input(payload: dict) -> ProjectInput:
             raise InputValidationError("'search' must be an object.")
 
         method = str(_require_key(search_data, "method")).strip().lower()
+        parallel = _parse_parallel_execution(search_data.get("parallel"))
+
         if method == "auto_refine_circular":
             auto_data = _require_key(search_data, "auto_refine_circular")
             if not isinstance(auto_data, dict):
@@ -386,25 +426,25 @@ def parse_project_input(payload: dict) -> ProjectInput:
                 divisions_to_use_next_iteration_pct=divisions_to_use_next_iteration_pct,
                 search_limits=limits,
             )
-            search = SearchInput(method=method, auto_refine_circular=auto)
+            search = SearchInput(method=method, auto_refine_circular=auto, parallel=parallel)
         elif method == "direct_global_circular":
             direct_data = _require_key(search_data, "direct_global_circular")
             if not isinstance(direct_data, dict):
                 raise InputValidationError("'search.direct_global_circular' must be an object.")
             direct = _parse_direct_global_search(direct_data, geometry)
-            search = SearchInput(method=method, direct_global_circular=direct)
+            search = SearchInput(method=method, direct_global_circular=direct, parallel=parallel)
         elif method == "cuckoo_global_circular":
             cuckoo_data = _require_key(search_data, "cuckoo_global_circular")
             if not isinstance(cuckoo_data, dict):
                 raise InputValidationError("'search.cuckoo_global_circular' must be an object.")
             cuckoo = _parse_cuckoo_global_search(cuckoo_data, geometry)
-            search = SearchInput(method=method, cuckoo_global_circular=cuckoo)
+            search = SearchInput(method=method, cuckoo_global_circular=cuckoo, parallel=parallel)
         elif method == "cmaes_global_circular":
             cmaes_data = _require_key(search_data, "cmaes_global_circular")
             if not isinstance(cmaes_data, dict):
                 raise InputValidationError("'search.cmaes_global_circular' must be an object.")
             cmaes = _parse_cmaes_global_search(cmaes_data, geometry)
-            search = SearchInput(method=method, cmaes_global_circular=cmaes)
+            search = SearchInput(method=method, cmaes_global_circular=cmaes, parallel=parallel)
         else:
             raise InputValidationError(
                 "Only search.method='auto_refine_circular', 'direct_global_circular', or "

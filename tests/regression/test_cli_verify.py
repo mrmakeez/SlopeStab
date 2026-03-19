@@ -14,7 +14,7 @@ class CliRegressionTests(unittest.TestCase):
         env = dict(os.environ)
         env["PYTHONPATH"] = str(root / "src")
         proc = subprocess.run(
-            [sys.executable, "-m", "slope_stab.cli", "verify"],
+            [sys.executable, "-m", "slope_stab.cli", "verify", "--workers", "2"],
             cwd=root,
             env=env,
             check=False,

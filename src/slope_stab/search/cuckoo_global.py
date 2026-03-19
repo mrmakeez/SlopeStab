@@ -8,7 +8,14 @@ from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, CuckooGlobalSearchInput, PrescribedCircleInput
 from slope_stab.search.auto_refine import _run_toe_crest_refinement, _run_toe_locked_beta_refinement
-from slope_stab.search.common import TIE_TOL, SurfaceEvaluator, X_SEP_MIN, repair_vector_clip, surface_key
+from slope_stab.search.common import (
+    TIE_TOL,
+    SurfaceBatchEvaluator,
+    SurfaceEvaluator,
+    X_SEP_MIN,
+    repair_vector_clip,
+    surface_key,
+)
 from slope_stab.search.objective_evaluator import (
     CachedObjectiveEvaluator,
     ObjectiveEvaluation,
@@ -99,6 +106,8 @@ def run_cuckoo_global_search(
     profile: UniformSlopeProfile,
     config: CuckooGlobalSearchInput,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
+    min_batch_size: int = 1,
 ) -> CuckooGlobalSearchResult:
     x_min = config.search_limits.x_min
     x_max = config.search_limits.x_max
@@ -121,6 +130,8 @@ def run_cuckoo_global_search(
             keep_invalid_payload=False,
         ),
         driving_moment_tol=1e-9,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
 
     def random_vector() -> tuple[float, float, float]:
@@ -181,13 +192,14 @@ def run_cuckoo_global_search(
                 key=lambda item: (_candidate_rank(item[1].evaluation), item[0]),
             )
             worst_indices = [idx for idx, _ in ranked[-abandon_count:]]
-            for idx in worst_indices:
+            abandonment_vectors = [random_vector() for _ in worst_indices]
+            abandonment_evals = evaluator.evaluate_vectors_batch(abandonment_vectors)
+            for idx, evaluation in zip(worst_indices, abandonment_evals):
+                population[idx] = _Nest(vector=evaluation.vector, evaluation=evaluation)
+                abandoned += 1
                 if evaluator.total_evaluations >= config.max_evaluations:
                     termination_reason = "max_evaluations"
                     break
-                evaluation = evaluator.evaluate_vector(random_vector())
-                population[idx] = _Nest(vector=evaluation.vector, evaluation=evaluation)
-                abandoned += 1
 
         if evaluator.best_surface is None or evaluator.best_result is None:
             raise ConvergenceError("Cuckoo search lost incumbent surface unexpectedly.")
@@ -225,6 +237,8 @@ def run_cuckoo_global_search(
             profile=profile,
             config=refine_config,
             evaluate_surface=evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
         )
@@ -232,6 +246,8 @@ def run_cuckoo_global_search(
             profile=profile,
             config=refine_config,
             evaluate_surface=evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
         )

@@ -7,7 +7,7 @@ from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, DirectGlobalSearchInput, PrescribedCircleInput
 from slope_stab.search.auto_refine import _run_toe_crest_refinement, _run_toe_locked_beta_refinement
-from slope_stab.search.common import SurfaceEvaluator, X_SEP_MIN, repair_vector_clip
+from slope_stab.search.common import SurfaceBatchEvaluator, SurfaceEvaluator, X_SEP_MIN, repair_vector_clip
 from slope_stab.search.direct_partition import (
     DirectRectangle,
     seeded_centers_3x3x3,
@@ -46,6 +46,8 @@ def run_direct_global_search(
     profile: UniformSlopeProfile,
     config: DirectGlobalSearchInput,
     evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
+    min_batch_size: int = 1,
 ) -> DirectGlobalSearchResult:
     x_min = config.search_limits.x_min
     x_max = config.search_limits.x_max
@@ -66,13 +68,18 @@ def run_direct_global_search(
             keep_invalid_payload=False,
         ),
         driving_moment_tol=1e-9,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
     )
 
     next_rect_id = 0
 
-    def make_rectangle(center: tuple[float, float, float], half_sizes: tuple[float, float, float]) -> DirectRectangle[ObjectiveEvaluation]:
+    def make_rectangle(
+        center: tuple[float, float, float],
+        half_sizes: tuple[float, float, float],
+        evaluation: ObjectiveEvaluation,
+    ) -> DirectRectangle[ObjectiveEvaluation]:
         nonlocal next_rect_id
-        evaluation = evaluator.evaluate_vector(center)
         rect = DirectRectangle(
             rect_id=next_rect_id,
             center=center,
@@ -87,11 +94,15 @@ def run_direct_global_search(
     # 3x3x3 boxes and avoid early lock-in to a single local basin.
     centers_1d = seeded_centers_3x3x3()
     base_half_sizes = (1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0)
-    rectangles: list[DirectRectangle[ObjectiveEvaluation]] = []
+    centers: list[tuple[float, float, float]] = []
     for u0 in centers_1d:
         for u1 in centers_1d:
             for u2 in centers_1d:
-                rectangles.append(make_rectangle((u0, u1, u2), base_half_sizes))
+                centers.append((u0, u1, u2))
+    initial_evals = evaluator.evaluate_vectors_batch(centers)
+    rectangles: list[DirectRectangle[ObjectiveEvaluation]] = []
+    for center, evaluation in zip(centers, initial_evals):
+        rectangles.append(make_rectangle(center, base_half_sizes, evaluation))
 
     if not rectangles:
         raise ConvergenceError("DIRECT search initialization failed.")
@@ -114,14 +125,15 @@ def run_direct_global_search(
         next_rectangles: list[DirectRectangle[ObjectiveEvaluation]] = [
             rect for rect in rectangles if rect.rect_id not in selected_ids
         ]
+        child_specs: list[tuple[tuple[float, float, float], tuple[float, float, float]]] = []
         for rect in selected:
             for child_center, child_half_sizes in split_rectangle(rect):
-                child = make_rectangle(center=child_center, half_sizes=child_half_sizes)
-                next_rectangles.append(child)
-                if evaluator.total_evaluations >= config.max_evaluations:
-                    break
-            if evaluator.total_evaluations >= config.max_evaluations:
-                break
+                child_specs.append((child_center, child_half_sizes))
+
+        child_evals = evaluator.evaluate_vectors_batch([center for center, _ in child_specs])
+        for (center, half_sizes), evaluation in zip(child_specs, child_evals):
+            child = make_rectangle(center=center, half_sizes=half_sizes, evaluation=evaluation)
+            next_rectangles.append(child)
 
         rectangles = next_rectangles
         incumbent = min(rectangles, key=lambda r: (r.score, r.rect_id))
@@ -166,6 +178,8 @@ def run_direct_global_search(
         profile=profile,
         config=refine_config,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
         best_surface=evaluator.best_surface,
         best_result=evaluator.best_result,
     )
@@ -173,6 +187,8 @@ def run_direct_global_search(
         profile=profile,
         config=refine_config,
         evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
         best_surface=best_surface,
         best_result=best_result,
     )

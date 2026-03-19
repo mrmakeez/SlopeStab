@@ -77,6 +77,12 @@ The loop stops on the first satisfied condition:
 
 ![Seed repeatability behavior](images/cuckoo_global/05_seed_repeatability.svg)
 
+## Parallel Candidate Scoring (Opt-In)
+
+When `search.parallel.enabled = true` and `search.parallel.workers > 1`, selected scoring steps can run in batches. Random proposal generation and population update application remain in deterministic serial order to preserve fixed-seed repeatability.
+
+Worker failures raise explicit runtime errors and abort the run.
+
 ## Optional Post-Polish
 
 If `post_polish = true`, two deterministic local refinement passes run after the global loop:

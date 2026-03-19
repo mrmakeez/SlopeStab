@@ -1333,3 +1333,82 @@ Plan status: Closed.
 
 Plan revision note: Added and closed on 2026-03-19 after Spencer solver integration, expanded verification/regression coverage, and full gate validation.
 ```
+
+```md
+# Implement Staged Parallel Processing with Determinism Guarantees
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` were kept up to date through implementation and closure.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and was maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+The repository now supports opt-in parallel candidate scoring for circular search workflows while preserving verification-first behavior and benchmark contracts. Parallel failures are explicit, deterministic errors; there is no silent partial-state continuation.
+
+## Progress
+
+- [x] (2026-03-19 +13:00) Added additive parallel config model and parser support (`search.parallel`).
+- [x] (2026-03-19 +13:00) Added top-level worker-boundary module with immutable context and candidate-only task payloads.
+- [x] (2026-03-19 +13:00) Added deterministic batch semantics in shared objective evaluator (`evaluate_vectors_batch`).
+- [x] (2026-03-19 +13:00) Parallelized auto-refine and CMAES batchable scoring paths; preserved deterministic ordered merge behavior.
+- [x] (2026-03-19 +13:00) Added DIRECT/Cuckoo batch integrations where safe without violating update-order contracts.
+- [x] (2026-03-19 +13:00) Added `cli verify --workers` with stable output ordering and inner-search serial override.
+- [x] (2026-03-19 +13:00) Added unit/regression coverage for parser defaults, batch semantics, parallel behavior, and timeout failure policy.
+- [x] (2026-03-19 +13:00) Updated documentation (`AGENTS.md`, `README.md`, and explainers).
+- [x] (2026-03-19 +13:00) Ran required verification gate and full unittest discovery successfully.
+
+## Surprises & Discoveries
+
+- Observation: Process worker creation can fail in restricted Windows environments (`WinError 5` on pipe creation).
+  Evidence: Parallel regression tests failed in-process-pool initialization with access-denied pipe creation.
+
+- Observation: A controlled thread-worker fallback is required to keep opt-in parallel paths usable in restricted environments while retaining deterministic merge semantics.
+  Evidence: Parallel regression tests passed after controlled fallback and explicit backend reporting.
+
+- Observation: CMAES worker-invariance can show very small numerical drift under batched scoring while still meeting benchmark gates.
+  Evidence: Parallel-vs-serial CMAES regression required tolerance-based surface/FOS comparison instead of strict field equality.
+
+## Decision Log
+
+- Decision: Keep `search.parallel` opt-in with serial defaults.
+  Rationale: verification-first risk posture and non-breaking behavior.
+  Date/Author: 2026-03-19 / Codex + Owner
+
+- Decision: Implement worker-boundary contract using immutable context plus candidate-only tasks.
+  Rationale: supports process workers without lambda/closure coupling and minimizes per-task payload overhead.
+  Date/Author: 2026-03-19 / Codex
+
+- Decision: Raise deterministic explicit errors on worker timeout/invalid payload/worker failure.
+  Rationale: no silent partial continuation.
+  Date/Author: 2026-03-19 / Codex
+
+- Decision: Use controlled thread-worker fallback when process workers cannot be created in restricted environments.
+  Rationale: preserves behavior and keeps opt-in parallel paths operable under host constraints while reporting backend in metadata.
+  Date/Author: 2026-03-19 / Codex
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- Parallel configuration and runtime wiring landed end-to-end.
+- Shared evaluator now supports deterministic ordered batch evaluation with cache/budget/incumbent consistency.
+- Search methods and verification runner support parallel workflows per scope.
+- Documentation updated for parallel invariants and failure policy.
+
+Validation evidence:
+
+- `python -m slope_stab.cli verify` returned `all_passed=true` for all 27 built-in cases.
+- `python -m unittest discover -s tests -p "test_*.py"` passed (48 tests).
+- Added targeted tests: `tests/unit/test_objective_evaluator_batch.py` and `tests/regression/test_parallel_search_behavior.py`.
+
+Performance evidence (non-gating, sampled):
+
+- `case3_auto_refine_spencer`: serial `28.9667s`, parallel `29.7247s`.
+- `case4_auto_refine_spencer`: serial `141.5342s`, parallel `144.2342s`.
+- `case4_cmaes_global`: serial `2.9664s`, parallel `2.9324s`.
+- Sampled environment used thread fallback backend due process-worker restrictions.
+
+Plan status: Closed.
+
+Plan revision note: Added and closed on 2026-03-19 after implementing staged parallel processing features, deterministic batch semantics, failure-policy safeguards, documentation updates, and full gate validation.
+```

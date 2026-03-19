@@ -7,8 +7,11 @@ from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, PrescribedCircleInput
 from slope_stab.search.common import (
     CACHE_ROUND,
+    CandidateEvaluation,
+    SurfaceBatchEvaluator,
     SurfaceEvaluator,
     Vector3,
+    evaluate_surface_candidates_batch,
     evaluate_surface_candidate,
     is_better_score,
     map_vector_to_surface,
@@ -49,6 +52,8 @@ class CachedObjectiveEvaluator:
         evaluate_surface: SurfaceEvaluator,
         policy: ObjectiveScoringPolicy,
         driving_moment_tol: float = 1e-9,
+        batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
+        min_batch_size: int = 1,
     ) -> None:
         self.profile = profile
         self.x_min = x_min
@@ -57,6 +62,8 @@ class CachedObjectiveEvaluator:
         self.evaluate_surface = evaluate_surface
         self.policy = policy
         self.driving_moment_tol = driving_moment_tol
+        self.batch_evaluate_surfaces = batch_evaluate_surfaces
+        self.min_batch_size = max(1, min_batch_size)
 
         self.cache: dict[Vector3, ObjectiveEvaluation] = {}
         self.total_evaluations = 0
@@ -142,6 +149,89 @@ class CachedObjectiveEvaluator:
         self.valid_evaluations += 1
         self._update_incumbent(evaluation)
         return evaluation
+
+    def evaluate_vectors_batch(self, vectors: list[Vector3]) -> list[ObjectiveEvaluation]:
+        if not vectors:
+            return []
+
+        normalized: list[Vector3] = [self._normalize(vector) for vector in vectors]
+        first_uncached_keys: list[Vector3] = []
+        seen_uncached: set[Vector3] = set()
+
+        for key in normalized:
+            if key in self.cache:
+                continue
+            if key in seen_uncached:
+                continue
+            seen_uncached.add(key)
+            first_uncached_keys.append(key)
+
+        remaining_budget = max(0, self.max_evaluations - self.total_evaluations)
+        keys_to_evaluate = first_uncached_keys[:remaining_budget]
+        overflow_keys = first_uncached_keys[remaining_budget:]
+
+        candidate_surfaces = [
+            map_vector_to_surface(
+                profile=self.profile,
+                x_min=self.x_min,
+                x_max=self.x_max,
+                vector=key,
+                repair_vector=_identity_vector,
+            )
+            for key in keys_to_evaluate
+        ]
+
+        use_batch = self.batch_evaluate_surfaces is not None and len(candidate_surfaces) >= self.min_batch_size
+        candidate_results = evaluate_surface_candidates_batch(
+            surfaces=candidate_surfaces,
+            evaluate_surface=self.evaluate_surface,
+            driving_moment_tol=self.driving_moment_tol,
+            batch_evaluate_surfaces=self.batch_evaluate_surfaces if use_batch else None,
+        )
+
+        for key, candidate in zip(keys_to_evaluate, candidate_results):
+            self.total_evaluations += 1
+            objective_eval = self._objective_from_candidate(key, candidate)
+            self.cache[key] = objective_eval
+            if objective_eval.valid:
+                self.valid_evaluations += 1
+                self._update_incumbent(objective_eval)
+            else:
+                self.infeasible_evaluations += 1
+
+        for key in overflow_keys:
+            self.cache[key] = ObjectiveEvaluation(
+                score=self.policy.invalid_geometry_score,
+                surface=None,
+                result=None,
+                valid=False,
+                reason="max_evaluations",
+                vector=key,
+            )
+
+        return [self.cache[key] for key in normalized]
+
+    def _objective_from_candidate(self, key: Vector3, candidate: CandidateEvaluation) -> ObjectiveEvaluation:
+        if not candidate.valid or candidate.surface is None or candidate.result is None:
+            payload_surface = candidate.surface if self.policy.keep_invalid_payload else None
+            payload_result = candidate.result if self.policy.keep_invalid_payload else None
+            return ObjectiveEvaluation(
+                score=self._score_for_reason(candidate.reason),
+                surface=payload_surface,
+                result=payload_result,
+                valid=False,
+                reason=candidate.reason,
+                vector=key,
+            )
+
+        return ObjectiveEvaluation(
+            score=candidate.result.fos,
+            surface=candidate.surface,
+            result=candidate.result,
+            valid=True,
+            reason="valid",
+            vector=key,
+        )
 
     def _update_incumbent(self, evaluation: ObjectiveEvaluation) -> None:
         if not evaluation.valid or evaluation.surface is None or evaluation.result is None:

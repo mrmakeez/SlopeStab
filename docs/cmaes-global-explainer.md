@@ -117,5 +117,11 @@ Illustration of valid orientation:
 - `stall_iterations = 25`
 - `seed = 0`
 - `post_polish = true`
+
+## Parallel Candidate Scoring (Opt-In)
+
+When `search.parallel.enabled = true` and `search.parallel.workers > 1`, CMA-ES population candidates are scored in batches while control flow remains serial (`ask()` then ordered score merge then `tell()`).
+
+For fixed seed, repeatability is preserved by keeping random proposal generation and state updates deterministic in serial order. Worker failures raise explicit runtime errors and abort the run.
 - `invalid_penalty = 1e6`
 - `nonconverged_penalty = 1e5`
