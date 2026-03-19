@@ -25,9 +25,10 @@ class PrescribedVerificationCase:
     project: ProjectInput
     expected_fos: float
     fos_tolerance: float
-    expected_driving_moment: float
-    expected_resisting_moment: float
-    moment_rel_tolerance: float
+    expected_driving_moment: float | None = None
+    expected_resisting_moment: float | None = None
+    moment_rel_tolerance: float | None = None
+    analysis_method: str = "bishop_simplified"
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,7 @@ class AutoRefineVerificationCase:
     expected_left: tuple[float, float]
     expected_right: tuple[float, float]
     endpoint_abs_tolerance: float
+    analysis_method: str = "bishop_simplified"
 
 
 @dataclass(frozen=True)
@@ -53,6 +55,7 @@ class GlobalSearchBenchmarkVerificationCase:
     project: ProjectInput
     benchmark_fos: float
     margin: float
+    analysis_method: str = "bishop_simplified"
 
 
 VerificationCase: TypeAlias = (
@@ -515,3 +518,495 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         margin=0.01,
     ),
 )
+
+
+SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 2 (Spencer Prescribed Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=13.689,
+                yc=25.558,
+                r=15.989,
+                x_left=10.0005216402222,
+                y_left=10.0002608201111,
+                x_right=27.4990237870903,
+                y_right=17.5,
+            ),
+        ),
+        expected_fos=2.11168,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 3 (Spencer Prescribed Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=30.2546073537702,
+                yc=51.7886948308462,
+                r=26.7899128131506,
+                x_left=29.9991512988288,
+                y_left=25.0,
+                x_right=51.1313684630259,
+                y_right=35.0,
+            ),
+        ),
+        expected_fos=0.985334,
+        fos_tolerance=0.002,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 4 (Spencer Prescribed Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=22.5811777177525,
+                yc=64.3127170691117,
+                r=39.9948933227408,
+                x_left=30.0195115924048,
+                y_left=25.0156092739238,
+                x_right=57.6041766085651,
+                y_right=45.0,
+            ),
+        ),
+        expected_fos=1.23141,
+        fos_tolerance=0.002,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        analysis_method="spencer",
+        name="Case 3 (Spencer Auto-Refine Parity)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        expected_fos=0.985334,
+        fos_tolerance=0.002,
+        expected_radius=26.7899128131506,
+        radius_rel_tolerance=0.12,
+        expected_center=(30.2546073537702, 51.7886948308462),
+        expected_left=(29.9991512988288, 25.0),
+        expected_right=(51.1313684630259, 35.0),
+        endpoint_abs_tolerance=0.30,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        analysis_method="spencer",
+        name="Case 4 (Spencer Auto-Refine Parity)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=30,
+                    circles_per_division=15,
+                    iterations=15,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        expected_fos=1.23141,
+        fos_tolerance=0.002,
+        expected_radius=39.9948933227408,
+        radius_rel_tolerance=0.12,
+        expected_center=(22.5811777177525, 64.3127170691117),
+        expected_left=(30.0195115924048, 25.0156092739238),
+        expected_right=(57.6041766085651, 45.0),
+        endpoint_abs_tolerance=0.30,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="global_search_benchmark",
+        analysis_method="spencer",
+        search_method="direct_global_circular",
+        name="Case 2 (Spencer Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="direct_global_circular",
+                direct_global_circular=DirectGlobalSearchInput(
+                    max_iterations=90,
+                    max_evaluations=1200,
+                    min_improvement=1e-4,
+                    stall_iterations=12,
+                    min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=2.5, x_max=40.0),
+                ),
+            ),
+        ),
+        benchmark_fos=2.11168,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="global_search_benchmark",
+        analysis_method="spencer",
+        search_method="direct_global_circular",
+        name="Case 3 (Spencer Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="direct_global_circular",
+                direct_global_circular=DirectGlobalSearchInput(
+                    max_iterations=120,
+                    max_evaluations=1800,
+                    min_improvement=1e-4,
+                    stall_iterations=15,
+                    min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        benchmark_fos=0.985334,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="global_search_benchmark",
+        analysis_method="spencer",
+        search_method="direct_global_circular",
+        name="Case 4 (Spencer Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="direct_global_circular",
+                direct_global_circular=DirectGlobalSearchInput(
+                    max_iterations=140,
+                    max_evaluations=2200,
+                    min_improvement=1e-4,
+                    stall_iterations=18,
+                    min_rectangle_half_size=1e-3,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        benchmark_fos=1.23141,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="cuckoo_global_search_benchmark",
+        analysis_method="spencer",
+        search_method="cuckoo_global_circular",
+        name="Case 2 (Spencer Cuckoo Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cuckoo_global_circular",
+                cuckoo_global_circular=CuckooGlobalSearchInput(
+                    population_size=40,
+                    max_iterations=200,
+                    max_evaluations=4000,
+                    discovery_rate=0.20,
+                    levy_beta=1.5,
+                    alpha_max=0.5,
+                    alpha_min=0.05,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    search_limits=SearchLimitsInput(x_min=2.5, x_max=40.0),
+                ),
+            ),
+        ),
+        benchmark_fos=2.11168,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="cuckoo_global_search_benchmark",
+        analysis_method="spencer",
+        search_method="cuckoo_global_circular",
+        name="Case 3 (Spencer Cuckoo Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cuckoo_global_circular",
+                cuckoo_global_circular=CuckooGlobalSearchInput(
+                    population_size=40,
+                    max_iterations=200,
+                    max_evaluations=5000,
+                    discovery_rate=0.20,
+                    levy_beta=1.5,
+                    alpha_max=0.5,
+                    alpha_min=0.05,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        benchmark_fos=0.985334,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="cuckoo_global_search_benchmark",
+        analysis_method="spencer",
+        search_method="cuckoo_global_circular",
+        name="Case 4 (Spencer Cuckoo Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cuckoo_global_circular",
+                cuckoo_global_circular=CuckooGlobalSearchInput(
+                    population_size=50,
+                    max_iterations=250,
+                    max_evaluations=7000,
+                    discovery_rate=0.20,
+                    levy_beta=1.5,
+                    alpha_max=0.5,
+                    alpha_min=0.05,
+                    min_improvement=1e-4,
+                    stall_iterations=30,
+                    seed=0,
+                    post_polish=True,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        benchmark_fos=1.23141,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="cmaes_global_search_benchmark",
+        analysis_method="spencer",
+        search_method="cmaes_global_circular",
+        name="Case 2 (Spencer CMAES Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
+            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=7,
+                tolerance=0.005,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cmaes_global_circular",
+                cmaes_global_circular=CmaesGlobalSearchInput(
+                    max_evaluations=4500,
+                    direct_prescan_evaluations=600,
+                    cmaes_population_size=8,
+                    cmaes_max_iterations=180,
+                    cmaes_restarts=2,
+                    cmaes_sigma0=0.15,
+                    polish_max_evaluations=80,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    invalid_penalty=1e6,
+                    nonconverged_penalty=1e5,
+                    search_limits=SearchLimitsInput(x_min=2.5, x_max=40.0),
+                ),
+            ),
+        ),
+        benchmark_fos=2.11168,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="cmaes_global_search_benchmark",
+        analysis_method="spencer",
+        search_method="cmaes_global_circular",
+        name="Case 3 (Spencer CMAES Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cmaes_global_circular",
+                cmaes_global_circular=CmaesGlobalSearchInput(
+                    max_evaluations=5500,
+                    direct_prescan_evaluations=800,
+                    cmaes_population_size=8,
+                    cmaes_max_iterations=200,
+                    cmaes_restarts=2,
+                    cmaes_sigma0=0.15,
+                    polish_max_evaluations=100,
+                    min_improvement=1e-4,
+                    stall_iterations=25,
+                    seed=0,
+                    post_polish=True,
+                    invalid_penalty=1e6,
+                    nonconverged_penalty=1e5,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        benchmark_fos=0.985334,
+        margin=0.01,
+    ),
+    GlobalSearchBenchmarkVerificationCase(
+        case_type="cmaes_global_search_benchmark",
+        analysis_method="spencer",
+        search_method="cmaes_global_circular",
+        name="Case 4 (Spencer CMAES Global Search Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="cmaes_global_circular",
+                cmaes_global_circular=CmaesGlobalSearchInput(
+                    max_evaluations=7000,
+                    direct_prescan_evaluations=1200,
+                    cmaes_population_size=10,
+                    cmaes_max_iterations=250,
+                    cmaes_restarts=3,
+                    cmaes_sigma0=0.15,
+                    polish_max_evaluations=120,
+                    min_improvement=1e-4,
+                    stall_iterations=30,
+                    seed=0,
+                    post_polish=True,
+                    invalid_penalty=1e6,
+                    nonconverged_penalty=1e5,
+                    search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
+                ),
+            ),
+        ),
+        benchmark_fos=1.23141,
+        margin=0.01,
+    ),
+)
+
+VERIFICATION_CASES = VERIFICATION_CASES + SPENCER_VERIFICATION_CASES

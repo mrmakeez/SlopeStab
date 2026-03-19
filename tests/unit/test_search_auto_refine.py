@@ -28,6 +28,22 @@ def _base_payload() -> dict:
 
 
 class SearchInputParsingTests(unittest.TestCase):
+    def test_parse_accepts_spencer_method(self) -> None:
+        payload = _base_payload()
+        payload["analysis"]["method"] = "spencer"
+        payload["prescribed_surface"] = {
+            "xc": 13.689,
+            "yc": 25.558,
+            "r": 15.989,
+            "x_left": 10.0005216402222,
+            "y_left": 10.0002608201111,
+            "x_right": 27.4990237870903,
+            "y_right": 17.5,
+        }
+
+        project = parse_project_input(payload)
+        self.assertEqual(project.analysis.method, "spencer")
+
     def test_search_limits_default_from_geometry(self) -> None:
         payload = _base_payload()
         payload["search"] = {

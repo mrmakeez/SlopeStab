@@ -66,7 +66,7 @@ Formula:
 
 ### D4. Objective Evaluation and Invalid-to-Infinity
 
-Short description: evaluate Bishop FOS for valid candidates; map invalid/non-converged candidates to `+inf`.
+Short description: evaluate selected solver FOS (Bishop or Spencer) for valid candidates; map invalid/non-converged candidates to `+inf`.
 
 ![D4 objective](images/direct_global/04_objective_and_invalid_to_inf.svg)
 
@@ -77,7 +77,7 @@ Rule:
 
 - What this computes: robust black-box objective for DIRECT.
 - Where it is used in implementation: `CachedObjectiveEvaluator.evaluate_vector` used by `run_direct_global_search`.
-- Validity details from Bishop solver:
+- Validity details from solver:
   - reject candidate if final-iteration `m_alpha < 0.2` in any slice
   - clamp base tension induced negative shear strength to zero
 

@@ -1,0 +1,30 @@
+{
+    "units":  "metric",
+    "geometry":  {
+                     "h":  10.0,
+                     "l":  20.0,
+                     "x_toe":  30.0,
+                     "y_toe":  25.0
+                 },
+    "material":  {
+                     "gamma":  20.0,
+                     "c":  3.0,
+                     "phi_deg":  19.6
+                 },
+    "analysis":  {
+                     "method":  "spencer",
+                     "n_slices":  25,
+                     "tolerance":  0.0001,
+                     "max_iter":  100,
+                     "f_init":  1.0
+                 },
+    "search":  {
+                   "method":  "auto_refine_circular",
+                   "auto_refine_circular":  {
+                                                "divisions_along_slope":  20,
+                                                "circles_per_division":  10,
+                                                "iterations":  10,
+                                                "divisions_to_use_next_iteration_pct":  50.0
+                                            }
+               }
+}

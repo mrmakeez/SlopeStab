@@ -2,7 +2,7 @@
 
 ## Purpose
 This repository is a verification-first slope stability program.
-Primary goal: preserve correctness of Bishop simplified calculations for prescribed circular surfaces while supporting circular search via:
+Primary goal: preserve correctness of Bishop simplified and Spencer calculations for prescribed circular surfaces while supporting circular search via:
 - `search.method = auto_refine_circular`
 - `search.method = direct_global_circular`
 - `search.method = cuckoo_global_circular`
@@ -19,12 +19,12 @@ Supported:
 - Seeded stochastic cuckoo-based circular global search via `search.method = cuckoo_global_circular` (repeatable for fixed seed)
 - Seeded stochastic hybrid CMA-ES circular global search via `search.method = cmaes_global_circular` (repeatable for fixed seed)
 - Bishop simplified factor-of-safety solver
+- Spencer factor-of-safety solver
 - Vertical slice discretization
 - JSON CLI analysis + built-in verification suite
 
 Not supported in baseline:
 - Additional/alternative search algorithms beyond current auto-refine, direct-global, cuckoo-global, and CMAES-global circular search (grid, random, GA, etc.)
-- Spencer or other rigorous methods
 - Non-circular surfaces
 - Multi-soil zoning/internal boundaries
 - Surcharge loads
@@ -53,8 +53,9 @@ Not supported in baseline:
 - Slice base angle is from base chord endpoints.
 - Slice area/weight are boundary-consistent with current implementation.
 - Bishop iteration must enforce finite-term checks and convergence limits.
+- Spencer force/moment coupling iteration must enforce finite-term checks and convergence limits.
 - Slip surfaces are invalid if any slice has final-iteration `m_alpha < 0.2` (applies to the converged/final iteration only).
-- Base tension induced negative shear strength contributions are clamped to zero in Bishop resistance calculations.
+- Base tension induced negative shear strength contributions are clamped to zero in solver resistance calculations.
 
 ## Required Verification Gate
 Before merging any change, run:
@@ -64,11 +65,15 @@ Before merging any change, run:
 Expected:
 - Verification suite reports all cases passed.
 - Unit/integration/regression tests pass.
-- Built-in `cli verify` includes Case 1, Case 2, Case 3, and Case 4, plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular` (`FOS(method) <= FOS(benchmark) + 0.01`).
+- Built-in `cli verify` includes Bishop and Spencer verification coverage:
+  - Bishop: Case 1, Case 2, Case 3, Case 4, plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Spencer: prescribed benchmarks for Cases 2-4, auto-refine parity for Cases 3-4, and Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Global benchmark rule remains `FOS(method) <= FOS(benchmark) + 0.01`.
 - Dedicated Case 3/4 regression tests remain for parity-focused diagnostics (`tests/regression/test_case3_auto_refine.py`, `tests/regression/test_case4_auto_refine.py`).
 - Dedicated global benchmark regression test remains for direct-global diagnostics (`tests/regression/test_global_search_benchmark.py`).
 - Dedicated cuckoo benchmark and oracle regression tests remain (`tests/regression/test_cuckoo_global_search_benchmark.py`, `tests/regression/test_cuckoo_global_oracle.py`).
 - Dedicated CMAES benchmark and oracle regression tests remain (`tests/regression/test_cmaes_global_search_benchmark.py`, `tests/regression/test_cmaes_global_oracle.py`).
+- Dedicated Spencer regression coverage remains for prescribed, benchmark, and oracle diagnostics (`tests/regression/test_spencer_*`).
 
 ## Implementation Guidance for Agents
 - Keep module boundaries clean:
@@ -103,9 +108,8 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 ## Future Roadmap (Deferred)
 Deferred until explicitly approved:
 - Additional/alternative search algorithms (beyond current auto-refine, direct-global, cuckoo-global, and CMAES-global circular search)
-- Spencer integration
 - Non-circular surfaces
 - Layered/zoned soils
 - Loads/seismic/groundwater
 
-Any roadmap implementation must be additive and must not alter baseline prescribed Bishop outputs.
+Any roadmap implementation must be additive and must not alter baseline prescribed Bishop/Spencer outputs.

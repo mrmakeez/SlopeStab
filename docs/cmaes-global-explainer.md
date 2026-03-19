@@ -73,7 +73,7 @@ Finite penalties are used (not `+inf`) for optimizer stability in CMA-ES and Nel
 
 Solver validity details:
 - candidate is invalid if any slice has final-iteration `m_alpha < 0.2`
-- `m_alpha` threshold check is applied on the converged/final Bishop iteration
+- `m_alpha` threshold check is applied on the converged/final solver iteration (Bishop or Spencer)
 - base tension induced negative shear strength is clamped to zero
 
 ## Orientation Validation for SVGs

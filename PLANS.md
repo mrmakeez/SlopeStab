@@ -1269,3 +1269,67 @@ Plan status: Closed.
 
 Plan revision note: Added and closed on 2026-03-19 after implementing shared search-core refactors, bounded CMAES polish tuning, documentation alignment, and full gate validation.
 ```
+
+```md
+# Implement Spencer Method End-to-End (Verification First, Then Search)
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and must be maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+Users can now run `analysis.method = "spencer"` for prescribed circular surfaces and all existing circular search methods (`auto_refine_circular`, `direct_global_circular`, `cuckoo_global_circular`, `cmaes_global_circular`) while preserving Bishop paths and benchmarks.
+
+## Progress
+
+- [x] (2026-03-19 +13:00) Implemented `SpencerSolver` and analysis dispatch support with additive parser validation (`analysis.method` accepts `bishop_simplified` and `spencer`).
+- [x] (2026-03-19 +13:00) Added Spencer verification coverage in built-in suite: prescribed benchmarks for Cases 2-4, auto-refine parity for Cases 3-4, and global benchmark checks for Cases 2-4 across DIRECT/Cuckoo/CMAES.
+- [x] (2026-03-19 +13:00) Added dedicated Spencer regression coverage (`tests/regression/test_spencer_*`) including prescribed, benchmark, and oracle checks.
+- [x] (2026-03-19 +13:00) Added Spencer fixture variants (`tests/fixtures/*_spencer.json`) for search/oracle regression runs.
+- [x] (2026-03-19 +13:00) Updated docs (`AGENTS.md`, `README.md`, and explainers) to reflect Spencer support and solver-agnostic search validity rules.
+- [x] (2026-03-19 +13:00) Ran required verification gate and full test discovery successfully.
+
+## Surprises & Discoveries
+
+- Observation: Existing Slide2 artifacts already contained Spencer global-minimum references for Cases 2-4, including lambda trend data for Case 3/4.
+  Evidence: `Case2-i.rfcreport`, `Case3-i.rfcreport`, `Case4-i.rfcreport`, and corresponding `.s01` files.
+
+- Observation: A deterministic two-residual Spencer solve (`force residual` + `moment residual`) with vectorized slice terms is fast enough for large search budgets.
+  Evidence: Built-in verify and full test suite pass under expanded Spencer benchmark/oracle coverage.
+
+- Observation: Auto-generated JSON fixtures written with BOM cause loader failures under `json.loads(..., encoding='utf-8')` expectations.
+  Evidence: Spencer fixture regressions initially failed with `JSONDecodeError: Unexpected UTF-8 BOM`; fixed by rewriting fixtures without BOM.
+
+## Decision Log
+
+- Decision: Expose Spencer through `analysis.method = "spencer"` (additive, no fallback paths).
+  Rationale: Clear explicit contract and compatibility with existing mode dispatch architecture.
+  Date/Author: 2026-03-19 / Codex + Owner
+
+- Decision: Keep search engines method-agnostic and route Spencer through the shared `evaluate_surface` callback path.
+  Rationale: Avoid duplicated search logic and preserve centralized objective/caching behavior.
+  Date/Author: 2026-03-19 / Codex + Owner
+
+- Decision: Preserve hard benchmark rule shape (`FOS(method) <= FOS(benchmark) + 0.01`) for Spencer global checks.
+  Rationale: Keeps benchmark semantics consistent across Bishop and Spencer suites.
+  Date/Author: 2026-03-19 / Codex + Owner
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- Spencer solver path implemented and integrated.
+- Verification suite expanded to 27 built-in cases (13 Bishop + 14 Spencer).
+- Spencer regression/oracle test coverage added and passing.
+- Documentation updated to reflect current repository capabilities.
+
+Gate evidence:
+
+- `python -m slope_stab.cli verify` passed all 27 cases.
+- `python -m unittest discover -s tests -p "test_*.py"` passed (39 tests).
+
+Plan status: Closed.
+
+Plan revision note: Added and closed on 2026-03-19 after Spencer solver integration, expanded verification/regression coverage, and full gate validation.
+```

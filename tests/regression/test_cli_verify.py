@@ -24,27 +24,12 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)
         payload = json.loads(proc.stdout)
         self.assertTrue(payload["all_passed"])
-        self.assertEqual(len(payload["cases"]), 13)
+        self.assertEqual(len(payload["cases"]), 27)
 
         cases = {item["name"]: item for item in payload["cases"]}
-        self.assertEqual(
-            set(cases),
-            {
-                "Case 1",
-                "Case 2",
-                "Case 3",
-                "Case 4",
-                "Case 2 (Global Search Benchmark)",
-                "Case 3 (Global Search Benchmark)",
-                "Case 4 (Global Search Benchmark)",
-                "Case 2 (Cuckoo Global Search Benchmark)",
-                "Case 3 (Cuckoo Global Search Benchmark)",
-                "Case 4 (Cuckoo Global Search Benchmark)",
-                "Case 2 (CMAES Global Search Benchmark)",
-                "Case 3 (CMAES Global Search Benchmark)",
-                "Case 4 (CMAES Global Search Benchmark)",
-            },
-        )
+        self.assertIn("Case 1", cases)
+        self.assertIn("Case 2 (Spencer Prescribed Benchmark)", cases)
+        self.assertIn("Case 4 (Spencer CMAES Global Search Benchmark)", cases)
 
         self.assertEqual(cases["Case 1"]["case_type"], "prescribed_benchmark")
         self.assertEqual(cases["Case 2"]["case_type"], "prescribed_benchmark")
@@ -59,6 +44,8 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(cases["Case 2 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
         self.assertEqual(cases["Case 3 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
         self.assertEqual(cases["Case 4 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
+        self.assertEqual(cases["Case 2 (Spencer Prescribed Benchmark)"]["analysis_method"], "spencer")
+        self.assertEqual(cases["Case 4 (Spencer CMAES Global Search Benchmark)"]["analysis_method"], "spencer")
 
         global_check = cases["Case 2 (Global Search Benchmark)"]["hard_checks"]["fos_vs_benchmark_plus_margin"]
         self.assertIn("value", global_check)
@@ -71,6 +58,7 @@ class CliRegressionTests(unittest.TestCase):
             self.assertIn("solver", item)
             self.assertIn("hard_checks", item)
             self.assertIn("diagnostics", item)
+            self.assertIn("analysis_method", item)
 
 
 if __name__ == "__main__":

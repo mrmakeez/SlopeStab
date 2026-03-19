@@ -1,6 +1,6 @@
 # SlopeStab
 
-Verification-first Bishop simplified slope stability program.
+Verification-first slope stability program supporting Bishop simplified and Spencer methods.
 
 ## Runtime Dependencies
 
@@ -23,6 +23,13 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 - DIRECT global algorithm explainer (implementation-accurate): `docs/direct-global-explainer.md`
 - Cuckoo global algorithm explainer (seeded stochastic global search): `docs/cuckoo-global-explainer.md`
 - CMAES global algorithm explainer (hybrid DIRECT + CMA-ES + polish): `docs/cmaes-global-explainer.md`
+- Spencer solver explainer (force and moment equilibrium with lambda coupling): `docs/spencer-explainer.md`
+
+## Analysis Methods
+
+- `analysis.method = bishop_simplified` for Bishop simplified LEM solving.
+- `analysis.method = spencer` for Spencer LEM solving.
+- Both methods are supported for prescribed surfaces and all circular search methods.
 
 ## Search Methods
 
@@ -47,7 +54,7 @@ This keeps the method-specific files focused on their search strategy while pres
 - Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
 - Non-gating performance snapshots can be captured with the fixture timing command documented in `PLANS.md` for regression tracking.
 
-## Bishop Solver Validity Rules
+## Solver Validity Rules
 
 - Any converged slip surface with final-iteration `m_alpha < 0.2` in any slice is treated as invalid.
 - Base tension induced negative slice shear strength is clamped to zero.

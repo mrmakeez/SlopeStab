@@ -28,6 +28,7 @@ def _cmd_verify(args: argparse.Namespace) -> int:
             {
                 "name": o.name,
                 "case_type": o.case_type,
+                "analysis_method": o.analysis_method,
                 "passed": o.passed,
                 "solver": {
                     "fos": o.result.fos,
@@ -53,10 +54,10 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Slope stability (Bishop simplified MVP)")
+    parser = argparse.ArgumentParser(description="Slope stability (Bishop simplified + Spencer)")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    analyze = sub.add_parser("analyze", help="Run prescribed-surface Bishop analysis from JSON input")
+    analyze = sub.add_parser("analyze", help="Run prescribed-surface or search analysis from JSON input")
     analyze.add_argument("--input", required=True, help="Path to input JSON")
     analyze.add_argument("--output", help="Optional output JSON path")
     analyze.add_argument("--compact", action="store_true", help="Emit compact JSON")

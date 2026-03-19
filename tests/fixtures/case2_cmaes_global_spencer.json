@@ -1,0 +1,43 @@
+{
+    "units":  "metric",
+    "geometry":  {
+                     "h":  7.5,
+                     "l":  15.0,
+                     "x_toe":  10.0,
+                     "y_toe":  10.0
+                 },
+    "material":  {
+                     "gamma":  20.0,
+                     "c":  20.0,
+                     "phi_deg":  20.0
+                 },
+    "analysis":  {
+                     "method":  "spencer",
+                     "n_slices":  7,
+                     "tolerance":  0.005,
+                     "max_iter":  50,
+                     "f_init":  1.0
+                 },
+    "search":  {
+                   "method":  "cmaes_global_circular",
+                   "cmaes_global_circular":  {
+                                                 "max_evaluations":  4500,
+                                                 "direct_prescan_evaluations":  600,
+                                                 "cmaes_population_size":  8,
+                                                 "cmaes_max_iterations":  180,
+                                                 "cmaes_restarts":  2,
+                                                 "cmaes_sigma0":  0.15,
+                                                 "polish_max_evaluations":  80,
+                                                 "min_improvement":  0.0001,
+                                                 "stall_iterations":  25,
+                                                 "seed":  0,
+                                                 "post_polish":  true,
+                                                 "invalid_penalty":  1000000.0,
+                                                 "nonconverged_penalty":  100000.0,
+                                                 "search_limits":  {
+                                                                       "x_min":  2.5,
+                                                                       "x_max":  40.0
+                                                                   }
+                                             }
+               }
+}

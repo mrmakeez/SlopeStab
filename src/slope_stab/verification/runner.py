@@ -18,6 +18,7 @@ from slope_stab.verification.cases import (
 class VerificationOutcome:
     name: str
     case_type: str
+    analysis_method: str
     result: AnalysisResult
     hard_checks: dict[str, Any]
     diagnostics: dict[str, Any]
@@ -35,29 +36,35 @@ def _evaluate_prescribed_case(
     result: AnalysisResult,
 ) -> tuple[dict[str, Any], dict[str, Any], bool]:
     fos_abs_error = abs(result.fos - case.expected_fos)
-    driving_rel_error = _relative_error(result.driving_moment, case.expected_driving_moment)
-    resisting_rel_error = _relative_error(result.resisting_moment, case.expected_resisting_moment)
-
-    hard_checks = {
+    hard_checks: dict[str, Any] = {
         "fos_abs_error": {
             "value": fos_abs_error,
             "tolerance": case.fos_tolerance,
             "expected": case.expected_fos,
             "passed": fos_abs_error <= case.fos_tolerance,
-        },
-        "driving_rel_error": {
+        }
+    }
+
+    if (
+        case.expected_driving_moment is not None
+        and case.expected_resisting_moment is not None
+        and case.moment_rel_tolerance is not None
+    ):
+        driving_rel_error = _relative_error(result.driving_moment, case.expected_driving_moment)
+        resisting_rel_error = _relative_error(result.resisting_moment, case.expected_resisting_moment)
+        hard_checks["driving_rel_error"] = {
             "value": driving_rel_error,
             "tolerance": case.moment_rel_tolerance,
             "expected": case.expected_driving_moment,
             "passed": driving_rel_error <= case.moment_rel_tolerance,
-        },
-        "resisting_rel_error": {
+        }
+        hard_checks["resisting_rel_error"] = {
             "value": resisting_rel_error,
             "tolerance": case.moment_rel_tolerance,
             "expected": case.expected_resisting_moment,
             "passed": resisting_rel_error <= case.moment_rel_tolerance,
-        },
-    }
+        }
+
     passed = all(check["passed"] for check in hard_checks.values())
     diagnostics: dict[str, Any] = {}
     return hard_checks, diagnostics, passed
@@ -178,6 +185,7 @@ def run_verification_suite() -> list[VerificationOutcome]:
             VerificationOutcome(
                 name=case.name,
                 case_type=case.case_type,
+                analysis_method=case.analysis_method,
                 result=result,
                 hard_checks=hard_checks,
                 diagnostics=diagnostics,

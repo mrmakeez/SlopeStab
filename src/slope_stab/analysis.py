@@ -6,7 +6,9 @@ from typing import Any, Callable
 from slope_stab.exceptions import ConvergenceError
 from slope_stab.exceptions import GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
+from slope_stab.lem_core.base import LEMSolver
 from slope_stab.lem_core.bishop import BishopSimplifiedSolver
+from slope_stab.lem_core.spencer import SpencerSolver
 from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
 from slope_stab.models import AnalysisResult, PrescribedCircleInput, ProjectInput
 from slope_stab.search.auto_refine import run_auto_refine_search
@@ -81,17 +83,32 @@ def _solve_prescribed_surface(
         gamma=project.material.gamma,
     )
 
-    solver = BishopSimplifiedSolver(
-        material=MohrCoulombMaterial(
-            gamma=project.material.gamma,
-            cohesion=project.material.c,
-            phi_deg=project.material.phi_deg,
-        ),
-        analysis=project.analysis,
-        surface=surface,
-    )
+    solver = _build_solver(project, surface)
 
     return solver.solve(slices)
+
+
+def _build_solver(project: ProjectInput, surface: CircularSlipSurface) -> LEMSolver:
+    material = MohrCoulombMaterial(
+        gamma=project.material.gamma,
+        cohesion=project.material.c,
+        phi_deg=project.material.phi_deg,
+    )
+
+    if project.analysis.method == "bishop_simplified":
+        return BishopSimplifiedSolver(
+            material=material,
+            analysis=project.analysis,
+            surface=surface,
+        )
+    if project.analysis.method == "spencer":
+        return SpencerSolver(
+            material=material,
+            analysis=project.analysis,
+            surface=surface,
+        )
+
+    raise GeometryError(f"Unsupported analysis method: {project.analysis.method}")
 
 
 def _surface_to_dict(surface: PrescribedCircleInput) -> dict[str, float]:
@@ -107,12 +124,16 @@ def _surface_to_dict(surface: PrescribedCircleInput) -> dict[str, float]:
 
 
 def _attach_prescribed_metadata(project: ProjectInput, result: AnalysisResult, surface: PrescribedCircleInput) -> None:
-    result.metadata = {
+    metadata = dict(result.metadata)
+    metadata.update(
+        {
         "units": project.units,
         "method": project.analysis.method,
         "n_slices": project.analysis.n_slices,
         "prescribed_surface": _surface_to_dict(surface),
-    }
+        }
+    )
+    result.metadata = metadata
 
 
 def _run_auto_refine_mode(
