@@ -281,8 +281,8 @@ class SearchInputParsingTests(unittest.TestCase):
         project = parse_project_input(payload)
         self.assertIsNotNone(project.search)
         self.assertIsNotNone(project.search.parallel)
-        self.assertFalse(project.search.parallel.enabled)
-        self.assertEqual(project.search.parallel.workers, 1)
+        self.assertEqual(project.search.parallel.mode, "auto")
+        self.assertEqual(project.search.parallel.workers, 0)
         self.assertEqual(project.search.parallel.min_batch_size, 1)
         self.assertIsNone(project.search.parallel.timeout_seconds)
 
@@ -291,7 +291,7 @@ class SearchInputParsingTests(unittest.TestCase):
         payload["search"] = {
             "method": "auto_refine_circular",
             "parallel": {
-                "enabled": True,
+                "mode": "parallel",
                 "workers": 2,
                 "min_batch_size": 8,
                 "timeout_seconds": 30.0,
@@ -306,7 +306,7 @@ class SearchInputParsingTests(unittest.TestCase):
         project = parse_project_input(payload)
         self.assertIsNotNone(project.search)
         self.assertIsNotNone(project.search.parallel)
-        self.assertTrue(project.search.parallel.enabled)
+        self.assertEqual(project.search.parallel.mode, "parallel")
         self.assertEqual(project.search.parallel.workers, 2)
         self.assertEqual(project.search.parallel.min_batch_size, 8)
         self.assertAlmostEqual(project.search.parallel.timeout_seconds, 30.0)
@@ -316,9 +316,87 @@ class SearchInputParsingTests(unittest.TestCase):
         payload["search"] = {
             "method": "auto_refine_circular",
             "parallel": {
-                "enabled": True,
-                "workers": 0,
+                "mode": "parallel",
+                "workers": -1,
                 "min_batch_size": 0,
+            },
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_parallel_legacy_enabled_mapping(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "parallel": {
+                "enabled": True,
+                "workers": 3,
+            },
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertIsNotNone(project.search.parallel)
+        self.assertEqual(project.search.parallel.mode, "parallel")
+        self.assertEqual(project.search.parallel.workers, 3)
+
+    def test_parse_parallel_legacy_enabled_false_maps_to_serial(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "parallel": {
+                "enabled": False,
+            },
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        self.assertIsNotNone(project.search.parallel)
+        self.assertEqual(project.search.parallel.mode, "serial")
+        self.assertEqual(project.search.parallel.workers, 0)
+
+    def test_parse_rejects_parallel_enabled_mode_conflict(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "parallel": {
+                "enabled": False,
+                "mode": "parallel",
+                "workers": 2,
+            },
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+            },
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_invalid_parallel_mode(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "parallel": {
+                "mode": "turbo",
+                "workers": 2,
             },
             "auto_refine_circular": {
                 "divisions_along_slope": 6,

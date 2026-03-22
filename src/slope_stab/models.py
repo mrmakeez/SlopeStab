@@ -47,8 +47,8 @@ class SearchLimitsInput:
 
 @dataclass(frozen=True)
 class ParallelExecutionInput:
-    enabled: bool = False
-    workers: int = 1
+    mode: str = "auto"
+    workers: int = 0
     min_batch_size: int = 1
     timeout_seconds: float | None = None
 

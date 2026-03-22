@@ -1412,3 +1412,76 @@ Plan status: Closed.
 
 Plan revision note: Added and closed on 2026-03-19 after implementing staged parallel processing features, deterministic batch semantics, failure-policy safeguards, documentation updates, and full gate validation.
 ```
+
+```md
+# Implement Default `auto` Search Parallel-Mode Resolution
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` were kept up to date through implementation and closure.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and was maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+Search configuration now defaults to `search.parallel.mode = auto`. Runtime deterministically resolves serial vs parallel using a static, versioned policy and emits explicit decision metadata so behavior is observable and testable. Legacy `search.parallel.enabled` remains backward-compatible.
+
+## Progress
+
+- [x] (2026-03-23 +13:00) Migrated parallel config contract to `mode` (`auto|serial|parallel`) with default `auto` and default `workers=0`.
+- [x] (2026-03-23 +13:00) Added deterministic auto-policy module (`src/slope_stab/search/auto_parallel_policy.py`) with effective CPU helper, worker clamping rules, centralized batching classification, workload classification, and policy tables.
+- [x] (2026-03-23 +13:00) Updated parser migration logic to map legacy `enabled` values and reject conflicting `enabled`+`mode`.
+- [x] (2026-03-23 +13:00) Updated analysis resolution/metadata path to emit requested/resolved mode, reason enum, evidence version, backend, worker counts, workload class, and batching class.
+- [x] (2026-03-23 +13:00) Added CLI analyze overrides (`--parallel-mode`, `--parallel-workers`) with precedence `CLI > JSON > defaults`.
+- [x] (2026-03-23 +13:00) Added/updated tests for parser migration, resolver semantics, metadata contract, CLI override behavior, and thread-backend default-serial policy in auto mode.
+- [x] (2026-03-23 +13:00) Added benchmark harness `scripts/benchmarks/auto_mode_matrix.py` and recorded evidence artifact in `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.json`.
+- [x] (2026-03-23 +13:00) Updated docs (`AGENTS.md`, `README.md`, and explainers) to reflect default auto behavior and deterministic resolver contract.
+- [x] (2026-03-23 +13:00) Ran full required gate: `python -m slope_stab.cli verify` and `python -m unittest discover -s tests -p "test_*.py"`.
+
+## Surprises & Discoveries
+
+- Observation: In this host environment, forced parallel requests used thread backend during benchmark runs.
+  Evidence: `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.json` reports `backend="thread"` for forced parallel runs.
+
+- Observation: Benchmark workload proxies for sampled fixtures classified as `small`/`medium`, so conservative auto policy resolved serial.
+  Evidence: all sampled auto runs report `decision_reason="policy_threshold_serial"` with `workload_class` in `{small, medium}`.
+
+- Observation: Full unittest discovery runtime is substantial after expanded regression coverage.
+  Evidence: `python -m unittest discover -s tests -p "test_*.py"` completed 64 tests in ~1758 seconds in this environment.
+
+## Decision Log
+
+- Decision: Keep thread-backend whitelist structurally present but empty in v1.
+  Rationale: avoid auto-promoting thread parallelism until dedicated evidence supports it.
+  Date/Author: 2026-03-23 / Codex + external review consensus
+
+- Decision: Keep runtime resolver dependent on static policy table and deterministic classifiers only.
+  Rationale: avoids runtime probing/calibration nondeterminism and keeps behavior reproducible.
+  Date/Author: 2026-03-23 / Codex + external review consensus
+
+- Decision: Preserve legacy `enabled` compatibility with strict conflict rejection.
+  Rationale: protects existing inputs while forcing unambiguous intent when both old and new fields appear.
+  Date/Author: 2026-03-23 / Codex
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- Default search processing mode is now `auto`.
+- Resolver behavior is deterministic, metadata-rich, and test-covered.
+- CLI overrides and parser migration behavior are implemented and validated.
+- Documentation now reflects mode semantics, worker rules, thread fallback posture, and metadata contract.
+- Benchmark evidence workflow is codified in-repo and can be rerun for future policy revisions.
+
+Validation evidence:
+
+- `python -m slope_stab.cli verify` passed all 27 built-in cases.
+- `python -m unittest discover -s tests -p "test_*.py"` passed (64 tests).
+
+Performance evidence artifacts:
+
+- `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.json`
+- `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.md`
+
+Plan status: Closed.
+
+Plan revision note: Added and closed on 2026-03-23 after implementing default auto-mode resolution, deterministic policy metadata, CLI overrides, benchmark evidence capture, documentation updates, and full gate validation.
+```

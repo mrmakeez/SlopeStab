@@ -170,7 +170,7 @@ def _evaluate_global_search_benchmark_case(
 
 def _evaluate_case(case_index: int) -> VerificationOutcome:
     case = VERIFICATION_CASES[case_index]
-    result = run_analysis(case.project, forced_parallel_workers=1)
+    result = run_analysis(case.project, forced_parallel_mode="serial", forced_parallel_workers=1)
     if isinstance(case, PrescribedVerificationCase):
         hard_checks, diagnostics, passed = _evaluate_prescribed_case(case, result)
     elif isinstance(case, AutoRefineVerificationCase):

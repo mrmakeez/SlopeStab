@@ -5,7 +5,28 @@ from typing import Any, Callable
 
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
-from slope_stab.models import AnalysisResult, ParallelExecutionInput, PrescribedCircleInput, ProjectInput
+from slope_stab.models import AnalysisResult, ParallelExecutionInput, PrescribedCircleInput, ProjectInput, SearchInput
+from slope_stab.search.auto_parallel_policy import (
+    EVIDENCE_VERSION,
+    REASON_FORCED_PARALLEL_MODE,
+    REASON_FORCED_SERIAL_MODE,
+    REASON_POLICY_THRESHOLD_PARALLEL,
+    REASON_POLICY_THRESHOLD_SERIAL,
+    REASON_PRESCRIBED_ANALYSIS_SERIAL,
+    REASON_THREAD_BACKEND_DEFAULT_SERIAL,
+    REASON_THREAD_BACKEND_WHITELIST_PARALLEL,
+    REASON_UNSUPPORTED_BATCHING_SERIAL,
+    REASON_UNSUPPORTED_WORKLOAD_SERIAL,
+    REASON_WORKERS_LE_ONE_SERIAL,
+    ParallelResolution,
+    classify_batching,
+    classify_workload,
+    allowed_parallel_modes,
+    effective_cpu_count,
+    process_policy_allows_parallel,
+    resolve_requested_workers,
+    thread_policy_allows_parallel,
+)
 from slope_stab.search.auto_refine import run_auto_refine_search
 from slope_stab.search.cmaes_global import run_cmaes_global_search
 from slope_stab.search.common import SurfaceBatchEvaluator
@@ -52,18 +73,32 @@ def _attach_prescribed_metadata(project: ProjectInput, result: AnalysisResult, s
             "method": project.analysis.method,
             "n_slices": project.analysis.n_slices,
             "prescribed_surface": _surface_to_dict(surface),
+            "parallel": {
+                "requested_mode": "serial",
+                "resolved_mode": "serial",
+                "decision_reason": REASON_PRESCRIBED_ANALYSIS_SERIAL,
+                "evidence_version": EVIDENCE_VERSION,
+                "backend": "serial",
+                "requested_workers": 1,
+                "resolved_workers": 1,
+                "workload_class": "n/a",
+                "batching_class": "n/a",
+                "min_batch_size": 1,
+                "timeout_seconds": None,
+            },
         }
     )
     result.metadata = metadata
 
 
-def _resolve_parallel_settings(
+def _resolve_parallel_request(
     project: ProjectInput,
+    forced_parallel_mode: str | None,
     forced_parallel_workers: int | None,
 ) -> ParallelExecutionInput:
     defaults = ParallelExecutionInput(
-        enabled=False,
-        workers=1,
+        mode="auto",
+        workers=0,
         min_batch_size=1,
         timeout_seconds=None,
     )
@@ -71,15 +106,191 @@ def _resolve_parallel_settings(
         return defaults
 
     configured = project.search.parallel or defaults
-    if forced_parallel_workers is None:
-        return configured
-
-    workers = max(1, forced_parallel_workers)
+    mode = configured.mode if forced_parallel_mode is None else forced_parallel_mode
+    if mode not in allowed_parallel_modes():
+        raise GeometryError(f"Unsupported parallel mode override: {mode}")
+    workers = configured.workers if forced_parallel_workers is None else forced_parallel_workers
+    if workers < 0:
+        raise GeometryError("Parallel worker override must be greater than or equal to zero.")
     return ParallelExecutionInput(
-        enabled=workers > 1,
+        mode=mode,
         workers=workers,
         min_batch_size=configured.min_batch_size,
         timeout_seconds=configured.timeout_seconds,
+    )
+
+
+def _initial_parallel_resolution(
+    search: SearchInput,
+    analysis_method: str,
+    requested: ParallelExecutionInput,
+    available_workers: int,
+) -> ParallelResolution:
+    requested_mode = requested.mode
+    requested_workers = resolve_requested_workers(requested.workers, available_workers)
+    batching_class = classify_batching(requested.min_batch_size)
+    workload_class = classify_workload(search, analysis_method)
+
+    if requested_mode == "serial":
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="serial",
+            resolved_workers=1,
+            decision_reason=REASON_FORCED_SERIAL_MODE,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="serial",
+        )
+
+    if requested_workers <= 1:
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="serial",
+            resolved_workers=1,
+            decision_reason=REASON_WORKERS_LE_ONE_SERIAL,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="serial",
+        )
+
+    if requested_mode == "parallel":
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="parallel",
+            resolved_workers=requested_workers,
+            decision_reason=REASON_FORCED_PARALLEL_MODE,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="process",
+        )
+
+    # requested_mode == "auto"
+    if workload_class == "unsupported":
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="serial",
+            resolved_workers=1,
+            decision_reason=REASON_UNSUPPORTED_WORKLOAD_SERIAL,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="serial",
+        )
+
+    if batching_class != "default_batching":
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="serial",
+            resolved_workers=1,
+            decision_reason=REASON_UNSUPPORTED_BATCHING_SERIAL,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="serial",
+        )
+
+    if not process_policy_allows_parallel(
+        search_method=search.method,
+        analysis_method=analysis_method,
+        workload_class=workload_class,
+        batching_class=batching_class,
+    ):
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="serial",
+            resolved_workers=1,
+            decision_reason=REASON_POLICY_THRESHOLD_SERIAL,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="serial",
+        )
+
+    return ParallelResolution(
+        requested_mode=requested_mode,
+        requested_workers=requested_workers,
+        resolved_mode="parallel",
+        resolved_workers=requested_workers,
+        decision_reason=REASON_POLICY_THRESHOLD_PARALLEL,
+        workload_class=workload_class,
+        batching_class=batching_class,
+        evidence_version=EVIDENCE_VERSION,
+        backend="process",
+    )
+
+
+def _finalize_resolution_for_backend(
+    initial: ParallelResolution,
+    backend: str,
+    search: SearchInput,
+    analysis_method: str,
+) -> ParallelResolution:
+    if initial.resolved_mode != "parallel":
+        return initial
+
+    if initial.requested_mode == "parallel":
+        return ParallelResolution(
+            requested_mode=initial.requested_mode,
+            requested_workers=initial.requested_workers,
+            resolved_mode="parallel",
+            resolved_workers=initial.resolved_workers,
+            decision_reason=REASON_FORCED_PARALLEL_MODE,
+            workload_class=initial.workload_class,
+            batching_class=initial.batching_class,
+            evidence_version=initial.evidence_version,
+            backend=backend,
+        )
+
+    if backend == "process":
+        return ParallelResolution(
+            requested_mode=initial.requested_mode,
+            requested_workers=initial.requested_workers,
+            resolved_mode="parallel",
+            resolved_workers=initial.resolved_workers,
+            decision_reason=REASON_POLICY_THRESHOLD_PARALLEL,
+            workload_class=initial.workload_class,
+            batching_class=initial.batching_class,
+            evidence_version=initial.evidence_version,
+            backend=backend,
+        )
+
+    if thread_policy_allows_parallel(
+        search_method=search.method,
+        analysis_method=analysis_method,
+        workload_class=initial.workload_class,
+        batching_class=initial.batching_class,
+    ):
+        return ParallelResolution(
+            requested_mode=initial.requested_mode,
+            requested_workers=initial.requested_workers,
+            resolved_mode="parallel",
+            resolved_workers=initial.resolved_workers,
+            decision_reason=REASON_THREAD_BACKEND_WHITELIST_PARALLEL,
+            workload_class=initial.workload_class,
+            batching_class=initial.batching_class,
+            evidence_version=initial.evidence_version,
+            backend=backend,
+        )
+
+    return ParallelResolution(
+        requested_mode=initial.requested_mode,
+        requested_workers=initial.requested_workers,
+        resolved_mode="serial",
+        resolved_workers=1,
+        decision_reason=REASON_THREAD_BACKEND_DEFAULT_SERIAL,
+        workload_class=initial.workload_class,
+        batching_class=initial.batching_class,
+        evidence_version=initial.evidence_version,
+        backend=backend,
     )
 
 
@@ -282,9 +493,30 @@ def _evaluate_surface_for_context(
     return solve_surface_for_context(context, surface)
 
 
+def _parallel_metadata(
+    decision: ParallelResolution,
+    min_batch_size: int,
+    timeout_seconds: float | None,
+) -> dict[str, Any]:
+    return {
+        "requested_mode": decision.requested_mode,
+        "resolved_mode": decision.resolved_mode,
+        "decision_reason": decision.decision_reason,
+        "evidence_version": decision.evidence_version,
+        "backend": decision.backend,
+        "requested_workers": decision.requested_workers,
+        "resolved_workers": decision.resolved_workers,
+        "workload_class": decision.workload_class,
+        "batching_class": decision.batching_class,
+        "min_batch_size": min_batch_size,
+        "timeout_seconds": timeout_seconds,
+    }
+
+
 def run_analysis(
     project: ProjectInput,
     forced_parallel_workers: int | None = None,
+    forced_parallel_mode: str | None = None,
 ) -> AnalysisResult:
     context = build_worker_context(project)
     profile = build_profile(project.geometry)
@@ -300,25 +532,51 @@ def run_analysis(
             raise GeometryError(f"Unsupported search method: {project.search.method}")
 
         evaluate_surface = lambda s: _evaluate_surface_for_context(context, s)
-        parallel = _resolve_parallel_settings(project, forced_parallel_workers=forced_parallel_workers)
-        batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None
-        parallel_backend = "serial"
+        requested_parallel = _resolve_parallel_request(
+            project=project,
+            forced_parallel_mode=forced_parallel_mode,
+            forced_parallel_workers=forced_parallel_workers,
+        )
+        available_workers = effective_cpu_count()
+        initial_resolution = _initial_parallel_resolution(
+            search=project.search,
+            analysis_method=project.analysis.method,
+            requested=requested_parallel,
+            available_workers=available_workers,
+        )
 
-        if parallel.enabled and parallel.workers > 1:
+        batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None
+        decision = initial_resolution
+
+        if initial_resolution.run_parallel:
             with ParallelSurfaceExecutor(
                 context=context,
-                workers=parallel.workers,
-                timeout_seconds=parallel.timeout_seconds,
+                workers=initial_resolution.resolved_workers,
+                timeout_seconds=requested_parallel.timeout_seconds,
             ) as executor:
-                parallel_backend = executor.backend
-                batch_evaluate_surfaces = executor.evaluate_surfaces
-                result, winning_surface, search_payload = runner(
-                    project,
-                    profile,
-                    evaluate_surface,
-                    batch_evaluate_surfaces,
-                    parallel.min_batch_size,
+                decision = _finalize_resolution_for_backend(
+                    initial=initial_resolution,
+                    backend=executor.backend,
+                    search=project.search,
+                    analysis_method=project.analysis.method,
                 )
+                if decision.run_parallel:
+                    batch_evaluate_surfaces = executor.evaluate_surfaces
+                    result, winning_surface, search_payload = runner(
+                        project,
+                        profile,
+                        evaluate_surface,
+                        batch_evaluate_surfaces,
+                        requested_parallel.min_batch_size,
+                    )
+                else:
+                    result, winning_surface, search_payload = runner(
+                        project,
+                        profile,
+                        evaluate_surface,
+                        None,
+                        1,
+                    )
         else:
             result, winning_surface, search_payload = runner(
                 project,
@@ -328,13 +586,11 @@ def run_analysis(
                 1,
             )
 
-        search_payload["parallel"] = {
-            "enabled": parallel.enabled and parallel.workers > 1,
-            "workers": parallel.workers,
-            "min_batch_size": parallel.min_batch_size,
-            "timeout_seconds": parallel.timeout_seconds,
-            "backend": parallel_backend,
-        }
+        search_payload["parallel"] = _parallel_metadata(
+            decision=decision,
+            min_batch_size=requested_parallel.min_batch_size,
+            timeout_seconds=requested_parallel.timeout_seconds,
+        )
         result.metadata = {
             "units": project.units,
             "method": project.analysis.method,

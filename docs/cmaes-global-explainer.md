@@ -118,9 +118,11 @@ Illustration of valid orientation:
 - `seed = 0`
 - `post_polish = true`
 
-## Parallel Candidate Scoring (Opt-In)
+## Parallel Candidate Scoring (`auto` by Default)
 
-When `search.parallel.enabled = true` and `search.parallel.workers > 1`, CMA-ES population candidates are scored in batches while control flow remains serial (`ask()` then ordered score merge then `tell()`).
+`search.parallel.mode` now defaults to `auto` (`serial` and `parallel` remain explicit overrides). Auto-mode decisions are deterministic and come from static policy evidence (`evidence_version` in metadata).
+
+When policy thresholds are met, CMA-ES population candidates are scored in batches while control flow remains serial (`ask()` then ordered score merge then `tell()`). `workers=0` resolves deterministically to `min(4, effective_cpu_count)`.
 
 For fixed seed, repeatability is preserved by keeping random proposal generation and state updates deterministic in serial order. Worker failures raise explicit runtime errors and abort the run.
 - `invalid_penalty = 1e6`

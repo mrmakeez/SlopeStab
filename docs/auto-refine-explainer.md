@@ -197,11 +197,18 @@ This implementation is deterministic because ordering is fixed for:
 
 No random-seed field is used for this auto-refine path.
 
-## Parallel Candidate Scoring (Opt-In)
+## Parallel Candidate Scoring (`auto` by Default)
 
-When `search.parallel.enabled = true` and `search.parallel.workers > 1`, candidate circles can be scored in batches. The merge path remains ordered and deterministic: cache checks, budget limits, and incumbent updates follow the same logical order as serial evaluation.
+`search.parallel.mode` controls evaluation mode:
+- `auto` (default) resolves serial vs parallel deterministically from static policy evidence.
+- `serial` forces serial evaluation.
+- `parallel` forces parallel evaluation.
 
-Worker failures (timeout, startup failure, invalid payload, runtime exception) raise explicit errors and abort the run.
+`workers=0` resolves deterministically to `min(4, effective_cpu_count)`. Explicit worker counts are clamped to available CPU.
+
+In auto mode, candidate circles may be scored in batches when policy thresholds are met and process workers are available. If the backend is thread-based, auto mode falls back to serial by default (v1 thread whitelist is intentionally empty).
+
+The merge path remains ordered and deterministic: cache checks, budget limits, and incumbent updates follow the same logical order as serial evaluation. Worker failures (timeout, startup failure, invalid payload, runtime exception) raise explicit errors and abort the run.
 
 ## If Diagrams Do Not Render
 

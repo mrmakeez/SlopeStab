@@ -48,27 +48,60 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 
 This keeps the method-specific files focused on their search strategy while preserving consistent scoring, tie-break, and invalid-candidate behavior.
 
-## Parallel Execution (Opt-In)
+## Parallel Execution (Default `auto` Mode)
 
-Search runs are serial by default. Parallel candidate scoring is enabled only when `search.parallel.enabled = true` and `search.parallel.workers > 1`.
+Search execution mode is configured through `search.parallel.mode`:
+
+- `auto` (default): deterministic resolver chooses serial vs parallel using static in-code policy evidence.
+- `serial`: force serial candidate evaluation.
+- `parallel`: force parallel candidate evaluation (still deterministic ordered-merge semantics).
 
 Supported config fields:
 
-- `search.parallel.enabled` (bool, default `false`)
-- `search.parallel.workers` (int, default `1`)
+- `search.parallel.mode` (`auto|serial|parallel`, default `auto`)
+- `search.parallel.workers` (int, default `0`)
 - `search.parallel.min_batch_size` (int, default `1`)
 - `search.parallel.timeout_seconds` (optional float)
 
+Worker rules:
+
+- `workers = 0` resolves deterministically to `min(4, effective_cpu_count)`.
+- explicit `workers >= 1` is clamped to available workers.
+- if resolved workers are `<= 1`, execution resolves serial.
+
+Backward compatibility:
+
+- `search.parallel.enabled = false` maps to `mode = serial`.
+- `search.parallel.enabled = true` maps to `mode = parallel`.
+- conflicting `enabled` and `mode` values are rejected.
+
+Thread backend posture:
+
+- auto mode is process-policy-first.
+- if a thread backend is used, auto mode resolves serial unless an explicit thread whitelist entry exists (v1 whitelist is intentionally empty).
+- explicit `mode = parallel` remains parallel on both process and thread backends.
+
 The implementation preserves ordered deterministic merge semantics for cache/budget/incumbent updates. Worker failures raise explicit runtime errors; silent partial continuation is not allowed.
 
-Note: environments that cannot create process workers use a controlled thread-worker fallback while preserving deterministic merge and failure semantics. The selected backend is reported in output metadata at `search.parallel.backend`.
+`analyze` CLI overrides:
+
+- `--parallel-mode auto|serial|parallel`
+- `--parallel-workers <int>` (`0` allowed)
+
+Override precedence is `CLI > JSON > defaults`.
+
+Parallel decision metadata is emitted at `result.metadata.search.parallel` with:
+
+- `requested_mode`, `resolved_mode`, `decision_reason`, `evidence_version`
+- `backend`, `requested_workers`, `resolved_workers`
+- `workload_class`, `batching_class`, `min_batch_size`, `timeout_seconds`
 
 ## Performance and Repeatability Notes
 
 - Deterministic paths (`auto_refine_circular`, `direct_global_circular`) remain deterministic.
 - Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
 - `cli verify --workers N` runs cases in parallel workers and preserves case ordering in output.
-- Non-gating performance snapshots can be captured with the fixture timing command documented in `PLANS.md` for regression tracking.
+- Non-gating auto-mode evidence can be captured with `python scripts/benchmarks/auto_mode_matrix.py` (latest captured artifact: `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.json`).
 
 ## Solver Validity Rules
 

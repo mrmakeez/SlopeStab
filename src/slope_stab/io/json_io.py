@@ -19,6 +19,7 @@ from slope_stab.models import (
     SearchInput,
     SearchLimitsInput,
 )
+from slope_stab.search.auto_parallel_policy import allowed_parallel_modes
 
 
 def _require_key(data: dict, key: str) -> object:
@@ -74,16 +75,36 @@ def _parse_parallel_execution(parallel_data: object) -> ParallelExecutionInput:
     key_prefix = "search.parallel"
     if parallel_data is None:
         return ParallelExecutionInput(
-            enabled=False,
-            workers=1,
+            mode="auto",
+            workers=0,
             min_batch_size=1,
             timeout_seconds=None,
         )
     if not isinstance(parallel_data, dict):
         raise InputValidationError(f"'{key_prefix}' must be an object.")
 
-    enabled = _as_bool(parallel_data.get("enabled", False), f"{key_prefix}.enabled")
-    workers = _as_int(parallel_data.get("workers", 1), f"{key_prefix}.workers")
+    legacy_enabled = parallel_data.get("enabled")
+    mode_raw = parallel_data.get("mode")
+    if mode_raw is None and legacy_enabled is None:
+        mode = "auto"
+    elif mode_raw is None and legacy_enabled is not None:
+        enabled = _as_bool(legacy_enabled, f"{key_prefix}.enabled")
+        mode = "parallel" if enabled else "serial"
+    else:
+        mode = str(mode_raw).strip().lower()
+        if mode not in allowed_parallel_modes():
+            raise InputValidationError(
+                f"{key_prefix}.mode must be one of: auto, serial, parallel."
+            )
+        if legacy_enabled is not None:
+            enabled = _as_bool(legacy_enabled, f"{key_prefix}.enabled")
+            legacy_mode = "parallel" if enabled else "serial"
+            if mode != legacy_mode:
+                raise InputValidationError(
+                    f"{key_prefix}.enabled conflicts with {key_prefix}.mode."
+                )
+
+    workers = _as_int(parallel_data.get("workers", 0), f"{key_prefix}.workers")
     min_batch_size = _as_int(parallel_data.get("min_batch_size", 1), f"{key_prefix}.min_batch_size")
     timeout_raw = parallel_data.get("timeout_seconds")
     timeout_seconds: float | None
@@ -92,15 +113,15 @@ def _parse_parallel_execution(parallel_data: object) -> ParallelExecutionInput:
     else:
         timeout_seconds = _as_float(timeout_raw, f"{key_prefix}.timeout_seconds")
 
-    if workers <= 0:
-        raise InputValidationError(f"{key_prefix}.workers must be greater than zero.")
+    if workers < 0:
+        raise InputValidationError(f"{key_prefix}.workers must be greater than or equal to zero.")
     if min_batch_size <= 0:
         raise InputValidationError(f"{key_prefix}.min_batch_size must be greater than zero.")
     if timeout_seconds is not None and timeout_seconds <= 0.0:
         raise InputValidationError(f"{key_prefix}.timeout_seconds must be greater than zero.")
 
     return ParallelExecutionInput(
-        enabled=enabled,
+        mode=mode,
         workers=workers,
         min_batch_size=min_batch_size,
         timeout_seconds=timeout_seconds,

@@ -77,11 +77,13 @@ The loop stops on the first satisfied condition:
 
 ![Seed repeatability behavior](images/cuckoo_global/05_seed_repeatability.svg)
 
-## Parallel Candidate Scoring (Opt-In)
+## Parallel Candidate Scoring (`auto` by Default)
 
-When `search.parallel.enabled = true` and `search.parallel.workers > 1`, selected scoring steps can run in batches. Random proposal generation and population update application remain in deterministic serial order to preserve fixed-seed repeatability.
+`search.parallel.mode` now defaults to `auto` (`serial` and `parallel` remain explicit overrides). Auto-mode decisions are deterministic and policy-table driven.
 
-Worker failures raise explicit runtime errors and abort the run.
+In v1 policy, cuckoo currently resolves serial in auto mode (conservative threshold posture). Explicit `mode=parallel` can still batch selected scoring steps when resolved workers are greater than one.
+
+Random proposal generation and population update application remain in deterministic serial order to preserve fixed-seed repeatability. Worker failures raise explicit runtime errors and abort the run.
 
 ## Optional Post-Polish
 

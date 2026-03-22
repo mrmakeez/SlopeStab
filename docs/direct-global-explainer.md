@@ -213,11 +213,13 @@ This method is deterministic because ordering is fixed for:
 
 No random-seed field is used for this direct-global path.
 
-## Parallel Candidate Scoring (Opt-In)
+## Parallel Candidate Scoring (`auto` by Default)
 
-DIRECT center evaluations may run in batches when `search.parallel.enabled = true` and `search.parallel.workers > 1`. Ordered merge semantics are preserved for cache lookup, budget handling, and incumbent updates, so deterministic behavior is retained.
+`search.parallel.mode` now defaults to `auto` (`serial` and `parallel` remain explicit overrides). DIRECT batching eligibility is classified centrally (`default_batching` vs `restricted_batching`) and consumed by the same deterministic resolver used across search methods.
 
-Worker failures raise explicit runtime errors and abort the run.
+In v1 policy, DIRECT currently resolves serial in auto mode (conservative threshold posture). Explicit `mode=parallel` still runs batched scoring when resolved workers are greater than one.
+
+Ordered merge semantics are preserved for cache lookup, budget handling, and incumbent updates, so deterministic behavior is retained. Worker failures raise explicit runtime errors and abort the run.
 
 ## If Diagrams Do Not Render
 

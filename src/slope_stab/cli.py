@@ -11,7 +11,12 @@ from slope_stab.verification.runner import run_verification_suite
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     project = load_project_input(args.input)
-    result = run_analysis(project)
+    forced_mode: str | None = args.parallel_mode
+    forced_workers: int | None = args.parallel_workers
+    if forced_workers is not None and forced_workers < 0:
+        raise ValueError("--parallel-workers must be greater than or equal to zero.")
+
+    result = run_analysis(project, forced_parallel_mode=forced_mode, forced_parallel_workers=forced_workers)
     text = dump_result_json(result, path=args.output, pretty=not args.compact)
     if args.output is None:
         print(text)
@@ -60,6 +65,8 @@ def build_parser() -> argparse.ArgumentParser:
     analyze = sub.add_parser("analyze", help="Run prescribed-surface or search analysis from JSON input")
     analyze.add_argument("--input", required=True, help="Path to input JSON")
     analyze.add_argument("--output", help="Optional output JSON path")
+    analyze.add_argument("--parallel-mode", choices=["auto", "serial", "parallel"], help="Override search parallel mode")
+    analyze.add_argument("--parallel-workers", type=int, help="Override parallel workers (0 = auto)")
     analyze.add_argument("--compact", action="store_true", help="Emit compact JSON")
     analyze.set_defaults(func=_cmd_analyze)
 

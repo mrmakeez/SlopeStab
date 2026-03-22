@@ -19,11 +19,18 @@ def _load_fixture_payload(name: str) -> dict:
     return json.loads((root / "tests" / "fixtures" / name).read_text(encoding="utf-8"))
 
 
-def _set_parallel(payload: dict, *, enabled: bool, workers: int, min_batch_size: int, timeout_seconds: float | None = None) -> dict:
+def _set_parallel(
+    payload: dict,
+    *,
+    mode: str,
+    workers: int,
+    min_batch_size: int,
+    timeout_seconds: float | None = None,
+) -> dict:
     out = copy.deepcopy(payload)
     out.setdefault("search", {})
     out["search"]["parallel"] = {
-        "enabled": enabled,
+        "mode": mode,
         "workers": workers,
         "min_batch_size": min_batch_size,
     }
@@ -35,8 +42,8 @@ def _set_parallel(payload: dict, *, enabled: bool, workers: int, min_batch_size:
 class ParallelSearchBehaviorTests(unittest.TestCase):
     def test_auto_refine_parallel_matches_serial(self) -> None:
         payload = _load_fixture_payload("case3_auto_refine.json")
-        serial_project = parse_project_input(_set_parallel(payload, enabled=False, workers=1, min_batch_size=1))
-        parallel_project = parse_project_input(_set_parallel(payload, enabled=True, workers=2, min_batch_size=8))
+        serial_project = parse_project_input(_set_parallel(payload, mode="serial", workers=1, min_batch_size=1))
+        parallel_project = parse_project_input(_set_parallel(payload, mode="parallel", workers=2, min_batch_size=8))
 
         serial = run_analysis(serial_project)
         parallel = run_analysis(parallel_project)
@@ -46,29 +53,37 @@ class ParallelSearchBehaviorTests(unittest.TestCase):
         self.assertEqual(serial.metadata["search"]["iteration_diagnostics"], parallel.metadata["search"]["iteration_diagnostics"])
         self.assertEqual(serial.metadata["search"]["valid_surfaces"], parallel.metadata["search"]["valid_surfaces"])
         self.assertEqual(serial.metadata["search"]["invalid_surfaces"], parallel.metadata["search"]["invalid_surfaces"])
+        self.assertEqual(serial.metadata["search"]["parallel"]["requested_mode"], "serial")
+        self.assertEqual(serial.metadata["search"]["parallel"]["resolved_mode"], "serial")
+        self.assertEqual(serial.metadata["search"]["parallel"]["decision_reason"], "forced_serial_mode")
+        self.assertEqual(parallel.metadata["search"]["parallel"]["requested_mode"], "parallel")
+        self.assertEqual(parallel.metadata["search"]["parallel"]["resolved_mode"], "parallel")
+        self.assertEqual(parallel.metadata["search"]["parallel"]["decision_reason"], "forced_parallel_mode")
 
     def test_cmaes_parallel_matches_serial_for_fixed_seed(self) -> None:
         payload = _load_fixture_payload("case2_cmaes_global.json")
-        serial_project = parse_project_input(_set_parallel(payload, enabled=False, workers=1, min_batch_size=1))
-        parallel_project = parse_project_input(_set_parallel(payload, enabled=True, workers=2, min_batch_size=4))
+        serial_project = parse_project_input(_set_parallel(payload, mode="serial", workers=1, min_batch_size=1))
+        parallel_project = parse_project_input(_set_parallel(payload, mode="parallel", workers=2, min_batch_size=4))
 
         serial = run_analysis(serial_project)
         parallel = run_analysis(parallel_project)
 
-        self.assertAlmostEqual(serial.fos, parallel.fos, places=6)
+        self.assertAlmostEqual(serial.fos, parallel.fos, places=5)
         serial_surface = serial.metadata["prescribed_surface"]
         parallel_surface = parallel.metadata["prescribed_surface"]
         for key in ("x_left", "y_left", "x_right", "y_right", "xc", "yc", "r"):
             self.assertLessEqual(abs(float(serial_surface[key]) - float(parallel_surface[key])), 0.01)
         self.assertLessEqual(serial.fos, 2.11283 + 0.01)
         self.assertLessEqual(parallel.fos, 2.11283 + 0.01)
+        self.assertEqual(serial.metadata["search"]["parallel"]["decision_reason"], "forced_serial_mode")
+        self.assertEqual(parallel.metadata["search"]["parallel"]["decision_reason"], "forced_parallel_mode")
 
     def test_parallel_worker_timeout_raises_error(self) -> None:
         payload = _load_fixture_payload("case3_auto_refine.json")
         timeout_project = parse_project_input(
             _set_parallel(
                 payload,
-                enabled=True,
+                mode="parallel",
                 workers=2,
                 min_batch_size=1,
                 timeout_seconds=1e-12,

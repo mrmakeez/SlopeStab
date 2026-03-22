@@ -38,12 +38,17 @@ Not supported in baseline:
 - Where possible code shall be written to be extensible to Future Roadmap items, such that they are easier to implement at a later date.
 - Runtime dependencies for optimization paths are required (no fallback paths): `numpy`, `scipy`, and `cma`.
 - Do not commit runtime cache artifacts (`__pycache__/`, `*.pyc`).
-- Parallel search execution is opt-in via `search.parallel`; default behavior remains serial.
+- Search parallel execution resolves through `search.parallel.mode` with default `auto` (`serial` and `parallel` remain explicit overrides).
+- Legacy `search.parallel.enabled` is backward-compatible (`false => serial`, `true => parallel`); conflicting `enabled` and `mode` must raise validation errors.
+- Auto-mode resolution must remain deterministic and policy-table driven (no runtime calibration/probing).
+- Worker resolution must remain deterministic: use effective CPU availability, clamp explicit requests to available workers, and resolve `workers=0` to `min(4, available)`.
+- In auto mode, thread backend remains serial-by-default unless an explicit thread whitelist entry exists (v1 whitelist is intentionally empty).
 - Parallel candidate evaluation must preserve deterministic ordered-merge semantics:
   - normalize candidates in input order
   - cache lookup before evaluation-budget accounting
   - budget-cap uncached evaluations deterministically
   - apply cache/counter/incumbent updates in the same logical order as serial evaluation
+- Batching classification must remain centralized and deterministic (`default_batching` vs `restricted_batching`) and shared by resolver, metadata, and tests.
 - Worker failures (startup error, timeout, invalid payload, runtime exception) must fail deterministically via explicit error paths; never silently continue with partial state.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
