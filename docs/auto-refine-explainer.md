@@ -188,6 +188,8 @@ Important implementation detail:
 
 These checks are enforced in built-in `python -m slope_stab.cli verify` for Case 3 and Case 4, and also in dedicated regression tests for parity-focused diagnostics.
 
+`cli verify` now defaults to auto-parallel case scheduling; use `python -m slope_stab.cli verify --serial` for canonical serial debugging.
+
 ## Deterministic Behavior (No Random Seed Path)
 
 This implementation is deterministic because ordering is fixed for:

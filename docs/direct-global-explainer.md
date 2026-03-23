@@ -192,6 +192,8 @@ Hard benchmark gate for built-in direct-global benchmark cases:
 
 Applied to Cases 2-4 in `python -m slope_stab.cli verify`.
 
+`cli verify` now defaults to auto-parallel case scheduling; use `python -m slope_stab.cli verify --serial` for canonical serial debugging.
+
 Additional hard guards in regression tests:
 
 - finite positive FOS

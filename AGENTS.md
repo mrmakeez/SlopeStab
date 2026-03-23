@@ -43,6 +43,9 @@ Not supported in baseline:
 - Auto-mode resolution must remain deterministic and policy-table driven (no runtime calibration/probing).
 - Worker resolution must remain deterministic: use effective CPU availability, clamp explicit requests to available workers, and resolve `workers=0` to `min(4, available)`.
 - In auto mode, thread backend remains serial-by-default unless an explicit thread whitelist entry exists (v1 whitelist is intentionally empty).
+- `cli verify` defaults to auto-parallel case scheduling (`requested_mode=auto_parallel`, `requested_workers=0`).
+- `cli verify --serial` is the canonical serial debug path and is mutually exclusive with `--workers`.
+- Verification execution metadata must be emitted in CLI output (`requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, `evidence_version`).
 - Parallel candidate evaluation must preserve deterministic ordered-merge semantics:
   - normalize candidates in input order
   - cache lookup before evaluation-budget accounting
@@ -50,6 +53,7 @@ Not supported in baseline:
   - apply cache/counter/incumbent updates in the same logical order as serial evaluation
 - Batching classification must remain centralized and deterministic (`default_batching` vs `restricted_batching`) and shared by resolver, metadata, and tests.
 - Worker failures (startup error, timeout, invalid payload, runtime exception) must fail deterministically via explicit error paths; never silently continue with partial state.
+- If process-pool startup is blocked by sandbox restrictions (for example `PermissionError` / `WinError 5`), the agent must explicitly prompt the user to approve rerunning required commands outside sandbox/full-access before continuing.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right

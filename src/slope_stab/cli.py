@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 import sys
 
 from slope_stab.analysis import run_analysis
 from slope_stab.io.json_io import dump_result_json, load_project_input
-from slope_stab.verification.runner import run_verification_suite
+from slope_stab.verification.runner import (
+    VERIFY_MODE_AUTO_PARALLEL,
+    VERIFY_MODE_SERIAL,
+    run_verification_suite_with_execution,
+)
 
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
@@ -24,11 +29,26 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
 
 
 def _cmd_verify(args: argparse.Namespace) -> int:
-    outcomes = run_verification_suite(workers=max(1, int(args.workers)))
+    if args.serial:
+        requested_mode = VERIFY_MODE_SERIAL
+        requested_workers = 1
+    else:
+        requested_mode = VERIFY_MODE_AUTO_PARALLEL
+        requested_workers = 0 if args.workers is None else int(args.workers)
+
+    if requested_workers < 0:
+        raise ValueError("--workers must be greater than or equal to zero.")
+
+    run_result = run_verification_suite_with_execution(
+        requested_mode=requested_mode,
+        requested_workers=requested_workers,
+    )
+    outcomes = run_result.outcomes
     all_passed = all(o.passed for o in outcomes)
 
     summary = {
         "all_passed": all_passed,
+        "execution": asdict(run_result.execution),
         "cases": [
             {
                 "name": o.name,
@@ -72,7 +92,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify = sub.add_parser("verify", help="Run built-in verification cases")
     verify.add_argument("--output", help="Optional output JSON path")
-    verify.add_argument("--workers", type=int, default=1, help="Number of parallel verification workers")
+    verify_mode = verify.add_mutually_exclusive_group()
+    verify_mode.add_argument(
+        "--serial",
+        action="store_true",
+        help="Run verification in serial mode (canonical debug path)",
+    )
+    verify_mode.add_argument(
+        "--workers",
+        type=int,
+        help="Requested verification workers (0 = auto; default is auto)",
+    )
     verify.set_defaults(func=_cmd_verify)
 
     return parser

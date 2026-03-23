@@ -1485,3 +1485,315 @@ Plan status: Closed.
 
 Plan revision note: Added and closed on 2026-03-23 after implementing default auto-mode resolution, deterministic policy metadata, CLI overrides, benchmark evidence capture, documentation updates, and full gate validation.
 ```
+
+```md
+# Implement Default Parallel `cli verify` with Explicit Serial Debug Mode
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and must be maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+Users currently need to opt into parallel verification with `python -m slope_stab.cli verify --workers N`. After this change, `python -m slope_stab.cli verify` will run case-level parallel processing by default on multi-core machines, while still allowing an explicit serial mode for debugging and step-by-step reproduction.
+
+The user-visible outcome is faster default verification behavior without changing verification case definitions, benchmark thresholds, or output ordering. Debugging remains deterministic through an explicit serial path.
+
+## Progress
+
+- [x] (2026-03-23 20:31 +13:00) Reviewed current CLI and verification runner behavior in `src/slope_stab/cli.py` and `src/slope_stab/verification/runner.py`.
+- [x] (2026-03-23 20:31 +13:00) Reviewed existing verification regression/integration tests and current docs references in `README.md`, `AGENTS.md`, and explainer files.
+- [x] (2026-03-23 20:31 +13:00) Captured baseline runtime evidence on this machine: `verify --workers 1` ~= `361.54s`, `--workers 2` ~= `352.85s`, `--workers 4` ~= `354.13s`, `--workers 8` ~= `356.20s`.
+- [x] (2026-03-23 21:03 +13:00) Completed external AI review pass (`GPT5.4 Plan Review.txt`) and recorded consensus amendments plus explicit accept/reject decisions.
+- [x] (2026-03-23 21:18 +13:00) Completed external AI v2 review pass (`GPT5.4 Plan Review v2.txt`) and folded required amendments for strict CLI conflict rules, conservative thread fallback, and narrower documentation scope.
+- [x] (2026-03-23 21:36 +13:00) Completed external AI v3 review pass (`GPT5.4 Plan Review v3.txt`) and folded final consistency edits for acceptance wording and documentation-scope phrasing.
+- [x] (2026-03-23 22:08 +13:00) Implemented `cli verify` contract update: default auto-parallel scheduling, `--serial` canonical debug path, explicit `--workers`, and strict `--serial`/`--workers` mutual exclusion.
+- [x] (2026-03-23 22:08 +13:00) Added deterministic verify execution metadata in CLI JSON output under top-level `execution`.
+- [x] (2026-03-23 22:08 +13:00) Added/updated coverage: `tests/unit/test_verification_runner_workers.py`, `tests/unit/test_cli_verify_contract.py`, and updated `tests/regression/test_cli_verify.py`.
+- [x] (2026-03-23 22:08 +13:00) Updated documentation: `AGENTS.md`, `README.md`, `docs/auto-refine-explainer.md`, `docs/direct-global-explainer.md`, and finalized this ExecPlan in `PLANS.md`.
+- [x] (2026-03-23 22:31 +13:00) Ran required full gate: `python -m slope_stab.cli verify` and `python -m unittest discover -s tests -p "test_*.py"`; all passed.
+
+## Surprises & Discoveries
+
+- Observation: Parallel workers improve wall-clock time on this host, but only modestly for current case mix and runtime profile.
+  Evidence: Measured `verify --workers 1` at `361.54s` and `verify --workers 2` at `352.85s` with small improvement.
+
+- Observation: Verification already enforces inner analysis serial mode per case (`forced_parallel_mode="serial", forced_parallel_workers=1`), so current parallelism is only at case scheduling level.
+  Evidence: `_evaluate_case` in `src/slope_stab/verification/runner.py`.
+
+- Observation: Process worker startup can fail in restricted environments and current code already falls back to thread workers.
+  Evidence: `run_verification_suite` catches `OSError`/`PermissionError` and constructs `ThreadPoolExecutor`.
+
+- Observation: External review correctly identified that "serial debug = --workers 1" alone is ambiguous UX and should be replaced by an explicit canonical serial flag.
+  Evidence: Reviewer requested an exact CLI contract with `--serial` and conflict validation.
+
+- Observation: External review correctly challenged the rationale for `workers=0 -> min(4, cpu)`; current evidence supports "deterministic bounded policy reuse" but does not prove 4 is a machine-optimal runtime choice.
+  Evidence: Measured timings showed only a small gain at 2 workers and no clear win at 4 or 8.
+
+- Observation: External v2 review identified that allowing any `--serial` + `--workers` combination creates avoidable UX ambiguity.
+  Evidence: Reviewer requested strict rejection of all combined uses, including `--serial --workers 1` and `--serial --workers 0`.
+
+- Observation: External v2 review identified that thread-parallel verify fallback would diverge from existing conservative thread posture already used by search auto-mode.
+  Evidence: Existing tests codify serial-by-default behavior for auto mode on thread backend unless explicitly whitelisted.
+
+- Observation: External v3 review identified a contract mismatch between one acceptance bullet and the backend-policy section.
+  Evidence: Existing hard-acceptance wording implied unconditional parallel-by-default for multi-core hosts, while backend policy explicitly routes thread fallback to serial in auto mode.
+
+- Observation: In this host environment, default verify auto mode resolved serial due process backend unavailability and thread fallback policy.
+  Evidence: Gate run `python -m slope_stab.cli verify` emitted `execution` metadata with `requested_mode=auto_parallel`, `backend=thread`, `resolved_mode=serial`, `decision_reason=thread_backend_default_serial`, `requested_workers=4`, `resolved_workers=1`.
+
+## Decision Log
+
+- Decision: Keep inner case evaluation forced to serial during this change and parallelize only across verification cases.
+  Rationale: Avoid nested parallel oversubscription and preserve deterministic behavior in search paths already governed by their own policy.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Make default parallel behavior a CLI contract change (`cli verify` defaults to auto-resolved workers) while preserving explicit serial debugging controls.
+  Rationale: Meets owner requirement without changing verification math, case fixtures, or benchmark tolerances.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: External AI review suggestions must be handled with explicit accept/reject reasoning before implementation.
+  Rationale: Owner requires consensus prior to coding and expects critical evaluation of weak or unsafe recommendations.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Lock the CLI contract before coding: default `verify` is auto-parallel; `--serial` is canonical debug path; `--workers N` is explicit override; conflicting combinations fail loudly.
+  Rationale: Removes ambiguity and addresses review concern that "or equivalent" was too loose.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Keep deterministic completion-order collection for worker futures (not fail-fast) and reject fail-fast suggestion for this iteration.
+  Rationale: Deterministic failure indexing and reproducibility are higher priority than marginally earlier failure surfacing in a rare error path.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Reuse existing parallel metadata vocabulary (`requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, `evidence_version`) under a dedicated top-level `execution` object.
+  Rationale: Avoids a second metadata dialect and keeps debug/observability contracts coherent with existing parallel policy naming.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Narrow documentation and test scope to verification-relevant files and efficient coverage.
+  Rationale: Avoid scope creep and long redundant end-to-end runs while still covering changed behavior.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Treat `--serial` as mutually exclusive with `--workers` for all values.
+  Rationale: `--serial` is the canonical debug path; combining it with worker flags introduces ambiguous intent with no useful capability.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: In default verify auto mode, if process workers are unavailable and backend resolves to thread, default to serial unless and until explicit benchmark evidence approves thread-parallel verify policy.
+  Rationale: Aligns with existing conservative thread posture and avoids policy divergence without evidence.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Drop new verification-specific explainer from implementation scope; keep documentation updates in `AGENTS.md`, `README.md`, and existing explainers that already mention `cli verify`.
+  Rationale: Meets documentation requirements without adding unnecessary long-lived docs surface for a small CLI mode change.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Tighten hard-acceptance wording to explicitly include process-backend availability and backend-policy-driven fallback behavior.
+  Rationale: Removes ambiguity and keeps acceptance criteria consistent with the documented thread-fallback policy.
+  Date/Author: 2026-03-23 / Codex
+
+- Decision: Keep legacy `run_verification_suite(workers=...)` behavior for compatibility while adding `run_verification_suite_with_execution(...)` for CLI execution-contract metadata.
+  Rationale: Preserves existing integration usage and minimizes breakage while enabling new verify metadata/contract behavior.
+  Date/Author: 2026-03-23 / Codex
+
+## Outcomes & Retrospective
+
+Delivered outcomes:
+
+- `cli verify` now defaults to auto-parallel request mode with deterministic worker resolution (`workers=0 -> min(4, effective_cpu_count)`).
+- `cli verify --serial` is the canonical serial debug path.
+- `--serial` and `--workers` are mutually exclusive at parse-time.
+- Verify output now includes top-level `execution` metadata: `requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, `evidence_version`.
+- Deterministic case ordering and explicit worker-failure behavior were preserved.
+- Documentation and focused coverage were updated to match shipped behavior.
+
+Validation evidence:
+
+- `python -m slope_stab.cli verify` passed all 27 built-in cases (`all_passed=true`).
+- `python -m unittest discover -s tests -p "test_*.py"` passed (73 tests).
+
+Residual caveat:
+
+- In this host environment, verify auto mode selected serial because process backend was unavailable and thread fallback serial policy is intentionally conservative.
+
+## Context and Orientation
+
+`cli verify` is implemented in `src/slope_stab/cli.py`. It currently exposes `--workers` with default `1`, then calls `run_verification_suite(workers=max(1, int(args.workers)))`. This means default execution is serial.
+
+Case execution logic lives in `src/slope_stab/verification/runner.py`. The runner preserves output order by storing futures in case-index order and materializing results in that same order. Worker failures are already treated as hard failures via explicit `RuntimeError`.
+
+Verification case definitions and benchmark values are fixed in `src/slope_stab/verification/cases.py`. These values are not part of this change and must remain untouched.
+
+Current test coverage includes:
+
+- `tests/regression/test_cli_verify.py`
+- `tests/integration/test_verification_cases.py`
+
+Current docs references to `cli verify` are in:
+
+- `AGENTS.md`
+- `README.md`
+- `docs/auto-refine-explainer.md`
+- `docs/direct-global-explainer.md`
+
+Additional explainers that should be aligned for consistent user guidance:
+
+- `docs/cuckoo-global-explainer.md`
+- `docs/cmaes-global-explainer.md`
+- `docs/spencer-explainer.md`
+
+In this plan, "parallel verification" means running different verification cases concurrently. It does not mean enabling inner-search parallel scoring inside each case.
+
+## External Review Gate
+
+Before implementation, obtain review feedback from another AI model and record each suggestion in this plan's `Decision Log` as accepted or rejected.
+
+External review outcome (GPT-5.4):
+
+- Accepted: lock exact CLI contract before implementation.
+- Accepted: tighten worker-policy rationale and describe `workers=0` as deterministic bounded policy reuse.
+- Accepted: explicitly define backend-resolution behavior.
+- Accepted: reuse existing parallel metadata vocabulary in a dedicated `execution` object.
+- Accepted: narrow docs/tests scope for implementation efficiency.
+- Rejected: fail-fast worker error collection proposal for this change.
+
+External review v2 outcome (GPT-5.4):
+
+- Accepted: reject all `--serial` + `--workers` combinations.
+- Accepted: keep verify auto-mode serial-by-default on thread fallback pending dedicated evidence.
+- Accepted: remove new verification explainer from implementation scope.
+
+External review v3 outcome (GPT-5.4):
+
+- Accepted: align hard-acceptance wording with backend fallback policy.
+- Accepted: make documentation-scope wording consistent across `Progress`, milestones, and concrete steps.
+
+Critical review rules for external suggestions (still enforced):
+
+- Reject suggestions that change Case 1/Case 2 benchmarks or tolerances.
+- Reject suggestions that reorder case output by completion time instead of definition order.
+- Reject suggestions that silently continue when any worker fails.
+- Reject suggestions that enable nested inner-search parallelism in verification cases by default.
+- Reject suggestions that depend on runtime calibration/probing to choose worker counts.
+
+Implementation starts only after a recorded consensus decision that satisfies the above constraints.
+
+## Plan of Work
+
+Milestone 1 updates CLI contract and worker resolution semantics. The contract is fixed before coding:
+
+- `python -m slope_stab.cli verify` means requested mode `auto_parallel` with requested workers `0`.
+- `python -m slope_stab.cli verify --serial` means requested mode `serial` and canonical debug behavior.
+- `python -m slope_stab.cli verify --workers N` means explicit worker override in auto-parallel mode.
+- Any `--serial` + `--workers` combination is a validation error.
+
+Worker resolution remains deterministic: `workers=0 -> min(4, effective_cpu_count)`, explicit workers clamped to available CPU.
+
+Milestone 2 updates verification runner interfaces to expose execution metadata needed for debugging and review. The verify JSON payload will include a dedicated top-level `execution` object with fields `requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, and `evidence_version`.
+
+Backend policy is explicit in this milestone: prefer process workers for parallel mode; when process workers are unavailable and thread backend is selected, default verify auto mode resolves serial unless an explicit verification thread-policy whitelist entry is introduced in a future evidence-backed change.
+
+Milestone 3 adds tests. Unit tests cover worker resolution rules, backend-resolution policy, and argument validation. Regression tests cover CLI default behavior (no flags), explicit serial behavior, deterministic case ordering, and deterministic failure surfaces for worker exceptions. Coverage expansion is kept efficient: one subprocess-level `cli verify` regression plus targeted unit tests for edge cases.
+
+Milestone 4 updates documentation. `AGENTS.md` will capture the new non-negotiable verify-mode expectations. `README.md` quick-start and parallel sections will describe default parallel verify and serial debugging commands. Explainer scope is narrowed to files that currently discuss `cli verify` behavior (`docs/auto-refine-explainer.md`, `docs/direct-global-explainer.md`).
+
+Milestone 5 runs full validation and closes the plan. The required gate (`cli verify` and full unittest discovery) must pass without changing benchmark references. Progress, decisions, and outcomes are then finalized in this ExecPlan.
+
+## Concrete Steps
+
+Run all commands from:
+
+    C:\Users\JamesMcKerrow\Stanley Gray Limited\SP - ENG\Technical\JAMES TECHNICAL\Codex\SlopeStab
+
+Pre-change baseline (already measured in this plan; re-run before coding if environment changed):
+
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify --workers 1
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify --workers 2
+
+Implementation sequence:
+
+    1. Update `src/slope_stab/cli.py` with default-parallel verify argument semantics and serial debug control.
+    2. Update `src/slope_stab/verification/runner.py` to support deterministic worker resolution and execution metadata plumbing.
+    3. Update/add tests:
+       tests/regression/test_cli_verify.py
+       tests/integration/test_verification_cases.py
+       tests/unit/test_verification_runner_workers.py (new)
+    4. Update docs:
+       AGENTS.md
+       README.md
+       docs/auto-refine-explainer.md
+       docs/direct-global-explainer.md
+
+Validation commands after implementation:
+
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify --workers 1
+    $env:PYTHONPATH='src'; python -m unittest discover -s tests -p "test_*.py"
+
+Expected acceptance transcript fragments:
+
+    - default `cli verify` completes with `all_passed: true`.
+    - explicit serial debug path completes with identical pass/fail outcomes and case order.
+    - no benchmark target/tolerance drift in Case 1 or Case 2.
+
+## Validation and Acceptance
+
+Hard acceptance:
+
+- `python -m slope_stab.cli verify` uses parallel case scheduling by default when effective CPU availability is greater than 1 and process backend is available; otherwise it resolves deterministically according to the documented backend policy.
+- Explicit serial debugging path is available and documented.
+- Case result ordering in JSON remains identical to `VERIFICATION_CASES` definition order.
+- Any worker failure still fails deterministically with explicit error; no partial-success summaries.
+- Built-in verification case count and benchmark targets remain unchanged.
+
+Regression acceptance:
+
+- `tests/regression/test_cli_verify.py` validates default behavior and serial override behavior.
+- `tests/integration/test_verification_cases.py` remains passing with stable outcomes.
+- New worker-resolution unit tests cover `workers=0`, clamping, serial override, and invalid argument combinations.
+
+Gate acceptance:
+
+- `python -m slope_stab.cli verify` passes.
+- `python -m unittest discover -s tests -p "test_*.py"` passes.
+
+## Idempotence and Recovery
+
+This change is fully rerunnable. If default-parallel behavior causes host-specific instability, debugging must use the explicit serial path first to isolate case-level correctness from scheduling behavior.
+
+If regressions appear, recovery must not modify benchmark fixtures or tolerances. Revert only verification scheduling/CLI argument changes and re-run the full verification gate to restore baseline behavior.
+
+## Artifacts and Notes
+
+Baseline timing evidence captured for planning (non-gating):
+
+- `verify --workers 1`: `361.54s`
+- `verify --workers 2`: `352.85s`
+- `verify --workers 4`: `354.13s`
+- `verify --workers 8`: `356.20s`
+
+These timings do not prove a universal runtime optimum worker count. They support using a deterministic bounded policy (`workers=0 => min(4, available)`) for consistency with existing repository worker-resolution semantics and resource control.
+
+## Interfaces and Dependencies
+
+CLI interface target:
+
+- `python -m slope_stab.cli verify` should default to parallel-capable execution.
+- Serial debug must be explicitly available and documented.
+- Worker resolution remains deterministic and bounded.
+
+Code interface target:
+
+- `src/slope_stab/verification/runner.py` should expose deterministic worker resolution helpers used by `cli verify`.
+- Verification output should include additive execution metadata sufficient to diagnose resolved mode/worker/backend.
+
+Dependencies remain unchanged (`numpy`, `scipy`, `cma` required by existing optimization/search paths). No new runtime dependencies are permitted for this work.
+
+Plan revision note: Added on 2026-03-23 to define a consensus-gated implementation path for default-parallel `cli verify` with explicit serial debugging and mandatory documentation alignment.
+
+Plan revision note (2026-03-23, post GPT-5.4 review): tightened CLI contract, backend policy, metadata schema, and scope boundaries; accepted most review amendments and explicitly rejected fail-fast failure collection for determinism reasons.
+
+Plan revision note (2026-03-23, post GPT-5.4 v2 review): added strict `--serial` conflict policy, adopted conservative thread-fallback serial behavior for default verify auto mode, and removed new verification explainer from scope.
+
+Plan revision note (2026-03-23, post GPT-5.4 v3 review): reconciled acceptance wording with backend fallback policy and normalized documentation-scope wording across plan sections.
+
+Plan revision note (2026-03-23, implementation complete): shipped CLI/runner/docs/tests updates for default verify auto mode + serial override contract, added execution metadata, and closed after full gate success.
+
+Plan status: Closed.
+```

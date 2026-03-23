@@ -14,7 +14,7 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 ## Quick Start
 
 1. `python -m slope_stab.cli analyze --input tests/fixtures/case1.json`
-2. `python -m slope_stab.cli verify` (or `python -m slope_stab.cli verify --workers 2` for parallel case execution)
+2. `python -m slope_stab.cli verify` (default auto-parallel case scheduling)
 3. `python -m unittest discover -s tests -p "test_*.py"`
 
 ## Documentation
@@ -100,7 +100,12 @@ Parallel decision metadata is emitted at `result.metadata.search.parallel` with:
 
 - Deterministic paths (`auto_refine_circular`, `direct_global_circular`) remain deterministic.
 - Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
-- `cli verify --workers N` runs cases in parallel workers and preserves case ordering in output.
+- `cli verify` defaults to auto-parallel case scheduling with deterministic worker resolution (`workers=0 => min(4, effective_cpu_count)`).
+- `cli verify --serial` is the canonical serial debugging path.
+- `cli verify --workers N` sets explicit requested workers in auto-parallel mode (`N=0` is allowed).
+- `cli verify --serial` cannot be combined with `--workers`.
+- Verify output includes top-level `execution` metadata with `requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, and `evidence_version`.
+- Case ordering in verify output remains deterministic and follows built-in verification case definition order.
 - Non-gating auto-mode evidence can be captured with `python scripts/benchmarks/auto_mode_matrix.py` (latest captured artifact: `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.json`).
 
 ## Solver Validity Rules
