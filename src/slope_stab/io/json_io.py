@@ -292,7 +292,7 @@ def _parse_cmaes_global_search(
     )
     min_improvement = _as_float(cmaes_data.get("min_improvement", 1e-4), f"{key_prefix}.min_improvement")
     stall_iterations = _as_int(cmaes_data.get("stall_iterations", 25), f"{key_prefix}.stall_iterations")
-    seed = _as_int(cmaes_data.get("seed", 0), f"{key_prefix}.seed")
+    seed = _as_int(cmaes_data.get("seed", 1), f"{key_prefix}.seed")
     post_polish = _as_bool(cmaes_data.get("post_polish", True), f"{key_prefix}.post_polish")
     invalid_penalty = _as_float(cmaes_data.get("invalid_penalty", 1e6), f"{key_prefix}.invalid_penalty")
     nonconverged_penalty = _as_float(

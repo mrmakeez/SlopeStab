@@ -30,7 +30,7 @@
       "polish_max_evaluations": 80,
       "min_improvement": 0.0001,
       "stall_iterations": 25,
-      "seed": 0,
+      "seed": 1,
       "post_polish": true,
       "invalid_penalty": 1000000.0,
       "nonconverged_penalty": 100000.0,
@@ -41,3 +41,4 @@
     }
   }
 }
+

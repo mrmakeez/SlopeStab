@@ -229,7 +229,7 @@ class SearchInputParsingTests(unittest.TestCase):
         self.assertEqual(cfg.polish_max_evaluations, 80)
         self.assertAlmostEqual(cfg.min_improvement, 1e-4)
         self.assertEqual(cfg.stall_iterations, 25)
-        self.assertEqual(cfg.seed, 0)
+        self.assertEqual(cfg.seed, 1)
         self.assertTrue(cfg.post_polish)
         self.assertAlmostEqual(cfg.invalid_penalty, 1e6)
         self.assertAlmostEqual(cfg.nonconverged_penalty, 1e5)

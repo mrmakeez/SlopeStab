@@ -38,6 +38,12 @@ _LOCAL_TOE_LOCKED_SAMPLES = 21
 _LOCAL_HALF_WINDOW_STEPS = 10
 
 
+def _normalized_cma_seed(seed: int) -> int:
+    # cma (v4.x) treats seed=0 as time-based random initialization.
+    # Normalize zero to a deterministic non-zero seed for repeatability.
+    return 1 if seed == 0 else seed
+
+
 @dataclass(frozen=True)
 class CmaesStageDiagnostics:
     stage: str
@@ -191,8 +197,9 @@ def _run_cmaes_stage(
         if evaluator.total_evaluations >= config.max_evaluations:
             return "max_evaluations"
 
+        base_seed = _normalized_cma_seed(config.seed)
         opts = {
-            "seed": config.seed + restart,
+            "seed": base_seed + restart,
             "popsize": config.cmaes_population_size,
             "bounds": [0.0, 1.0],
             "verbose": -9,
