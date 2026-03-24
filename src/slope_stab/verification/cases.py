@@ -10,11 +10,13 @@ from slope_stab.models import (
     CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
+    LoadsInput,
     MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     SearchInput,
     SearchLimitsInput,
+    UniformSurchargeInput,
 )
 
 
@@ -195,6 +197,39 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_left=(30.0, 25.0),
         expected_right=(58.068, 45.0),
         endpoint_abs_tolerance=0.20,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 3 (Surcharge 50kPa Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.6485174011401,
+                yc=61.5854419184982,
+                r=36.6607805519873,
+                x_left=30.0003512982362,
+                y_left=25.0001756491181,
+                x_right=52.891875115183,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=50.0,
+                    placement="crest_infinite",
+                )
+            ),
+        ),
+        expected_fos=0.903987,
+        fos_tolerance=0.005,
     ),
     GlobalSearchBenchmarkVerificationCase(
         case_type="global_search_benchmark",
@@ -604,6 +639,40 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         ),
         expected_fos=1.23141,
         fos_tolerance=0.002,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 3 (Spencer Surcharge 50kPa Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=25,
+                tolerance=0.0001,
+                max_iter=100,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.6485174011401,
+                yc=61.5854419184982,
+                r=36.6607805519873,
+                x_left=30.0003512982362,
+                y_left=25.0001756491181,
+                x_right=52.891875115183,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=50.0,
+                    placement="crest_infinite",
+                )
+            ),
+        ),
+        expected_fos=0.903192,
+        fos_tolerance=0.005,
     ),
     AutoRefineVerificationCase(
         case_type="auto_refine_parity",

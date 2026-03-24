@@ -61,3 +61,8 @@ v1 intentionally keeps surcharge handling independent from future seismic/ground
 - If `loads` is omitted (or surcharge magnitude is zero), solver results match baseline no-load behavior.
 - Existing no-load inputs remain valid without modification.
 - Result metadata includes a `loads` object so CLI outputs expose resolved load inputs used in a run.
+
+## Verification Benchmark Policy
+
+- Case 3 surcharge 50 kPa is the primary surcharge benchmark and is included in `python -m slope_stab.cli verify` for both Bishop and Spencer.
+- Case 3 surcharge 100 kPa is retained as a non-verify stress regression (unittest-only) to cover shallow local failure behavior and Spencer invalid-surface handling.

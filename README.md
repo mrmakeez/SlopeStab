@@ -132,6 +132,7 @@ Parallel decision metadata is emitted at `result.metadata.search.parallel` with:
 
 - Deterministic paths (`auto_refine_circular`, `direct_global_circular`) remain deterministic.
 - Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
+- Surcharge benchmark policy: Case 3 surcharge 50 kPa is the primary benchmark in `cli verify` (Bishop + Spencer); Case 3 surcharge 100 kPa remains a non-verify stress regression in unittest.
 - `cli test` defaults to auto-parallel unittest scheduling with deterministic worker resolution (`workers=0 => min(4, effective_cpu_count)`).
 - `cli test --serial` is the canonical serial unittest debugging path.
 - `cli test --workers N` sets explicit requested unittest workers in auto-parallel mode (`N=0` is allowed).

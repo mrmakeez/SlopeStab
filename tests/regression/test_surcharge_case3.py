@@ -19,7 +19,7 @@ from slope_stab.models import (
 )
 
 
-def _case3_project(method: str) -> ProjectInput:
+def _case3_project(method: str, *, surcharge_kpa: float, surface: PrescribedCircleInput) -> ProjectInput:
     return ProjectInput(
         units="metric",
         geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
@@ -31,32 +31,80 @@ def _case3_project(method: str) -> ProjectInput:
             max_iter=100,
             f_init=1.0,
         ),
-        prescribed_surface=PrescribedCircleInput(
-            xc=49.898,
-            yc=35.068,
-            r=0.189,
-            x_left=49.8059083395470,
-            y_left=34.9029541697735,
-            x_right=50.0743434149607,
-            y_right=35.000,
-        ),
+        prescribed_surface=surface,
         loads=LoadsInput(
             uniform_surcharge=UniformSurchargeInput(
-                magnitude_kpa=100.0,
+                magnitude_kpa=surcharge_kpa,
                 placement="crest_infinite",
             )
         ),
     )
 
 
+def _case3_surface_50kpa() -> PrescribedCircleInput:
+    return PrescribedCircleInput(
+        xc=27.6485174011401,
+        yc=61.5854419184982,
+        r=36.6607805519873,
+        x_left=30.0003512982362,
+        y_left=25.0001756491181,
+        x_right=52.891875115183,
+        y_right=35.0,
+    )
+
+
+def _case3_surface_100kpa() -> PrescribedCircleInput:
+    return PrescribedCircleInput(
+        xc=49.898,
+        yc=35.068,
+        r=0.189,
+        x_left=49.8059083395470,
+        y_left=34.9029541697735,
+        x_right=50.0743434149607,
+        y_right=35.000,
+    )
+
+
 class Case3SurchargeRegressionTests(unittest.TestCase):
-    def test_bishop_matches_slide2_case3_surcharge_reference(self) -> None:
-        result = run_analysis(_case3_project("bishop_simplified"))
+    def test_bishop_matches_slide2_case3_surcharge_50kpa_reference(self) -> None:
+        result = run_analysis(
+            _case3_project(
+                "bishop_simplified",
+                surcharge_kpa=50.0,
+                surface=_case3_surface_50kpa(),
+            )
+        )
+        self.assertLessEqual(abs(result.fos - 0.903987), 0.005)
+
+    def test_spencer_matches_slide2_case3_surcharge_50kpa_reference(self) -> None:
+        result = run_analysis(
+            _case3_project(
+                "spencer",
+                surcharge_kpa=50.0,
+                surface=_case3_surface_50kpa(),
+            )
+        )
+        self.assertLessEqual(abs(result.fos - 0.903192), 0.005)
+
+    def test_bishop_matches_slide2_case3_surcharge_100kpa_shallow_reference(self) -> None:
+        result = run_analysis(
+            _case3_project(
+                "bishop_simplified",
+                surcharge_kpa=100.0,
+                surface=_case3_surface_100kpa(),
+            )
+        )
         self.assertLessEqual(abs(result.fos - 0.609948), 0.005)
 
-    def test_spencer_reports_invalid_surface_under_malpha_rule(self) -> None:
+    def test_spencer_reports_invalid_surface_under_malpha_rule_for_100kpa(self) -> None:
         with self.assertRaises(ConvergenceError):
-            run_analysis(_case3_project("spencer"))
+            run_analysis(
+                _case3_project(
+                    "spencer",
+                    surcharge_kpa=100.0,
+                    surface=_case3_surface_100kpa(),
+                )
+            )
 
 
 if __name__ == "__main__":
