@@ -109,7 +109,7 @@ class SpencerSolver(LEMSolver):
         slice_ids = np.fromiter((s.slice_id for s in slices), dtype=int)
         x_left = np.fromiter((s.x_left for s in slices), dtype=float)
         x_right = np.fromiter((s.x_right for s in slices), dtype=float)
-        weights = np.fromiter((s.weight for s in slices), dtype=float)
+        weights = np.fromiter((s.total_vertical_force for s in slices), dtype=float)
         alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
         base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
 
@@ -230,6 +230,13 @@ class SpencerSolver(LEMSolver):
                     width=s.width,
                     area=s.area,
                     weight=s.weight,
+                    external_force_x=s.external_force_x,
+                    external_force_y=s.external_force_y,
+                    external_x_app=s.external_x_app,
+                    external_y_app=s.external_y_app,
+                    pore_force=s.pore_force,
+                    pore_x_app=s.pore_x_app,
+                    pore_y_app=s.pore_y_app,
                     alpha_deg=math.degrees(s.alpha_rad),
                     base_length=s.base_length,
                     normal=float(best_state.normal[idx]),

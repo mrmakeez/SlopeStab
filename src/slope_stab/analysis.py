@@ -5,7 +5,14 @@ from typing import Any, Callable
 
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
-from slope_stab.models import AnalysisResult, ParallelExecutionInput, PrescribedCircleInput, ProjectInput, SearchInput
+from slope_stab.models import (
+    AnalysisResult,
+    LoadsInput,
+    ParallelExecutionInput,
+    PrescribedCircleInput,
+    ProjectInput,
+    SearchInput,
+)
 from slope_stab.search.auto_parallel_policy import (
     EVIDENCE_VERSION,
     REASON_FORCED_PARALLEL_MODE,
@@ -65,6 +72,24 @@ def _surface_to_dict(surface: PrescribedCircleInput) -> dict[str, float]:
     }
 
 
+def _loads_to_dict(loads: LoadsInput | None) -> dict[str, Any]:
+    if loads is None:
+        return {"uniform_surcharge": None, "seismic": None, "groundwater": None}
+    payload: dict[str, Any] = {"uniform_surcharge": None, "seismic": None, "groundwater": None}
+    if loads.uniform_surcharge is not None:
+        payload["uniform_surcharge"] = {
+            "magnitude_kpa": loads.uniform_surcharge.magnitude_kpa,
+            "placement": loads.uniform_surcharge.placement,
+            "x_start": loads.uniform_surcharge.x_start,
+            "x_end": loads.uniform_surcharge.x_end,
+        }
+    if loads.seismic is not None:
+        payload["seismic"] = {"model": loads.seismic.model}
+    if loads.groundwater is not None:
+        payload["groundwater"] = {"model": loads.groundwater.model}
+    return payload
+
+
 def _attach_prescribed_metadata(project: ProjectInput, result: AnalysisResult, surface: PrescribedCircleInput) -> None:
     metadata = dict(result.metadata)
     metadata.update(
@@ -73,6 +98,7 @@ def _attach_prescribed_metadata(project: ProjectInput, result: AnalysisResult, s
             "method": project.analysis.method,
             "n_slices": project.analysis.n_slices,
             "prescribed_surface": _surface_to_dict(surface),
+            "loads": _loads_to_dict(project.loads),
             "parallel": {
                 "requested_mode": "serial",
                 "resolved_mode": "serial",
@@ -597,6 +623,7 @@ def run_analysis(
             "n_slices": project.analysis.n_slices,
             "mode": project.search.method,
             "prescribed_surface": _surface_to_dict(winning_surface),
+            "loads": _loads_to_dict(project.loads),
             "search": search_payload,
         }
         return result

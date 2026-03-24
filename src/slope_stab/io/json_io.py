@@ -12,12 +12,16 @@ from slope_stab.models import (
     CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
+    GroundwaterInput,
+    LoadsInput,
     MaterialInput,
     ParallelExecutionInput,
     PrescribedCircleInput,
     ProjectInput,
+    SeismicLoadInput,
     SearchInput,
     SearchLimitsInput,
+    UniformSurchargeInput,
 )
 from slope_stab.search.auto_parallel_policy import allowed_parallel_modes
 
@@ -49,6 +53,97 @@ def _as_bool(v: object, key: str) -> bool:
     if isinstance(v, bool):
         return v
     raise InputValidationError(f"Key '{key}' must be a boolean.")
+
+
+def _parse_uniform_surcharge(
+    surcharge_data: object,
+    geometry: GeometryInput,
+) -> UniformSurchargeInput:
+    key_prefix = "loads.uniform_surcharge"
+    if surcharge_data is None:
+        raise InputValidationError(f"'{key_prefix}' must be an object.")
+    if not isinstance(surcharge_data, dict):
+        raise InputValidationError(f"'{key_prefix}' must be an object.")
+
+    magnitude_kpa = _as_float(_require_key(surcharge_data, "magnitude_kpa"), f"{key_prefix}.magnitude_kpa")
+    placement = str(_require_key(surcharge_data, "placement")).strip().lower()
+    if magnitude_kpa < 0.0:
+        raise InputValidationError(f"{key_prefix}.magnitude_kpa must be greater than or equal to zero.")
+    if placement not in {"crest_infinite", "crest_range"}:
+        raise InputValidationError(f"{key_prefix}.placement must be one of: crest_infinite, crest_range.")
+
+    crest_x = geometry.x_toe + geometry.l
+    if placement == "crest_infinite":
+        if surcharge_data.get("x_start") is not None or surcharge_data.get("x_end") is not None:
+            raise InputValidationError(f"{key_prefix}.x_start/x_end are not allowed for placement='crest_infinite'.")
+        return UniformSurchargeInput(
+            magnitude_kpa=magnitude_kpa,
+            placement=placement,
+            x_start=None,
+            x_end=None,
+        )
+
+    x_start = _as_float(_require_key(surcharge_data, "x_start"), f"{key_prefix}.x_start")
+    x_end = _as_float(_require_key(surcharge_data, "x_end"), f"{key_prefix}.x_end")
+    if x_end <= x_start:
+        raise InputValidationError(f"{key_prefix}.x_end must exceed x_start.")
+    if x_start < crest_x or x_end < crest_x:
+        raise InputValidationError(
+            f"{key_prefix} crest_range must lie on the crest region where x >= geometry.x_toe + geometry.l."
+        )
+    return UniformSurchargeInput(
+        magnitude_kpa=magnitude_kpa,
+        placement=placement,
+        x_start=x_start,
+        x_end=x_end,
+    )
+
+
+def _parse_seismic_load(seismic_data: object) -> SeismicLoadInput | None:
+    key_prefix = "loads.seismic"
+    if seismic_data is None:
+        return None
+    if not isinstance(seismic_data, dict):
+        raise InputValidationError(f"'{key_prefix}' must be an object.")
+    model = str(_require_key(seismic_data, "model")).strip().lower()
+    if model != "none":
+        raise InputValidationError(f"{key_prefix}.model='{model}' is not supported in v1 (planned for v2).")
+    return SeismicLoadInput(model=model)
+
+
+def _parse_groundwater_load(groundwater_data: object) -> GroundwaterInput | None:
+    key_prefix = "loads.groundwater"
+    if groundwater_data is None:
+        return None
+    if not isinstance(groundwater_data, dict):
+        raise InputValidationError(f"'{key_prefix}' must be an object.")
+    model = str(_require_key(groundwater_data, "model")).strip().lower()
+    if model != "none":
+        raise InputValidationError(f"{key_prefix}.model='{model}' is not supported in v1 (planned for v2).")
+    return GroundwaterInput(model=model)
+
+
+def _parse_loads(loads_data: object, geometry: GeometryInput) -> LoadsInput | None:
+    if loads_data is None:
+        return None
+    if not isinstance(loads_data, dict):
+        raise InputValidationError("'loads' must be an object.")
+
+    uniform_surcharge_data = loads_data.get("uniform_surcharge")
+    seismic_data = loads_data.get("seismic")
+    groundwater_data = loads_data.get("groundwater")
+
+    uniform_surcharge: UniformSurchargeInput | None = None
+    if uniform_surcharge_data is not None:
+        uniform_surcharge = _parse_uniform_surcharge(uniform_surcharge_data, geometry)
+    seismic = _parse_seismic_load(seismic_data)
+    groundwater = _parse_groundwater_load(groundwater_data)
+
+    return LoadsInput(
+        uniform_surcharge=uniform_surcharge,
+        seismic=seismic,
+        groundwater=groundwater,
+    )
 
 
 def _parse_search_limits(
@@ -358,6 +453,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
     ana_data = _require_key(payload, "analysis")
     surface_data = payload.get("prescribed_surface")
     search_data = payload.get("search")
+    loads_data = payload.get("loads")
 
     if not isinstance(geom_data, dict) or not isinstance(mat_data, dict):
         raise InputValidationError("'geometry' and 'material' must be objects.")
@@ -394,6 +490,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
         raise InputValidationError("analysis.tolerance must be greater than zero.")
     if analysis.f_init <= 0:
         raise InputValidationError("analysis.f_init must be greater than zero.")
+    loads = _parse_loads(loads_data, geometry)
     has_surface = surface_data is not None
     has_search = search_data is not None
     if has_surface == has_search:
@@ -479,6 +576,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
         analysis=analysis,
         prescribed_surface=surface,
         search=search,
+        loads=loads,
     )
 
 

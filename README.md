@@ -24,12 +24,44 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 - Cuckoo global algorithm explainer (seeded stochastic global search): `docs/cuckoo-global-explainer.md`
 - CMAES global algorithm explainer (hybrid DIRECT + CMA-ES + polish): `docs/cmaes-global-explainer.md`
 - Spencer solver explainer (force and moment equilibrium with lambda coupling): `docs/spencer-explainer.md`
+- Uniform surcharge v1 explainer and interface notes for future seismic/groundwater support: `docs/surcharge-explainer.md`
 
 ## Analysis Methods
 
 - `analysis.method = bishop_simplified` for Bishop simplified LEM solving.
 - `analysis.method = spencer` for Spencer LEM solving.
 - Both methods are supported for prescribed surfaces and all circular search methods.
+
+## Loads (v1)
+
+`loads` is optional. When omitted, baseline no-load behavior is unchanged.
+
+Supported in v1:
+
+- `loads.uniform_surcharge` with:
+  - `magnitude_kpa >= 0`
+  - `placement = crest_infinite` (covers crest for `x >= crest_x`)
+  - `placement = crest_range` with explicit `x_start/x_end` constrained to crest (`x >= crest_x`)
+
+Reserved interfaces (v2-ready stubs in v1):
+
+- `loads.seismic.model` supports only `"none"` in v1.
+- `loads.groundwater.model` supports only `"none"` in v1.
+
+Example:
+
+```json
+{
+  "loads": {
+    "uniform_surcharge": {
+      "magnitude_kpa": 10.0,
+      "placement": "crest_infinite"
+    },
+    "seismic": { "model": "none" },
+    "groundwater": { "model": "none" }
+  }
+}
+```
 
 ## Search Methods
 

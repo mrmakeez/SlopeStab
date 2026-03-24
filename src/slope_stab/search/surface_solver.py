@@ -12,6 +12,7 @@ from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
     GeometryInput,
+    LoadsInput,
     MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
@@ -25,6 +26,7 @@ class AnalysisWorkerContext:
     geometry: GeometryInput
     material: MaterialInput
     analysis: AnalysisInput
+    loads: LoadsInput | None
 
 
 def build_worker_context(project: ProjectInput) -> AnalysisWorkerContext:
@@ -32,6 +34,7 @@ def build_worker_context(project: ProjectInput) -> AnalysisWorkerContext:
         geometry=project.geometry,
         material=project.material,
         analysis=project.analysis,
+        loads=project.loads,
     )
 
 
@@ -116,6 +119,7 @@ def solve_surface_for_context(
         x_left=surface_input.x_left,
         x_right=surface_input.x_right,
         gamma=context.material.gamma,
+        loads=context.loads,
     )
 
     solver = _build_solver(context, surface)

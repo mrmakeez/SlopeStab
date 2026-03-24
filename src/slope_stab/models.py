@@ -20,6 +20,31 @@ class MaterialInput:
 
 
 @dataclass(frozen=True)
+class UniformSurchargeInput:
+    magnitude_kpa: float
+    placement: str
+    x_start: float | None = None
+    x_end: float | None = None
+
+
+@dataclass(frozen=True)
+class SeismicLoadInput:
+    model: str = "none"
+
+
+@dataclass(frozen=True)
+class GroundwaterInput:
+    model: str = "none"
+
+
+@dataclass(frozen=True)
+class LoadsInput:
+    uniform_surcharge: UniformSurchargeInput | None = None
+    seismic: SeismicLoadInput | None = None
+    groundwater: GroundwaterInput | None = None
+
+
+@dataclass(frozen=True)
 class AnalysisInput:
     method: str
     n_slices: int
@@ -124,6 +149,7 @@ class ProjectInput:
     analysis: AnalysisInput
     prescribed_surface: PrescribedCircleInput | None = None
     search: SearchInput | None = None
+    loads: LoadsInput | None = None
 
 
 @dataclass(frozen=True)
@@ -140,6 +166,17 @@ class SliceGeometry:
     weight: float
     alpha_rad: float
     base_length: float
+    external_force_x: float = 0.0
+    external_force_y: float = 0.0
+    external_x_app: float = 0.0
+    external_y_app: float = 0.0
+    pore_force: float = 0.0
+    pore_x_app: float = 0.0
+    pore_y_app: float = 0.0
+
+    @property
+    def total_vertical_force(self) -> float:
+        return self.weight + self.external_force_y
 
 
 @dataclass(frozen=True)
@@ -167,6 +204,17 @@ class SliceResult:
     friction_component: float
     cohesion_component: float
     m_alpha: float
+    external_force_x: float = 0.0
+    external_force_y: float = 0.0
+    external_x_app: float = 0.0
+    external_y_app: float = 0.0
+    pore_force: float = 0.0
+    pore_x_app: float = 0.0
+    pore_y_app: float = 0.0
+
+    @property
+    def total_vertical_force(self) -> float:
+        return self.weight + self.external_force_y
 
 
 @dataclass

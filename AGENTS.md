@@ -13,6 +13,7 @@ Supported:
 - 2D plane-strain, unit thickness
 - Uniform slope geometry with infinite flat toe/crest extent
 - Homogeneous Mohr-Coulomb soil
+- Uniform surcharge loading on crest region (`loads.uniform_surcharge` with `crest_infinite` or `crest_range`)
 - Circular slip surface input (prescribed geometry)
 - Deterministic circular critical-surface search via `search.method = auto_refine_circular`
 - Deterministic DIRECT-based circular global search via `search.method = direct_global_circular`
@@ -27,7 +28,6 @@ Not supported in baseline:
 - Additional/alternative search algorithms beyond current auto-refine, direct-global, cuckoo-global, and CMAES-global circular search (grid, random, GA, etc.)
 - Non-circular surfaces
 - Multi-soil zoning/internal boundaries
-- Surcharge loads
 - Seismic loading
 - Groundwater/pore-pressure model
 
@@ -109,6 +109,7 @@ Expected:
 - Prefer explicit validation errors over silent fallback behavior.
 - Keep deterministic behavior for deterministic paths and fixed-seed repeatability for cuckoo paths; do not alter Case 1/Case 2 benchmark behavior.
 - For seeded stochastic paths (cuckoo/CMAES), random proposal generation and population state updates must remain deterministic in serial order even when candidate scoring is batched.
+- In v1 load handling, `weight` remains soil self-weight; surcharge contribution is represented as `external_force_y` and consumed through total vertical force terms.
 - Keep global-search core logic centralized:
   - candidate objective/caching behavior belongs in shared search-core utilities
   - DIRECT partition selection/splitting behavior belongs in shared search-core utilities
@@ -130,6 +131,8 @@ Deferred until explicitly approved:
 - Additional/alternative search algorithms (beyond current auto-refine, direct-global, cuckoo-global, and CMAES-global circular search)
 - Non-circular surfaces
 - Layered/zoned soils
-- Loads/seismic/groundwater
+- Advanced load models beyond v1 uniform surcharge
+- Seismic loading
+- Groundwater/pore-pressure model
 
 Any roadmap implementation must be additive and must not alter baseline prescribed Bishop/Spencer outputs.

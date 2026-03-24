@@ -6,7 +6,7 @@ import numpy as np
 
 from slope_stab.exceptions import GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
-from slope_stab.models import SliceGeometry
+from slope_stab.models import LoadsInput, SliceGeometry, UniformSurchargeInput
 from slope_stab.surfaces.circular import CircularSlipSurface
 
 
@@ -27,6 +27,26 @@ def _integration_nodes(x_edges: np.ndarray, profile: UniformSlopeProfile) -> np.
     return np.unique(merged)
 
 
+def _surcharge_overlap_interval(
+    surcharge: UniformSurchargeInput,
+    profile: UniformSlopeProfile,
+    x_left: float,
+    x_right: float,
+) -> tuple[float, float] | None:
+    if surcharge.placement == "crest_infinite":
+        overlap_left = max(x_left, profile.crest_x)
+        overlap_right = x_right
+    else:
+        assert surcharge.x_start is not None
+        assert surcharge.x_end is not None
+        overlap_left = max(x_left, surcharge.x_start)
+        overlap_right = min(x_right, surcharge.x_end)
+
+    if overlap_right <= overlap_left:
+        return None
+    return overlap_left, overlap_right
+
+
 def generate_vertical_slices(
     profile: UniformSlopeProfile,
     surface: CircularSlipSurface,
@@ -34,6 +54,7 @@ def generate_vertical_slices(
     x_left: float,
     x_right: float,
     gamma: float,
+    loads: LoadsInput | None = None,
 ) -> list[SliceGeometry]:
     if n_slices <= 0:
         raise GeometryError("n_slices must be greater than zero.")
@@ -89,8 +110,29 @@ def generate_vertical_slices(
         raise GeometryError(f"Slice {bad_idx + 1} has invalid base length: {float(base_length[bad_idx])}.")
 
     weights = gamma * slice_areas
+
+    surcharge = loads.uniform_surcharge if loads is not None else None
     slices: list[SliceGeometry] = []
     for i in range(n_slices):
+        ext_force_y = 0.0
+        ext_force_x = 0.0
+        ext_x_app = float(0.5 * (x_edges[i] + x_edges[i + 1]))
+        ext_y_app = float(0.5 * (y_top_edges[i] + y_top_edges[i + 1]))
+
+        if surcharge is not None and surcharge.magnitude_kpa > 0.0:
+            overlap_interval = _surcharge_overlap_interval(
+                surcharge=surcharge,
+                profile=profile,
+                x_left=float(x_edges[i]),
+                x_right=float(x_edges[i + 1]),
+            )
+            if overlap_interval is not None:
+                overlap_left, overlap_right = overlap_interval
+                overlap_width = overlap_right - overlap_left
+                ext_force_y = surcharge.magnitude_kpa * overlap_width
+                ext_x_app = 0.5 * (overlap_left + overlap_right)
+                ext_y_app = float(profile.y_ground(ext_x_app))
+
         slices.append(
             SliceGeometry(
                 slice_id=i + 1,
@@ -105,6 +147,13 @@ def generate_vertical_slices(
                 weight=float(weights[i]),
                 alpha_rad=float(alpha[i]),
                 base_length=float(base_length[i]),
+                external_force_x=float(ext_force_x),
+                external_force_y=float(ext_force_y),
+                external_x_app=float(ext_x_app),
+                external_y_app=float(ext_y_app),
+                pore_force=0.0,
+                pore_x_app=float(ext_x_app),
+                pore_y_app=float(ext_y_app),
             )
         )
 
