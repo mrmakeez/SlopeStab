@@ -15,7 +15,7 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 
 1. `python -m slope_stab.cli analyze --input tests/fixtures/case1.json`
 2. `python -m slope_stab.cli verify` (default auto-parallel case scheduling)
-3. `python -m unittest discover -s tests -p "test_*.py"`
+3. `python -m slope_stab.cli test` (default auto-parallel unittest scheduling)
 
 ## Documentation
 
@@ -100,6 +100,10 @@ Parallel decision metadata is emitted at `result.metadata.search.parallel` with:
 
 - Deterministic paths (`auto_refine_circular`, `direct_global_circular`) remain deterministic.
 - Seeded stochastic paths (`cuckoo_global_circular`, `cmaes_global_circular`) remain repeatable for fixed seeds.
+- `cli test` defaults to auto-parallel unittest scheduling with deterministic worker resolution (`workers=0 => min(4, effective_cpu_count)`).
+- `cli test --serial` is the canonical serial unittest debugging path.
+- `cli test --workers N` sets explicit requested unittest workers in auto-parallel mode (`N=0` is allowed).
+- `cli test --serial` cannot be combined with `--workers`.
 - `cli verify` defaults to auto-parallel case scheduling with deterministic worker resolution (`workers=0 => min(4, effective_cpu_count)`).
 - `cli verify --serial` is the canonical serial debugging path.
 - `cli verify --workers N` sets explicit requested workers in auto-parallel mode (`N=0` is allowed).

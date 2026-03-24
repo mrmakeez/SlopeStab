@@ -43,6 +43,8 @@ Not supported in baseline:
 - Auto-mode resolution must remain deterministic and policy-table driven (no runtime calibration/probing).
 - Worker resolution must remain deterministic: use effective CPU availability, clamp explicit requests to available workers, and resolve `workers=0` to `min(4, available)`.
 - In auto mode, thread backend remains serial-by-default unless an explicit thread whitelist entry exists (v1 whitelist is intentionally empty).
+- `cli test` defaults to auto-parallel unittest scheduling (`requested_mode=auto_parallel`, `requested_workers=0`).
+- `cli test --serial` is the canonical serial unittest debug path and is mutually exclusive with `--workers`.
 - `cli verify` defaults to auto-parallel case scheduling (`requested_mode=auto_parallel`, `requested_workers=0`).
 - `cli verify --serial` is the canonical serial debug path and is mutually exclusive with `--workers`.
 - Verification execution metadata must be emitted in CLI output (`requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, `evidence_version`).
@@ -77,7 +79,7 @@ Not supported in baseline:
 ## Required Verification Gate
 Before merging any change, run:
 1. `python -m slope_stab.cli verify`
-2. `python -m unittest discover -s tests -p "test_*.py"`
+2. `python -m slope_stab.cli test`
 
 Expected:
 - Verification suite reports all cases passed.

@@ -3,10 +3,16 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict
 import json
+from pathlib import Path
 import sys
 
 from slope_stab.analysis import run_analysis
 from slope_stab.io.json_io import dump_result_json, load_project_input
+from slope_stab.testing import (
+    TEST_MODE_AUTO_PARALLEL,
+    TEST_MODE_SERIAL,
+    run_unittest_suite_with_execution,
+)
 from slope_stab.verification.runner import (
     VERIFY_MODE_AUTO_PARALLEL,
     VERIFY_MODE_SERIAL,
@@ -78,6 +84,43 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     return 0 if all_passed else 2
 
 
+def _cmd_test(args: argparse.Namespace) -> int:
+    if args.serial:
+        requested_mode = TEST_MODE_SERIAL
+        requested_workers = 1
+    else:
+        requested_mode = TEST_MODE_AUTO_PARALLEL
+        requested_workers = 0 if args.workers is None else int(args.workers)
+
+    if requested_workers < 0:
+        raise ValueError("--workers must be greater than or equal to zero.")
+
+    run_result = run_unittest_suite_with_execution(
+        requested_mode=requested_mode,
+        requested_workers=requested_workers,
+        start_directory=args.start_directory,
+        pattern=args.pattern,
+        top_level_directory=args.top_level_directory,
+    )
+    summary = {
+        "all_passed": run_result.all_passed,
+        "execution": asdict(run_result.execution),
+        "discovery": {
+            "start_directory": run_result.start_directory,
+            "pattern": run_result.pattern,
+            "top_level_directory": run_result.top_level_directory,
+        },
+        "targets": [asdict(item) for item in run_result.targets],
+    }
+
+    text = json.dumps(summary, indent=2)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(text + "\n")
+    print(text)
+    return 0 if run_result.all_passed else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Slope stability (Bishop simplified + Spencer)")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -104,6 +147,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="Requested verification workers (0 = auto; default is auto)",
     )
     verify.set_defaults(func=_cmd_verify)
+
+    test = sub.add_parser("test", help="Run unittest discovery (default auto-parallel scheduling)")
+    test.add_argument("--output", help="Optional output JSON path")
+    test_mode = test.add_mutually_exclusive_group()
+    test_mode.add_argument(
+        "--serial",
+        action="store_true",
+        help="Run unittests in serial mode (canonical debug path)",
+    )
+    test_mode.add_argument(
+        "--workers",
+        type=int,
+        help="Requested unittest workers (0 = auto; default is auto)",
+    )
+    test.add_argument(
+        "--start-directory",
+        default="tests",
+        help="Directory to start unittest discovery from",
+    )
+    test.add_argument(
+        "--pattern",
+        default="test_*.py",
+        help="Pattern to match unittest files",
+    )
+    test.add_argument(
+        "--top-level-directory",
+        default=str(Path(__file__).resolve().parents[2]),
+        help="Top-level directory used for unittest discovery/import resolution",
+    )
+    test.set_defaults(func=_cmd_test)
 
     return parser
 
