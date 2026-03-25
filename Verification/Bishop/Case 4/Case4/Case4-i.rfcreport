@@ -46,7 +46,7 @@
             <rowType>DataRow</rowType>
             <data>
               <data_string>Compute Time:</data_string>
-              <data_string>00h:00m:05.906s</data_string>
+              <data_string>00h:00m:18.975s</data_string>
             </data>
           </row>
           <row>
@@ -142,6 +142,13 @@
             <data>
               <data_string></data_string>
               <data_string>Bishop simplified</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string></data_string>
+              <data_string>Spencer</data_string>
             </data>
           </row>
           <row>
@@ -406,7 +413,7 @@
                 <rowType>DataImageRow</rowType>
                 <data>
                   <data_string>Color </data_string>
-                  <data_string> $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlideInterpret_9\114426487_files\{53D93315-EF96-4e69-8B6B-84CD70DBB6D7}.png$$$IMG$$$</data_string>
+                  <data_string> $$$IMG$$$C:\Users\james\AppData\Local\Temp\RocscienceTempSlideInterpret_9\030221157_files\{6E8D24E5-8E6C-411c-8397-0427B40A22E7}.png$$$IMG$$$</data_string>
                 </data>
               </row>
               <row>
@@ -481,70 +488,167 @@
                 <rowType>DataTitleRow</rowType>
                 <data>
                   <data_string>FS</data_string>
-                  <data_string>1.234670</data_string>
+                  <data_string>1.234690</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Center:</data_string>
-                  <data_string>21.024, 67.292</data_string>
+                  <data_string>21.048, 67.275</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Radius:</data_string>
-                  <data_string>43.234</data_string>
+                  <data_string>43.212</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Left Slip Surface Endpoint:</data_string>
-                  <data_string>30.000, 25.000</data_string>
+                  <data_string>30.001, 25.000</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Right Slip Surface Endpoint:</data_string>
-                  <data_string>58.068, 45.000</data_string>
+                  <data_string>58.077, 45.000</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Resisting Moment:</data_string>
-                  <data_string>55184.5 kN-m</data_string>
+                  <data_string>55233.7 kN-m</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Driving Moment:</data_string>
-                  <data_string>44695.6 kN-m</data_string>
+                  <data_string>44734.9 kN-m</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Total Slice Area:</data_string>
-                  <data_string>113.545 m2</data_string>
+                  <data_string>113.732 m2</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Surface Horizontal Width:</data_string>
-                  <data_string>28.0675 m</data_string>
+                  <data_string>28.0761 m</data_string>
                 </data>
               </row>
               <row>
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Surface Average Height:</data_string>
-                  <data_string>4.04543 m</data_string>
+                  <data_string>4.05087 m</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Method: spencer</Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>FS</data_string>
+                  <data_string>1.231410</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Center:</data_string>
+                  <data_string>22.581, 64.313</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Radius:</data_string>
+                  <data_string>39.995</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Left Slip Surface Endpoint:</data_string>
+                  <data_string>30.020, 25.016</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Right Slip Surface Endpoint:</data_string>
+                  <data_string>57.604, 45.000</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Resisting Moment:</data_string>
+                  <data_string>50783.9 kN-m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Driving Moment:</data_string>
+                  <data_string>41240.5 kN-m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Resisting Horizontal Force:</data_string>
+                  <data_string>1024.72 kN</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Driving Horizontal Force:</data_string>
+                  <data_string>832.156 kN</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Total Slice Area:</data_string>
+                  <data_string>113.181 m2</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Surface Horizontal Width:</data_string>
+                  <data_string>27.5847 m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Surface Average Height:</data_string>
+                  <data_string>4.10304 m</data_string>
                 </data>
               </row>
             </dataRows>
@@ -596,7 +700,7 @@
                 <rowType>DataRow</rowType>
                 <data>
                   <data_string>Number of Valid Surfaces:</data_string>
-                  <data_string>38360</data_string>
+                  <data_string>32802</data_string>
                 </data>
               </row>
               <row>
@@ -607,6 +711,84 @@
                 </data>
               </row>
             </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Method: spencer</Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Number of Valid Surfaces:</data_string>
+                  <data_string>29693</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Number of Invalid Surfaces:</data_string>
+                  <data_string>3109</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Error Codes</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Error Code -108 reported for 308 surfaces</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Error Code -111 reported for 2801 surfaces</data_string>
+                </data>
+              </row>
+            </dataRows>
+            <childSections>
+              <rfc_section>
+                <Title>Error Code Descriptions</Title>
+                <sectionLevel>UnderlinedSection</sectionLevel>
+                <hasImage>false</hasImage>
+                <maximizeSize>false</maximizeSize>
+                <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+                <postPageBreak>false</postPageBreak>
+                <ignoreIndent>false</ignoreIndent>
+                <fontSizeOffset>0</fontSizeOffset>
+                <borderStyle>None</borderStyle>
+                <dataRows>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>The following errors were encountered during the computation:</data_string>
+                    </data>
+                  </row>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>-108 = Total driving moment or total driving force &lt; 0.1. This is to limit the calculation of extremely high safety factors if the driving force is very small (0.1 is an arbitrary number).</data_string>
+                    </data>
+                  </row>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>-111 = Safety factor equation did not converge</data_string>
+                    </data>
+                  </row>
+                </dataRows>
+              </rfc_section>
+            </childSections>
           </rfc_section>
         </childSections>
       </rfc_section>
@@ -622,7 +804,7 @@
         <borderStyle>None</borderStyle>
         <childSections>
           <rfc_section>
-            <Title>Global Minimum Query (bishop simplified) - Safety Factor: 1.23467</Title>
+            <Title>Global Minimum Query (bishop simplified) - Safety Factor: 1.23469</Title>
             <sectionLevel>BoldTextSection</sectionLevel>
             <hasImage>false</hasImage>
             <maximizeSize>true</maximizeSize>
@@ -656,19 +838,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>1</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>5.78597</data_string>
-                  <data_string>12.746</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>5.79431</data_string>
+                  <data_string>12.72</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>8.88095</data_string>
-                  <data_string>10.965</data_string>
-                  <data_string>3.14472</data_string>
+                  <data_string>8.8854</data_string>
+                  <data_string>10.9707</data_string>
+                  <data_string>3.15381</data_string>
                   <data_string>0</data_string>
-                  <data_string>3.14472</data_string>
-                  <data_string>5.15362</data_string>
-                  <data_string>5.15362</data_string>
+                  <data_string>3.15381</data_string>
+                  <data_string>5.15947</data_string>
+                  <data_string>5.15947</data_string>
                 </data>
               </row>
               <row>
@@ -676,19 +858,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>2</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>17.073</data_string>
-                  <data_string>14.2763</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>17.0977</data_string>
+                  <data_string>14.2514</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>13.276</data_string>
-                  <data_string>16.3915</data_string>
-                  <data_string>11.829</data_string>
+                  <data_string>13.2864</data_string>
+                  <data_string>16.4046</data_string>
+                  <data_string>11.8498</data_string>
                   <data_string>0</data_string>
-                  <data_string>11.829</data_string>
-                  <data_string>15.2071</data_string>
-                  <data_string>15.2071</data_string>
+                  <data_string>11.8498</data_string>
+                  <data_string>15.2245</data_string>
+                  <data_string>15.2245</data_string>
                 </data>
               </row>
               <row>
@@ -696,19 +878,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>3</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>27.7844</data_string>
-                  <data_string>15.8172</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>27.8247</data_string>
+                  <data_string>15.7934</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>17.3297</data_string>
-                  <data_string>21.3964</data_string>
-                  <data_string>19.8384</data_string>
+                  <data_string>17.3454</data_string>
+                  <data_string>21.4162</data_string>
+                  <data_string>19.8701</data_string>
                   <data_string>0</data_string>
-                  <data_string>19.8384</data_string>
-                  <data_string>24.7478</data_string>
-                  <data_string>24.7478</data_string>
+                  <data_string>19.8701</data_string>
+                  <data_string>24.7762</data_string>
+                  <data_string>24.7762</data_string>
                 </data>
               </row>
               <row>
@@ -716,19 +898,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>4</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>37.9074</data_string>
-                  <data_string>17.3699</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>37.9628</data_string>
+                  <data_string>17.3472</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>21.0459</data_string>
-                  <data_string>25.9847</data_string>
-                  <data_string>27.1813</data_string>
+                  <data_string>21.0667</data_string>
+                  <data_string>26.0108</data_string>
+                  <data_string>27.223</data_string>
                   <data_string>0</data_string>
-                  <data_string>27.1813</data_string>
-                  <data_string>33.7645</data_string>
-                  <data_string>33.7645</data_string>
+                  <data_string>27.223</data_string>
+                  <data_string>33.8036</data_string>
+                  <data_string>33.8036</data_string>
                 </data>
               </row>
               <row>
@@ -736,19 +918,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>5</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>47.4276</data_string>
-                  <data_string>18.9359</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>47.4974</data_string>
+                  <data_string>18.9143</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>24.4278</data_string>
-                  <data_string>30.1603</data_string>
-                  <data_string>33.8636</data_string>
+                  <data_string>24.4532</data_string>
+                  <data_string>30.1921</data_string>
+                  <data_string>33.9144</data_string>
                   <data_string>0</data_string>
-                  <data_string>33.8636</data_string>
-                  <data_string>42.2442</data_string>
-                  <data_string>42.2442</data_string>
+                  <data_string>33.9144</data_string>
+                  <data_string>42.2935</data_string>
+                  <data_string>42.2935</data_string>
                 </data>
               </row>
               <row>
@@ -756,19 +938,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>6</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>56.3285</data_string>
-                  <data_string>20.5168</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>56.4121</data_string>
+                  <data_string>20.4963</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>27.4776</data_string>
-                  <data_string>33.9258</data_string>
-                  <data_string>39.8897</data_string>
+                  <data_string>27.5072</data_string>
+                  <data_string>33.9629</data_string>
+                  <data_string>39.949</data_string>
                   <data_string>0</data_string>
-                  <data_string>39.8897</data_string>
-                  <data_string>50.1723</data_string>
-                  <data_string>50.1723</data_string>
+                  <data_string>39.949</data_string>
+                  <data_string>50.2315</data_string>
+                  <data_string>50.2315</data_string>
                 </data>
               </row>
               <row>
@@ -776,19 +958,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>7</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>64.5915</data_string>
-                  <data_string>22.1141</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>64.6881</data_string>
+                  <data_string>22.0947</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>30.1966</data_string>
-                  <data_string>37.2828</data_string>
-                  <data_string>45.262</data_string>
+                  <data_string>30.2299</data_string>
+                  <data_string>37.3246</data_string>
+                  <data_string>45.3289</data_string>
                   <data_string>0</data_string>
-                  <data_string>45.262</data_string>
-                  <data_string>57.5322</data_string>
-                  <data_string>57.5322</data_string>
+                  <data_string>45.3289</data_string>
+                  <data_string>57.6008</data_string>
+                  <data_string>57.6008</data_string>
                 </data>
               </row>
               <row>
@@ -796,19 +978,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>8</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>72.1952</data_string>
-                  <data_string>23.7298</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>72.3043</data_string>
+                  <data_string>23.7115</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>32.5849</data_string>
-                  <data_string>40.2316</data_string>
-                  <data_string>49.981</data_string>
+                  <data_string>32.6217</data_string>
+                  <data_string>40.2777</data_string>
+                  <data_string>50.0548</data_string>
                   <data_string>0</data_string>
-                  <data_string>49.981</data_string>
-                  <data_string>64.305</data_string>
-                  <data_string>64.305</data_string>
+                  <data_string>50.0548</data_string>
+                  <data_string>64.3825</data_string>
+                  <data_string>64.3825</data_string>
                 </data>
               </row>
               <row>
@@ -816,19 +998,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>9</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>79.1157</data_string>
-                  <data_string>25.3658</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>79.2366</data_string>
+                  <data_string>25.3486</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>34.6418</data_string>
-                  <data_string>42.7712</data_string>
-                  <data_string>54.0453</data_string>
+                  <data_string>34.6817</data_string>
+                  <data_string>42.8212</data_string>
+                  <data_string>54.1253</data_string>
                   <data_string>0</data_string>
-                  <data_string>54.0453</data_string>
-                  <data_string>70.4691</data_string>
-                  <data_string>70.4691</data_string>
+                  <data_string>54.1253</data_string>
+                  <data_string>70.5553</data_string>
+                  <data_string>70.5553</data_string>
                 </data>
               </row>
               <row>
@@ -836,19 +1018,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>10</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>85.3256</data_string>
-                  <data_string>27.0243</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>85.4575</data_string>
+                  <data_string>27.0082</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>36.3658</data_string>
-                  <data_string>44.8998</data_string>
-                  <data_string>57.4517</data_string>
+                  <data_string>36.4084</data_string>
+                  <data_string>44.9531</data_string>
+                  <data_string>57.537</data_string>
                   <data_string>0</data_string>
-                  <data_string>57.4517</data_string>
-                  <data_string>76.0004</data_string>
-                  <data_string>76.0004</data_string>
+                  <data_string>57.537</data_string>
+                  <data_string>76.0946</data_string>
+                  <data_string>76.0946</data_string>
                 </data>
               </row>
               <row>
@@ -856,19 +1038,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>11</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>90.7938</data_string>
-                  <data_string>28.7076</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>90.936</data_string>
+                  <data_string>28.6927</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>37.7541</data_string>
-                  <data_string>46.6138</data_string>
-                  <data_string>60.1947</data_string>
+                  <data_string>37.799</data_string>
+                  <data_string>46.6701</data_string>
+                  <data_string>60.2848</data_string>
                   <data_string>0</data_string>
-                  <data_string>60.1947</data_string>
-                  <data_string>80.8709</data_string>
-                  <data_string>80.8709</data_string>
+                  <data_string>60.2848</data_string>
+                  <data_string>80.9729</data_string>
+                  <data_string>80.9729</data_string>
                 </data>
               </row>
               <row>
@@ -876,19 +1058,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>12</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>95.4849</data_string>
-                  <data_string>30.4185</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>95.6366</data_string>
+                  <data_string>30.4048</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>38.8028</data_string>
-                  <data_string>47.9087</data_string>
-                  <data_string>62.2669</data_string>
+                  <data_string>38.8498</data_string>
+                  <data_string>47.9675</data_string>
+                  <data_string>62.3611</data_string>
                   <data_string>0</data_string>
-                  <data_string>62.2669</data_string>
-                  <data_string>85.0493</data_string>
-                  <data_string>85.0493</data_string>
+                  <data_string>62.3611</data_string>
+                  <data_string>85.1585</data_string>
+                  <data_string>85.1585</data_string>
                 </data>
               </row>
               <row>
@@ -896,19 +1078,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>13</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>99.3581</data_string>
-                  <data_string>32.16</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>99.5185</data_string>
+                  <data_string>32.1474</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>39.5072</data_string>
-                  <data_string>48.7784</data_string>
-                  <data_string>63.6587</data_string>
+                  <data_string>39.5558</data_string>
+                  <data_string>48.8392</data_string>
+                  <data_string>63.7561</data_string>
                   <data_string>0</data_string>
-                  <data_string>63.6587</data_string>
-                  <data_string>88.4992</data_string>
-                  <data_string>88.4992</data_string>
+                  <data_string>63.7561</data_string>
+                  <data_string>88.6151</data_string>
+                  <data_string>88.6151</data_string>
                 </data>
               </row>
               <row>
@@ -916,19 +1098,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>14</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>102.367</data_string>
-                  <data_string>33.9355</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>102.535</data_string>
+                  <data_string>33.9241</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>39.861</data_string>
-                  <data_string>49.2152</data_string>
-                  <data_string>64.3577</data_string>
+                  <data_string>39.9109</data_string>
+                  <data_string>49.2776</data_string>
+                  <data_string>64.4577</data_string>
                   <data_string>0</data_string>
-                  <data_string>64.3577</data_string>
-                  <data_string>91.179</data_string>
-                  <data_string>91.179</data_string>
+                  <data_string>64.4577</data_string>
+                  <data_string>91.3011</data_string>
+                  <data_string>91.3011</data_string>
                 </data>
               </row>
               <row>
@@ -936,19 +1118,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>15</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>104.457</data_string>
-                  <data_string>35.7489</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>104.632</data_string>
+                  <data_string>35.7388</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>39.8566</data_string>
-                  <data_string>49.2098</data_string>
-                  <data_string>64.3491</data_string>
+                  <data_string>39.9074</data_string>
+                  <data_string>49.2733</data_string>
+                  <data_string>64.4508</data_string>
                   <data_string>0</data_string>
-                  <data_string>64.3491</data_string>
-                  <data_string>93.0406</data_string>
-                  <data_string>93.0406</data_string>
+                  <data_string>64.4508</data_string>
+                  <data_string>93.1682</data_string>
+                  <data_string>93.1682</data_string>
                 </data>
               </row>
               <row>
@@ -956,19 +1138,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>16</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>105.565</data_string>
-                  <data_string>37.6046</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>105.746</data_string>
+                  <data_string>37.5958</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>39.4851</data_string>
-                  <data_string>48.7511</data_string>
-                  <data_string>63.615</data_string>
+                  <data_string>39.5364</data_string>
+                  <data_string>48.8152</data_string>
+                  <data_string>63.7177</data_string>
                   <data_string>0</data_string>
-                  <data_string>63.615</data_string>
-                  <data_string>94.0277</data_string>
-                  <data_string>94.0277</data_string>
+                  <data_string>63.7177</data_string>
+                  <data_string>94.1602</data_string>
+                  <data_string>94.1602</data_string>
                 </data>
               </row>
               <row>
@@ -976,19 +1158,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>17</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>105.617</data_string>
-                  <data_string>39.5079</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>105.803</data_string>
+                  <data_string>39.5004</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>38.7356</data_string>
-                  <data_string>47.8257</data_string>
-                  <data_string>62.1342</data_string>
+                  <data_string>38.7871</data_string>
+                  <data_string>47.89</data_string>
+                  <data_string>62.237</data_string>
                   <data_string>0</data_string>
-                  <data_string>62.1342</data_string>
-                  <data_string>94.0744</data_string>
-                  <data_string>94.0744</data_string>
+                  <data_string>62.237</data_string>
+                  <data_string>94.2111</data_string>
+                  <data_string>94.2111</data_string>
                 </data>
               </row>
               <row>
@@ -996,19 +1178,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>18</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>104.526</data_string>
-                  <data_string>41.465</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>104.715</data_string>
+                  <data_string>41.4589</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>37.5956</data_string>
-                  <data_string>46.4182</data_string>
-                  <data_string>59.8817</data_string>
+                  <data_string>37.6467</data_string>
+                  <data_string>46.482</data_string>
+                  <data_string>59.9837</data_string>
                   <data_string>0</data_string>
-                  <data_string>59.8817</data_string>
-                  <data_string>93.1025</data_string>
-                  <data_string>93.1025</data_string>
+                  <data_string>59.9837</data_string>
+                  <data_string>93.2426</data_string>
+                  <data_string>93.2426</data_string>
                 </data>
               </row>
               <row>
@@ -1016,19 +1198,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>19</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>102.186</data_string>
-                  <data_string>43.4831</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>102.378</data_string>
+                  <data_string>43.4785</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>36.0503</data_string>
-                  <data_string>44.5102</data_string>
-                  <data_string>56.8281</data_string>
+                  <data_string>36.1005</data_string>
+                  <data_string>44.5729</data_string>
+                  <data_string>56.9285</data_string>
                   <data_string>0</data_string>
-                  <data_string>56.8281</data_string>
-                  <data_string>91.0184</data_string>
-                  <data_string>91.0184</data_string>
+                  <data_string>56.9285</data_string>
+                  <data_string>91.1609</data_string>
+                  <data_string>91.1609</data_string>
                 </data>
               </row>
               <row>
@@ -1036,19 +1218,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>20</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>98.4701</data_string>
-                  <data_string>45.5713</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>98.6616</data_string>
+                  <data_string>45.5682</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>34.0822</data_string>
-                  <data_string>42.0803</data_string>
-                  <data_string>52.9396</data_string>
+                  <data_string>34.1311</data_string>
+                  <data_string>42.1413</data_string>
+                  <data_string>53.0372</data_string>
                   <data_string>0</data_string>
-                  <data_string>52.9396</data_string>
-                  <data_string>87.7083</data_string>
-                  <data_string>87.7083</data_string>
+                  <data_string>53.0372</data_string>
+                  <data_string>87.8521</data_string>
+                  <data_string>87.8521</data_string>
                 </data>
               </row>
               <row>
@@ -1056,19 +1238,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>21</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>93.2197</data_string>
-                  <data_string>47.7403</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>93.4096</data_string>
+                  <data_string>47.739</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>31.6714</data_string>
-                  <data_string>39.1037</data_string>
-                  <data_string>48.176</data_string>
+                  <data_string>31.7183</data_string>
+                  <data_string>39.1623</data_string>
+                  <data_string>48.2698</data_string>
                   <data_string>0</data_string>
-                  <data_string>48.176</data_string>
-                  <data_string>83.0317</data_string>
-                  <data_string>83.0317</data_string>
+                  <data_string>48.2698</data_string>
+                  <data_string>83.1755</data_string>
+                  <data_string>83.1755</data_string>
                 </data>
               </row>
               <row>
@@ -1076,19 +1258,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>22</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>86.237</data_string>
-                  <data_string>50.0041</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>86.4231</data_string>
+                  <data_string>50.0047</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>28.7943</data_string>
-                  <data_string>35.5515</data_string>
-                  <data_string>42.4913</data_string>
+                  <data_string>28.8387</data_string>
+                  <data_string>35.6069</data_string>
+                  <data_string>42.58</data_string>
                   <data_string>0</data_string>
-                  <data_string>42.4913</data_string>
-                  <data_string>76.8121</data_string>
-                  <data_string>76.8121</data_string>
+                  <data_string>42.58</data_string>
+                  <data_string>76.9544</data_string>
+                  <data_string>76.9544</data_string>
                 </data>
               </row>
               <row>
@@ -1096,19 +1278,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>23</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>72.9413</data_string>
-                  <data_string>52.3805</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>73.0319</data_string>
+                  <data_string>52.383</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>24.247</data_string>
-                  <data_string>29.9371</data_string>
-                  <data_string>33.5063</data_string>
+                  <data_string>24.2645</data_string>
+                  <data_string>29.9591</data_string>
+                  <data_string>33.5416</data_string>
                   <data_string>0</data_string>
-                  <data_string>33.5063</data_string>
-                  <data_string>64.9696</data_string>
-                  <data_string>64.9696</data_string>
+                  <data_string>33.5416</data_string>
+                  <data_string>65.0304</data_string>
+                  <data_string>65.0304</data_string>
                 </data>
               </row>
               <row>
@@ -1116,19 +1298,19 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>24</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>46.0909</data_string>
-                  <data_string>54.893</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>46.1305</data_string>
+                  <data_string>54.8978</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>16.3186</data_string>
-                  <data_string>20.1481</data_string>
-                  <data_string>17.8406</data_string>
+                  <data_string>16.3239</data_string>
+                  <data_string>20.155</data_string>
+                  <data_string>17.8517</data_string>
                   <data_string>0</data_string>
-                  <data_string>17.8406</data_string>
-                  <data_string>41.0536</data_string>
-                  <data_string>41.0536</data_string>
+                  <data_string>17.8517</data_string>
+                  <data_string>41.0764</data_string>
+                  <data_string>41.0764</data_string>
                 </data>
               </row>
               <row>
@@ -1136,19 +1318,551 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>25</data_string>
-                  <data_string>1.1227</data_string>
-                  <data_string>15.8735</data_string>
-                  <data_string>57.5741</data_string>
+                  <data_string>1.12304</data_string>
+                  <data_string>15.8877</data_string>
+                  <data_string>57.5816</data_string>
                   <data_string>Material 1</data_string>
                   <data_string>9</data_string>
                   <data_string>32</data_string>
-                  <data_string>8.03978</data_string>
-                  <data_string>9.92647</data_string>
-                  <data_string>1.48267</data_string>
+                  <data_string>8.04102</data_string>
+                  <data_string>9.92817</data_string>
+                  <data_string>1.48538</data_string>
                   <data_string>0</data_string>
-                  <data_string>1.48267</data_string>
-                  <data_string>14.1387</data_string>
-                  <data_string>14.1387</data_string>
+                  <data_string>1.48538</data_string>
+                  <data_string>14.147</data_string>
+                  <data_string>14.147</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Global Minimum Query (spencer) - Safety Factor: 1.23141</Title>
+            <sectionLevel>BoldTextSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>true</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>true</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>-2</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Slice  Number </data_string>
+                  <data_string>Width  [m]</data_string>
+                  <data_string>Weight  [kN]</data_string>
+                  <data_string>Angle  of Slice Base  [deg]</data_string>
+                  <data_string>Base  Material </data_string>
+                  <data_string>Base  Cohesion  [kPa]</data_string>
+                  <data_string>Base  Friction Angle  [deg]</data_string>
+                  <data_string>Shear  Stress  [kPa]</data_string>
+                  <data_string>Shear  Strength  [kPa]</data_string>
+                  <data_string>Base  Normal Stress  [kPa]</data_string>
+                  <data_string>Pore  Pressure  [kPa]</data_string>
+                  <data_string>Effective  Normal Stress  [kPa]</data_string>
+                  <data_string>Base  Vertical Stress  [kPa]</data_string>
+                  <data_string>Effective  Vertical Stress  [kPa]</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>1</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>5.80576</data_string>
+                  <data_string>11.525</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>12.0387</data_string>
+                  <data_string>14.8246</data_string>
+                  <data_string>9.32127</data_string>
+                  <data_string>0</data_string>
+                  <data_string>9.32127</data_string>
+                  <data_string>11.776</data_string>
+                  <data_string>11.776</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>2</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>17.129</data_string>
+                  <data_string>13.1433</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>17.278</data_string>
+                  <data_string>21.2763</data_string>
+                  <data_string>19.6462</data_string>
+                  <data_string>0</data_string>
+                  <data_string>19.6462</data_string>
+                  <data_string>23.6807</data_string>
+                  <data_string>23.6807</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>3</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>27.87</data_string>
+                  <data_string>14.7723</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>21.8653</data_string>
+                  <data_string>26.9251</data_string>
+                  <data_string>28.6861</data_string>
+                  <data_string>0</data_string>
+                  <data_string>28.6861</data_string>
+                  <data_string>34.4518</data_string>
+                  <data_string>34.4518</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>4</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>38.0161</data_string>
+                  <data_string>16.4136</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>25.85</data_string>
+                  <data_string>31.8319</data_string>
+                  <data_string>36.5387</data_string>
+                  <data_string>0</data_string>
+                  <data_string>36.5387</data_string>
+                  <data_string>44.1534</data_string>
+                  <data_string>44.1534</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>5</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>47.553</data_string>
+                  <data_string>18.069</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>29.2751</data_string>
+                  <data_string>36.0496</data_string>
+                  <data_string>43.2884</data_string>
+                  <data_string>0</data_string>
+                  <data_string>43.2884</data_string>
+                  <data_string>52.8395</data_string>
+                  <data_string>52.8395</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>6</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>56.4639</data_string>
+                  <data_string>19.7401</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>32.1777</data_string>
+                  <data_string>39.6239</data_string>
+                  <data_string>49.0084</data_string>
+                  <data_string>0</data_string>
+                  <data_string>49.0084</data_string>
+                  <data_string>60.5551</data_string>
+                  <data_string>60.5551</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>7</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>64.7298</data_string>
+                  <data_string>21.4288</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>34.5899</data_string>
+                  <data_string>42.5944</data_string>
+                  <data_string>53.7623</data_string>
+                  <data_string>0</data_string>
+                  <data_string>53.7623</data_string>
+                  <data_string>67.338</data_string>
+                  <data_string>67.338</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>8</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>72.3289</data_string>
+                  <data_string>23.1374</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>36.5399</data_string>
+                  <data_string>44.9956</data_string>
+                  <data_string>57.605</data_string>
+                  <data_string>0</data_string>
+                  <data_string>57.605</data_string>
+                  <data_string>73.2188</data_string>
+                  <data_string>73.2188</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>9</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>79.2361</data_string>
+                  <data_string>24.8681</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>38.052</data_string>
+                  <data_string>46.8576</data_string>
+                  <data_string>60.5848</data_string>
+                  <data_string>0</data_string>
+                  <data_string>60.5848</data_string>
+                  <data_string>78.2222</data_string>
+                  <data_string>78.2222</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>10</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>85.423</data_string>
+                  <data_string>26.6233</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>39.1472</data_string>
+                  <data_string>48.2063</data_string>
+                  <data_string>62.7432</data_string>
+                  <data_string>0</data_string>
+                  <data_string>62.7432</data_string>
+                  <data_string>82.3666</data_string>
+                  <data_string>82.3666</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>11</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>90.8567</data_string>
+                  <data_string>28.406</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>39.8441</data_string>
+                  <data_string>49.0644</data_string>
+                  <data_string>64.1164</data_string>
+                  <data_string>0</data_string>
+                  <data_string>64.1164</data_string>
+                  <data_string>85.6654</data_string>
+                  <data_string>85.6654</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>12</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>95.4996</data_string>
+                  <data_string>30.2193</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>40.1584</data_string>
+                  <data_string>49.4515</data_string>
+                  <data_string>64.736</data_string>
+                  <data_string>0</data_string>
+                  <data_string>64.736</data_string>
+                  <data_string>88.1268</data_string>
+                  <data_string>88.1268</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>13</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>99.3083</data_string>
+                  <data_string>32.0666</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>40.1042</data_string>
+                  <data_string>49.3847</data_string>
+                  <data_string>64.6291</data_string>
+                  <data_string>0</data_string>
+                  <data_string>64.6291</data_string>
+                  <data_string>89.7538</data_string>
+                  <data_string>89.7538</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>14</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>102.232</data_string>
+                  <data_string>33.9521</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>39.6933</data_string>
+                  <data_string>48.8787</data_string>
+                  <data_string>63.8193</data_string>
+                  <data_string>0</data_string>
+                  <data_string>63.8193</data_string>
+                  <data_string>90.5445</data_string>
+                  <data_string>90.5445</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>15</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>104.213</data_string>
+                  <data_string>35.8804</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>38.9359</data_string>
+                  <data_string>47.946</data_string>
+                  <data_string>62.3266</data_string>
+                  <data_string>0</data_string>
+                  <data_string>62.3266</data_string>
+                  <data_string>90.4912</data_string>
+                  <data_string>90.4912</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>16</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>105.181</data_string>
+                  <data_string>37.857</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>37.8407</data_string>
+                  <data_string>46.5974</data_string>
+                  <data_string>60.1685</data_string>
+                  <data_string>0</data_string>
+                  <data_string>60.1685</data_string>
+                  <data_string>89.5811</data_string>
+                  <data_string>89.5811</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>17</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>105.054</data_string>
+                  <data_string>39.8881</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>36.4154</data_string>
+                  <data_string>44.8423</data_string>
+                  <data_string>57.3597</data_string>
+                  <data_string>0</data_string>
+                  <data_string>57.3597</data_string>
+                  <data_string>87.7949</data_string>
+                  <data_string>87.7949</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>18</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>103.733</data_string>
+                  <data_string>41.9815</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>34.6664</data_string>
+                  <data_string>42.6886</data_string>
+                  <data_string>53.9131</data_string>
+                  <data_string>0</data_string>
+                  <data_string>53.9131</data_string>
+                  <data_string>85.1067</data_string>
+                  <data_string>85.1067</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>19</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>101.099</data_string>
+                  <data_string>44.1463</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>32.5994</data_string>
+                  <data_string>40.1432</data_string>
+                  <data_string>49.8396</data_string>
+                  <data_string>0</data_string>
+                  <data_string>49.8396</data_string>
+                  <data_string>81.4817</data_string>
+                  <data_string>81.4817</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>20</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>97.0032</data_string>
+                  <data_string>46.3937</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>30.2193</data_string>
+                  <data_string>37.2123</data_string>
+                  <data_string>45.1491</data_string>
+                  <data_string>0</data_string>
+                  <data_string>45.1491</data_string>
+                  <data_string>76.8755</data_string>
+                  <data_string>76.8755</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>21</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>91.2598</data_string>
+                  <data_string>48.7382</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>27.5307</data_string>
+                  <data_string>33.9016</data_string>
+                  <data_string>39.8508</data_string>
+                  <data_string>0</data_string>
+                  <data_string>39.8508</data_string>
+                  <data_string>71.2306</data_string>
+                  <data_string>71.2306</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>22</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>83.629</data_string>
+                  <data_string>51.1981</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>24.5385</data_string>
+                  <data_string>30.2169</data_string>
+                  <data_string>33.9541</data_string>
+                  <data_string>0</data_string>
+                  <data_string>33.9541</data_string>
+                  <data_string>64.4717</data_string>
+                  <data_string>64.4717</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>23</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>72.7824</data_string>
+                  <data_string>53.7977</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>21.0402</data_string>
+                  <data_string>25.9091</data_string>
+                  <data_string>27.0602</data_string>
+                  <data_string>0</data_string>
+                  <data_string>27.0602</data_string>
+                  <data_string>55.8055</data_string>
+                  <data_string>55.8055</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>24</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>47.9112</data_string>
+                  <data_string>56.5707</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>15.1002</data_string>
+                  <data_string>18.5946</data_string>
+                  <data_string>15.3545</data_string>
+                  <data_string>0</data_string>
+                  <data_string>15.3545</data_string>
+                  <data_string>38.2297</data_string>
+                  <data_string>38.2297</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>25</data_string>
+                  <data_string>1.10339</data_string>
+                  <data_string>16.5783</data_string>
+                  <data_string>59.5659</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>9</data_string>
+                  <data_string>32</data_string>
+                  <data_string>8.68245</data_string>
+                  <data_string>10.6917</data_string>
+                  <data_string>2.70723</data_string>
+                  <data_string>0</data_string>
+                  <data_string>2.70723</data_string>
+                  <data_string>17.486</data_string>
+                  <data_string>17.486</data_string>
                 </data>
               </row>
             </dataRows>
@@ -1167,7 +1881,7 @@
         <borderStyle>None</borderStyle>
         <childSections>
           <rfc_section>
-            <Title>Global Minimum Query (bishop simplified) - Safety Factor: 1.23467</Title>
+            <Title>Global Minimum Query (bishop simplified) - Safety Factor: 1.23469</Title>
             <sectionLevel>BoldTextSection</sectionLevel>
             <hasImage>false</hasImage>
             <maximizeSize>true</maximizeSize>
@@ -1193,8 +1907,8 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>1</data_string>
-                  <data_string>30</data_string>
-                  <data_string>25</data_string>
+                  <data_string>30.0005</data_string>
+                  <data_string>25.0004</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
@@ -1205,9 +1919,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>2</data_string>
-                  <data_string>31.1227</data_string>
-                  <data_string>25.254</data_string>
-                  <data_string>9.17198</data_string>
+                  <data_string>31.1236</data_string>
+                  <data_string>25.2539</data_string>
+                  <data_string>9.1792</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1217,9 +1931,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>3</data_string>
-                  <data_string>32.2454</data_string>
-                  <data_string>25.5396</data_string>
-                  <data_string>20.6977</data_string>
+                  <data_string>32.2466</data_string>
+                  <data_string>25.5392</data_string>
+                  <data_string>20.7203</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1229,9 +1943,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>4</data_string>
-                  <data_string>33.3681</data_string>
-                  <data_string>25.8577</data_string>
-                  <data_string>33.8439</data_string>
+                  <data_string>33.3697</data_string>
+                  <data_string>25.8568</data_string>
+                  <data_string>33.8882</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1241,9 +1955,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>5</data_string>
-                  <data_string>34.4908</data_string>
-                  <data_string>26.2089</data_string>
-                  <data_string>47.9264</data_string>
+                  <data_string>34.4927</data_string>
+                  <data_string>26.2076</data_string>
+                  <data_string>47.997</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1253,9 +1967,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>6</data_string>
-                  <data_string>35.6135</data_string>
-                  <data_string>26.5941</data_string>
-                  <data_string>62.3081</data_string>
+                  <data_string>35.6158</data_string>
+                  <data_string>26.5925</data_string>
+                  <data_string>62.4081</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1265,9 +1979,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>7</data_string>
-                  <data_string>36.7362</data_string>
-                  <data_string>27.0142</data_string>
-                  <data_string>76.3982</data_string>
+                  <data_string>36.7388</data_string>
+                  <data_string>27.0123</data_string>
+                  <data_string>76.5291</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1277,9 +1991,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>8</data_string>
-                  <data_string>37.8589</data_string>
-                  <data_string>27.4704</data_string>
-                  <data_string>89.6511</data_string>
+                  <data_string>37.8618</data_string>
+                  <data_string>27.4682</data_string>
+                  <data_string>89.8132</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1289,9 +2003,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>9</data_string>
-                  <data_string>38.9816</data_string>
-                  <data_string>27.9639</data_string>
-                  <data_string>101.567</data_string>
+                  <data_string>38.9849</data_string>
+                  <data_string>27.9614</data_string>
+                  <data_string>101.759</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1301,9 +2015,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>10</data_string>
-                  <data_string>40.1043</data_string>
-                  <data_string>28.4962</data_string>
-                  <data_string>111.692</data_string>
+                  <data_string>40.1079</data_string>
+                  <data_string>28.4934</data_string>
+                  <data_string>111.912</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1313,9 +2027,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>11</data_string>
-                  <data_string>41.227</data_string>
-                  <data_string>29.0688</data_string>
-                  <data_string>119.621</data_string>
+                  <data_string>41.231</data_string>
+                  <data_string>29.0659</data_string>
+                  <data_string>119.865</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1325,9 +2039,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>12</data_string>
-                  <data_string>42.3497</data_string>
-                  <data_string>29.6837</data_string>
-                  <data_string>124.996</data_string>
+                  <data_string>42.354</data_string>
+                  <data_string>29.6805</data_string>
+                  <data_string>125.26</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1337,9 +2051,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>13</data_string>
-                  <data_string>43.4724</data_string>
-                  <data_string>30.3429</data_string>
-                  <data_string>127.515</data_string>
+                  <data_string>43.4771</data_string>
+                  <data_string>30.3395</data_string>
+                  <data_string>127.794</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1349,9 +2063,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>14</data_string>
-                  <data_string>44.5951</data_string>
-                  <data_string>31.0488</data_string>
-                  <data_string>126.933</data_string>
+                  <data_string>44.6001</data_string>
+                  <data_string>31.0453</data_string>
+                  <data_string>127.219</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1361,9 +2075,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>15</data_string>
-                  <data_string>45.7178</data_string>
-                  <data_string>31.8042</data_string>
-                  <data_string>123.066</data_string>
+                  <data_string>45.7231</data_string>
+                  <data_string>31.8006</data_string>
+                  <data_string>123.353</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1373,9 +2087,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>16</data_string>
-                  <data_string>46.8405</data_string>
-                  <data_string>32.6124</data_string>
-                  <data_string>115.807</data_string>
+                  <data_string>46.8462</data_string>
+                  <data_string>32.6088</data_string>
+                  <data_string>116.086</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1385,9 +2099,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>17</data_string>
-                  <data_string>47.9632</data_string>
-                  <data_string>33.4772</data_string>
-                  <data_string>105.126</data_string>
+                  <data_string>47.9692</data_string>
+                  <data_string>33.4735</data_string>
+                  <data_string>105.388</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1397,9 +2111,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>18</data_string>
-                  <data_string>49.0859</data_string>
-                  <data_string>34.4029</data_string>
-                  <data_string>91.0938</data_string>
+                  <data_string>49.0923</data_string>
+                  <data_string>34.3993</data_string>
+                  <data_string>91.33</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1409,9 +2123,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>19</data_string>
-                  <data_string>50.2086</data_string>
-                  <data_string>35.395</data_string>
-                  <data_string>73.8961</data_string>
+                  <data_string>50.2153</data_string>
+                  <data_string>35.3914</data_string>
+                  <data_string>74.096</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1421,9 +2135,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>20</data_string>
-                  <data_string>51.3313</data_string>
-                  <data_string>36.4597</data_string>
-                  <data_string>53.8603</data_string>
+                  <data_string>51.3383</data_string>
+                  <data_string>36.4564</data_string>
+                  <data_string>54.0135</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1433,9 +2147,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>21</data_string>
-                  <data_string>52.454</data_string>
-                  <data_string>37.6051</data_string>
-                  <data_string>31.4919</data_string>
+                  <data_string>52.4614</data_string>
+                  <data_string>37.6019</data_string>
+                  <data_string>31.5879</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1445,9 +2159,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>22</data_string>
-                  <data_string>53.5767</data_string>
-                  <data_string>38.8406</data_string>
-                  <data_string>7.52393</data_string>
+                  <data_string>53.5844</data_string>
+                  <data_string>38.8378</data_string>
+                  <data_string>7.5524</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1457,9 +2171,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>23</data_string>
-                  <data_string>54.6994</data_string>
-                  <data_string>40.1788</data_string>
-                  <data_string>-17.0098</data_string>
+                  <data_string>54.7075</data_string>
+                  <data_string>40.1764</data_string>
+                  <data_string>-17.0585</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1469,9 +2183,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>24</data_string>
-                  <data_string>55.8221</data_string>
-                  <data_string>41.6356</data_string>
-                  <data_string>-38.6008</data_string>
+                  <data_string>55.8305</data_string>
+                  <data_string>41.6338</data_string>
+                  <data_string>-38.6923</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1481,9 +2195,9 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>25</data_string>
-                  <data_string>56.9448</data_string>
-                  <data_string>43.2327</data_string>
-                  <data_string>-48.772</data_string>
+                  <data_string>56.9536</data_string>
+                  <data_string>43.2316</data_string>
+                  <data_string>-48.8832</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
                 </data>
@@ -1493,7 +2207,343 @@
                 <hasDataHeader>false</hasDataHeader>
                 <data>
                   <data_string>26</data_string>
-                  <data_string>58.0675</data_string>
+                  <data_string>58.0766</data_string>
+                  <data_string>45</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Global Minimum Query (spencer) - Safety Factor: 1.23141</Title>
+            <sectionLevel>BoldTextSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>true</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>true</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>-2</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Slice  Number </data_string>
+                  <data_string>X  coordinate  [m]</data_string>
+                  <data_string>Y  coordinate - Bottom  [m]</data_string>
+                  <data_string>Interslice  Normal Force  [kN]</data_string>
+                  <data_string>Interslice  Shear Force  [kN]</data_string>
+                  <data_string>Interslice  Force Angle  [deg]</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>1</data_string>
+                  <data_string>30.0195</data_string>
+                  <data_string>25.0156</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>2</data_string>
+                  <data_string>31.1229</data_string>
+                  <data_string>25.2406</data_string>
+                  <data_string>11.1854</data_string>
+                  <data_string>7.19153</data_string>
+                  <data_string>32.7385</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>3</data_string>
+                  <data_string>32.2263</data_string>
+                  <data_string>25.4982</data_string>
+                  <data_string>25.1868</data_string>
+                  <data_string>16.1936</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>4</data_string>
+                  <data_string>33.3297</data_string>
+                  <data_string>25.7892</data_string>
+                  <data_string>40.9647</data_string>
+                  <data_string>26.3379</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>5</data_string>
+                  <data_string>34.4331</data_string>
+                  <data_string>26.1142</data_string>
+                  <data_string>57.6092</data_string>
+                  <data_string>37.0394</data_string>
+                  <data_string>32.7387</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>6</data_string>
+                  <data_string>35.5364</data_string>
+                  <data_string>26.4742</data_string>
+                  <data_string>74.326</data_string>
+                  <data_string>47.7873</data_string>
+                  <data_string>32.7387</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>7</data_string>
+                  <data_string>36.6398</data_string>
+                  <data_string>26.8702</data_string>
+                  <data_string>90.4238</data_string>
+                  <data_string>58.1372</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>8</data_string>
+                  <data_string>37.7432</data_string>
+                  <data_string>27.3032</data_string>
+                  <data_string>105.306</data_string>
+                  <data_string>67.7053</data_string>
+                  <data_string>32.7385</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>9</data_string>
+                  <data_string>38.8466</data_string>
+                  <data_string>27.7747</data_string>
+                  <data_string>118.461</data_string>
+                  <data_string>76.1634</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>10</data_string>
+                  <data_string>39.95</data_string>
+                  <data_string>28.2861</data_string>
+                  <data_string>129.459</data_string>
+                  <data_string>83.2349</data_string>
+                  <data_string>32.7388</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>11</data_string>
+                  <data_string>41.0534</data_string>
+                  <data_string>28.8392</data_string>
+                  <data_string>137.948</data_string>
+                  <data_string>88.6927</data_string>
+                  <data_string>32.7387</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>12</data_string>
+                  <data_string>42.1568</data_string>
+                  <data_string>29.436</data_string>
+                  <data_string>143.648</data_string>
+                  <data_string>92.357</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>13</data_string>
+                  <data_string>43.2602</data_string>
+                  <data_string>30.0786</data_string>
+                  <data_string>146.351</data_string>
+                  <data_string>94.0948</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>14</data_string>
+                  <data_string>44.3635</data_string>
+                  <data_string>30.7699</data_string>
+                  <data_string>145.923</data_string>
+                  <data_string>93.8199</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>15</data_string>
+                  <data_string>45.4669</data_string>
+                  <data_string>31.5128</data_string>
+                  <data_string>142.306</data_string>
+                  <data_string>91.4943</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>16</data_string>
+                  <data_string>46.5703</data_string>
+                  <data_string>32.311</data_string>
+                  <data_string>135.519</data_string>
+                  <data_string>87.1307</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>17</data_string>
+                  <data_string>47.6737</data_string>
+                  <data_string>33.1686</data_string>
+                  <data_string>125.667</data_string>
+                  <data_string>80.7963</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>18</data_string>
+                  <data_string>48.7771</data_string>
+                  <data_string>34.0908</data_string>
+                  <data_string>112.948</data_string>
+                  <data_string>72.6191</data_string>
+                  <data_string>32.7387</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>19</data_string>
+                  <data_string>49.8805</data_string>
+                  <data_string>35.0836</data_string>
+                  <data_string>97.6688</data_string>
+                  <data_string>62.7953</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>20</data_string>
+                  <data_string>50.9839</data_string>
+                  <data_string>36.1546</data_string>
+                  <data_string>80.2589</data_string>
+                  <data_string>51.6018</data_string>
+                  <data_string>32.7387</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>21</data_string>
+                  <data_string>52.0872</data_string>
+                  <data_string>37.313</data_string>
+                  <data_string>61.2989</data_string>
+                  <data_string>39.4116</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>22</data_string>
+                  <data_string>53.1906</data_string>
+                  <data_string>38.5707</data_string>
+                  <data_string>41.5556</data_string>
+                  <data_string>26.7178</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>23</data_string>
+                  <data_string>54.294</data_string>
+                  <data_string>39.9429</data_string>
+                  <data_string>22.0361</data_string>
+                  <data_string>14.1679</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>24</data_string>
+                  <data_string>55.3974</data_string>
+                  <data_string>41.4504</data_string>
+                  <data_string>4.45798</data_string>
+                  <data_string>2.86622</data_string>
+                  <data_string>32.7386</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>25</data_string>
+                  <data_string>56.5008</data_string>
+                  <data_string>43.1219</data_string>
+                  <data_string>-4.54692</data_string>
+                  <data_string>-2.92341</data_string>
+                  <data_string>32.7387</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>26</data_string>
+                  <data_string>57.6042</data_string>
                   <data_string>45</data_string>
                   <data_string>0</data_string>
                   <data_string>0</data_string>
@@ -1527,7 +2577,7 @@
         <borderStyle>None</borderStyle>
         <childSections>
           <rfc_section>
-            <Title>Group 1 $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlideInterpret_9\114426487_files\{CE85462F-2122-4cfb-876D-F2240D2D8B2E}.png$$$IMG$$$</Title>
+            <Title>Group 1 $$$IMG$$$C:\Users\james\AppData\Local\Temp\RocscienceTempSlideInterpret_9\030221157_files\{88ADD5E6-DB47-477b-88ED-5777C5E4DAB5}.png$$$IMG$$$</Title>
             <sectionLevel>UnderlinedSection</sectionLevel>
             <hasImage>true</hasImage>
             <maximizeSize>false</maximizeSize>
