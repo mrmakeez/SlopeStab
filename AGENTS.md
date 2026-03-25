@@ -57,6 +57,11 @@ Not supported in baseline:
 - Worker failures (startup error, timeout, invalid payload, runtime exception) must fail deterministically via explicit error paths; never silently continue with partial state.
 - Windows sandbox guidance: if process-pool startup is blocked by sandbox restrictions (for example `PermissionError` / `WinError 5`), the agent must explicitly prompt the user to approve rerunning required commands outside sandbox/full-access before continuing.
 - WSL guidance: process-pool startup may fail under Python 3.14 default `forkserver` with errors such as `OSError: [Errno 95] Operation not supported`; the agent must run preflight using a `fork` multiprocessing context (or equivalent `fork` start-method configuration) before long parallel runs.
+- WSL execution rule: for long parallel CLI loads (`cli verify`, `cli test`, and similar process-pool workloads), the agent must force `fork` start method for the command run.
+  - verify command template:
+    `.venv/bin/python -c 'import multiprocessing as mp; mp.set_start_method("fork", force=True); from slope_stab.cli import main; raise SystemExit(main(["verify"]))'`
+  - test command template:
+    `.venv/bin/python -c 'import multiprocessing as mp; mp.set_start_method("fork", force=True); from slope_stab.cli import main; raise SystemExit(main(["test"]))'`
 - Before running long verification commands where process-parallel behavior is relevant (for example `python -m slope_stab.cli verify` or `python -m slope_stab.cli test`), the agent must run a quick environment-appropriate process-pool preflight check first; if preflight indicates restriction, prompt for outside-sandbox/full-access **before** starting the long run.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:

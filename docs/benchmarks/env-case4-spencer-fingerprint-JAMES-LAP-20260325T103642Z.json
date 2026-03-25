@@ -1,0 +1,317 @@
+{
+  "environment": {
+    "timestamp_utc": "2026-03-25T10:29:28.171028+00:00",
+    "host": "JAMES-LAP",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "system": "Windows",
+    "release": "11",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+    "python": {
+      "version": "3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)]",
+      "implementation": "CPython",
+      "executable": "C:\\Python314\\python.exe"
+    },
+    "uname": {
+      "system": "Windows",
+      "node": "JAMES-LAP",
+      "release": "11",
+      "version": "10.0.26200",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel"
+    },
+    "cpu_count": 20,
+    "dependencies": {
+      "numpy": "2.4.3",
+      "scipy": "1.17.1",
+      "cma": "4.4.4"
+    },
+    "multiprocessing": {
+      "default_start_method": "spawn",
+      "available_start_methods": [
+        "spawn"
+      ]
+    },
+    "numpy_config_text": "{\n  \"Compilers\": {\n    \"c\": {\n      \"name\": \"msvc\",\n      \"linker\": \"link\",\n      \"version\": \"19.44.35223\",\n      \"commands\": \"cl\"\n    },\n    \"cython\": {\n      \"name\": \"cython\",\n      \"linker\": \"cython\",\n      \"version\": \"3.2.4\",\n      \"commands\": \"cython\"\n    },\n    \"c++\": {\n      \"name\": \"msvc\",\n      \"linker\": \"link\",\n      \"version\": \"19.44.35223\",\n      \"commands\": \"cl\"\n    }\n  },\n  \"Machine Information\": {\n    \"host\": {\n      \"cpu\": \"x86_64\",\n      \"family\": \"x86_64\",\n      \"endian\": \"little\",\n      \"system\": \"windows\"\n    },\n    \"build\": {\n      \"cpu\": \"x86_64\",\n      \"family\": \"x86_64\",\n      \"endian\": \"little\",\n      \"system\": \"windows\"\n    }\n  },\n  \"Build Dependencies\": {\n    \"blas\": {\n      \"name\": \"scipy-openblas\",\n      \"found\": true,\n      \"version\": \"0.3.31.dev\",\n      \"detection method\": \"pkgconfig\",\n      \"include directory\": \"C:/Users/runneradmin/AppData/Local/Temp/cibw-run-0q_f6wui/cp314-win_amd64/build/venv/Lib/site-packages/scipy_openblas64/include\",\n      \"lib directory\": \"C:/Users/runneradmin/AppData/Local/Temp/cibw-run-0q_f6wui/cp314-win_amd64/build/venv/Lib/site-packages/scipy_openblas64/lib\",\n      \"openblas configuration\": \"OpenBLAS 0.3.31.dev  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=24\",\n      \"pc file directory\": \"D:/a/numpy-release/numpy-release/.openblas\"\n    },\n    \"lapack\": {\n      \"name\": \"scipy-openblas\",\n      \"found\": true,\n      \"version\": \"0.3.31.dev\",\n      \"detection method\": \"pkgconfig\",\n      \"include directory\": \"C:/Users/runneradmin/AppData/Local/Temp/cibw-run-0q_f6wui/cp314-win_amd64/build/venv/Lib/site-packages/scipy_openblas64/include\",\n      \"lib directory\": \"C:/Users/runneradmin/AppData/Local/Temp/cibw-run-0q_f6wui/cp314-win_amd64/build/venv/Lib/site-packages/scipy_openblas64/lib\",\n      \"openblas configuration\": \"OpenBLAS 0.3.31.dev  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=24\",\n      \"pc file directory\": \"D:/a/numpy-release/numpy-release/.openblas\"\n    }\n  },\n  \"Python Information\": {\n    \"path\": \"C:\\\\Users\\\\runneradmin\\\\AppData\\\\Local\\\\Temp\\\\build-env-lwwt97tb\\\\Scripts\\\\python.exe\",\n    \"version\": \"3.14\"\n  },\n  \"SIMD Extensions\": {\n    \"baseline\": [\n      \"X86_V2\"\n    ],\n    \"found\": [\n      \"X86_V3\"\n    ]\n  }\n}"
+  },
+  "preflight": {
+    "default_process_pool": {
+      "context": "default",
+      "ok": false,
+      "elapsed_seconds": 0.0005581000004895031,
+      "error_type": "PermissionError",
+      "error_message": "[WinError 5] Access is denied"
+    },
+    "fork_process_pool": {
+      "context": "fork",
+      "supported": false,
+      "ok": false,
+      "reason": "fork_start_method_not_available"
+    }
+  },
+  "case_reference": {
+    "name": "Case 4 (Spencer Auto-Refine Parity)",
+    "case_type": "auto_refine_parity",
+    "analysis_method": "spencer",
+    "expected": {
+      "fos": 1.23141,
+      "fos_tolerance": 0.002,
+      "radius": 39.9948933227408,
+      "radius_rel_tolerance": 0.12,
+      "center": {
+        "xc": 22.5811777177525,
+        "yc": 64.3127170691117
+      },
+      "left": {
+        "x": 30.0195115924048,
+        "y": 25.0156092739238
+      },
+      "right": {
+        "x": 57.6041766085651,
+        "y": 45.0
+      },
+      "endpoint_abs_tolerance": 0.3
+    }
+  },
+  "runs": [
+    {
+      "run_index": 1,
+      "elapsed_seconds": 149.02543400000286,
+      "solver": {
+        "fos": 1.2310726482060146,
+        "driving_moment": 43118.15740368755,
+        "resisting_moment": 53081.58422072141,
+        "iterations": 15,
+        "residual": 1.687538997430238e-14,
+        "converged": true
+      },
+      "surface": {
+        "xc": 21.710044539697282,
+        "yc": 65.93966163104768,
+        "r": 41.77055489215436,
+        "x_left": 30.0,
+        "y_left": 25.0,
+        "x_right": 57.8529529281448,
+        "y_right": 45.0
+      },
+      "search_counts": {
+        "valid_surfaces": 19304,
+        "invalid_surfaces": 78571,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    },
+    {
+      "run_index": 2,
+      "elapsed_seconds": 143.26294360000247,
+      "solver": {
+        "fos": 1.2310726482060146,
+        "driving_moment": 43118.15740368755,
+        "resisting_moment": 53081.58422072141,
+        "iterations": 15,
+        "residual": 1.687538997430238e-14,
+        "converged": true
+      },
+      "surface": {
+        "xc": 21.710044539697282,
+        "yc": 65.93966163104768,
+        "r": 41.77055489215436,
+        "x_left": 30.0,
+        "y_left": 25.0,
+        "x_right": 57.8529529281448,
+        "y_right": 45.0
+      },
+      "search_counts": {
+        "valid_surfaces": 19304,
+        "invalid_surfaces": 78571,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    },
+    {
+      "run_index": 3,
+      "elapsed_seconds": 141.92335779999848,
+      "solver": {
+        "fos": 1.2310726482060146,
+        "driving_moment": 43118.15740368755,
+        "resisting_moment": 53081.58422072141,
+        "iterations": 15,
+        "residual": 1.687538997430238e-14,
+        "converged": true
+      },
+      "surface": {
+        "xc": 21.710044539697282,
+        "yc": 65.93966163104768,
+        "r": 41.77055489215436,
+        "x_left": 30.0,
+        "y_left": 25.0,
+        "x_right": 57.8529529281448,
+        "y_right": 45.0
+      },
+      "search_counts": {
+        "valid_surfaces": 19304,
+        "invalid_surfaces": 78571,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    }
+  ],
+  "gate_evaluation": {
+    "all_runs_passed": true,
+    "per_run": [
+      {
+        "run_index": 1,
+        "fos_abs_error": {
+          "expected": 1.23141,
+          "tolerance": 0.002,
+          "actual": 1.2310726482060146,
+          "actual_error": 0.0003373517939853077,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "expected": 30.0195115924048,
+            "tolerance": 0.3,
+            "actual_error": 0.019511592404800382,
+            "passed": true
+          },
+          "y_left": {
+            "expected": 25.0156092739238,
+            "tolerance": 0.3,
+            "actual_error": 0.015609273923800515,
+            "passed": true
+          },
+          "x_right": {
+            "expected": 57.6041766085651,
+            "tolerance": 0.3,
+            "actual_error": 0.24877631957970436,
+            "passed": true
+          },
+          "y_right": {
+            "expected": 45.0,
+            "tolerance": 0.3,
+            "actual_error": 0.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "expected": 39.9948933227408,
+          "tolerance": 0.12,
+          "actual": 41.77055489215436,
+          "actual_error": 0.04439720729056001,
+          "passed": true
+        },
+        "overall_passed": true
+      },
+      {
+        "run_index": 2,
+        "fos_abs_error": {
+          "expected": 1.23141,
+          "tolerance": 0.002,
+          "actual": 1.2310726482060146,
+          "actual_error": 0.0003373517939853077,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "expected": 30.0195115924048,
+            "tolerance": 0.3,
+            "actual_error": 0.019511592404800382,
+            "passed": true
+          },
+          "y_left": {
+            "expected": 25.0156092739238,
+            "tolerance": 0.3,
+            "actual_error": 0.015609273923800515,
+            "passed": true
+          },
+          "x_right": {
+            "expected": 57.6041766085651,
+            "tolerance": 0.3,
+            "actual_error": 0.24877631957970436,
+            "passed": true
+          },
+          "y_right": {
+            "expected": 45.0,
+            "tolerance": 0.3,
+            "actual_error": 0.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "expected": 39.9948933227408,
+          "tolerance": 0.12,
+          "actual": 41.77055489215436,
+          "actual_error": 0.04439720729056001,
+          "passed": true
+        },
+        "overall_passed": true
+      },
+      {
+        "run_index": 3,
+        "fos_abs_error": {
+          "expected": 1.23141,
+          "tolerance": 0.002,
+          "actual": 1.2310726482060146,
+          "actual_error": 0.0003373517939853077,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "expected": 30.0195115924048,
+            "tolerance": 0.3,
+            "actual_error": 0.019511592404800382,
+            "passed": true
+          },
+          "y_left": {
+            "expected": 25.0156092739238,
+            "tolerance": 0.3,
+            "actual_error": 0.015609273923800515,
+            "passed": true
+          },
+          "x_right": {
+            "expected": 57.6041766085651,
+            "tolerance": 0.3,
+            "actual_error": 0.24877631957970436,
+            "passed": true
+          },
+          "y_right": {
+            "expected": 45.0,
+            "tolerance": 0.3,
+            "actual_error": 0.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "expected": 39.9948933227408,
+          "tolerance": 0.12,
+          "actual": 41.77055489215436,
+          "actual_error": 0.04439720729056001,
+          "passed": true
+        },
+        "overall_passed": true
+      }
+    ]
+  },
+  "determinism": {
+    "all_runs_identical": true,
+    "unique_signature_count": 1,
+    "spread": {
+      "fos": {
+        "min": 1.2310726482060146,
+        "max": 1.2310726482060146,
+        "range": 0.0
+      },
+      "x_right": {
+        "min": 57.8529529281448,
+        "max": 57.8529529281448,
+        "range": 0.0
+      },
+      "r": {
+        "min": 41.77055489215436,
+        "max": 41.77055489215436,
+        "range": 0.0
+      }
+    }
+  }
+}
