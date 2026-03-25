@@ -102,6 +102,24 @@ class CliTestRegressionTests(unittest.TestCase):
         self.assertFalse(payload["targets"][0]["passed"])
         self.assertNotEqual(payload["targets"][0]["returncode"], 0)
 
+    def test_cli_test_no_targets_discovered_fails(self) -> None:
+        root = pathlib.Path(__file__).resolve().parents[2]
+        proc = _run_cli_test(
+            "--serial",
+            "--start-directory",
+            str(root / "tests"),
+            "--top-level-directory",
+            str(root),
+            "--pattern",
+            "definitely_no_tests_*.py",
+        )
+        self.assertEqual(proc.returncode, 1, msg=proc.stderr + proc.stdout)
+        payload = json.loads(proc.stdout)
+        self.assertFalse(payload["all_passed"])
+        self.assertEqual(payload["targets"], [])
+        self.assertEqual(payload["discovery"]["error"], "no_test_targets_discovered")
+        self.assertEqual(payload["execution"]["decision_reason"], "no_test_targets_discovered")
+
 
 if __name__ == "__main__":
     unittest.main()

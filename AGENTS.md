@@ -55,8 +55,9 @@ Not supported in baseline:
   - apply cache/counter/incumbent updates in the same logical order as serial evaluation
 - Batching classification must remain centralized and deterministic (`default_batching` vs `restricted_batching`) and shared by resolver, metadata, and tests.
 - Worker failures (startup error, timeout, invalid payload, runtime exception) must fail deterministically via explicit error paths; never silently continue with partial state.
-- If process-pool startup is blocked by sandbox restrictions (for example `PermissionError` / `WinError 5`), the agent must explicitly prompt the user to approve rerunning required commands outside sandbox/full-access before continuing.
-- Before running long verification commands where process-parallel behavior is relevant (for example `python -m slope_stab.cli verify` or `python -m slope_stab.cli test`), the agent must run a quick process-pool preflight check first; if preflight indicates restriction, prompt for outside-sandbox/full-access **before** starting the long run.
+- Windows sandbox guidance: if process-pool startup is blocked by sandbox restrictions (for example `PermissionError` / `WinError 5`), the agent must explicitly prompt the user to approve rerunning required commands outside sandbox/full-access before continuing.
+- WSL guidance: process-pool startup may fail under Python 3.14 default `forkserver` with errors such as `OSError: [Errno 95] Operation not supported`; the agent must run preflight using a `fork` multiprocessing context (or equivalent `fork` start-method configuration) before long parallel runs.
+- Before running long verification commands where process-parallel behavior is relevant (for example `python -m slope_stab.cli verify` or `python -m slope_stab.cli test`), the agent must run a quick environment-appropriate process-pool preflight check first; if preflight indicates restriction, prompt for outside-sandbox/full-access **before** starting the long run.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right

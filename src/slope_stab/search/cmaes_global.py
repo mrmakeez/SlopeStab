@@ -95,6 +95,7 @@ def _run_direct_prescan(
         next_rect_id += 1
         return rect
 
+    target_budget = min(config.max_evaluations, config.direct_prescan_evaluations)
     centers_1d = seeded_centers_3x3x3()
     base_half_sizes = (1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0)
     initial_centers: list[tuple[float, float, float]] = []
@@ -102,13 +103,28 @@ def _run_direct_prescan(
         for u1 in centers_1d:
             for u2 in centers_1d:
                 initial_centers.append((u0, u1, u2))
-    initial_evals = evaluator.evaluate_vectors_batch(initial_centers)
-    for center, eval_result in zip(initial_centers, initial_evals):
+    seeded_centers = initial_centers[:target_budget]
+    initial_evals = evaluator.evaluate_vectors_batch(seeded_centers)
+    for center, eval_result in zip(seeded_centers, initial_evals):
         rectangles.append(make_rectangle(center, base_half_sizes, eval_result))
 
     iteration = 0
     reason = "direct_budget_reached"
-    target_budget = min(config.max_evaluations, config.direct_prescan_evaluations)
+    incumbent_fos = evaluator.best_result.fos if evaluator.best_result is not None else float("inf")
+    diagnostics.append(
+        CmaesStageDiagnostics(
+            stage="direct",
+            iteration=0,
+            total_evaluations=evaluator.total_evaluations,
+            incumbent_fos=incumbent_fos,
+            extra={
+                "potentially_optimal_count": 0,
+                "rectangle_count": len(rectangles),
+                "valid_evaluations": evaluator.valid_evaluations,
+                "infeasible_evaluations": evaluator.infeasible_evaluations,
+            },
+        )
+    )
     while evaluator.total_evaluations < target_budget:
         iteration += 1
         selected = select_potentially_optimal(rectangles)
@@ -229,8 +245,6 @@ def _run_cmaes_stage(
                 if evaluator.total_evaluations >= config.max_evaluations:
                     break
 
-            es.tell(repaired, scores)
-
             current_best = evaluator.best_score
             incumbent_fos = evaluator.best_result.fos if evaluator.best_result is not None else float("inf")
             diagnostics.append(
@@ -245,9 +259,15 @@ def _run_cmaes_stage(
                         "population_size": len(repaired),
                         "valid_evaluations": evaluator.valid_evaluations,
                         "infeasible_evaluations": evaluator.infeasible_evaluations,
+                        "partial_generation": len(repaired) != len(solutions),
                     },
                 )
             )
+
+            if len(repaired) != len(solutions):
+                return "max_evaluations"
+
+            es.tell(repaired, scores)
 
             improvement = before_best - current_best
             if improvement < config.min_improvement:
@@ -290,10 +310,13 @@ def _toe_locked_sweep(
         if x_right <= x_left:
             continue
         y_right = profile.y_ground(x_right)
-        candidates: list[PrescribedCircleInput | None] = []
+        candidate_specs: list[tuple[float, PrescribedCircleInput | None]] = []
         for beta in beta_values:
-            candidates.append(circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
+            candidate_specs.append(
+                (beta, circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
+            )
 
+        candidates = [surface for _, surface in candidate_specs]
         use_batch = batch_evaluate_surfaces is not None and len(candidates) >= max(1, min_batch_size)
         evaluations = evaluate_surface_candidates_batch(
             surfaces=candidates,
@@ -301,7 +324,7 @@ def _toe_locked_sweep(
             driving_moment_tol=1e-6,
             batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
         )
-        for evaluation in evaluations:
+        for (beta, _), evaluation in zip(candidate_specs, evaluations):
             if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                 continue
             if is_better_score(evaluation.result.fos, evaluation.surface, best_result.fos, best_surface):
@@ -510,6 +533,8 @@ def run_cmaes_global_search(
     termination_reason = polish_reason
     if evaluator.total_evaluations >= config.max_evaluations:
         termination_reason = "max_evaluations"
+    elif cma_reason == "max_evaluations":
+        termination_reason = cma_reason
     elif cma_reason.startswith("cmaes_"):
         termination_reason = cma_reason
     elif direct_reason.startswith("direct_"):

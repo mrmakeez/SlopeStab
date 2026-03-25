@@ -109,6 +109,7 @@ def _cmd_test(args: argparse.Namespace) -> int:
             "start_directory": run_result.start_directory,
             "pattern": run_result.pattern,
             "top_level_directory": run_result.top_level_directory,
+            "error": run_result.discovery_error,
         },
         "targets": [asdict(item) for item in run_result.targets],
     }

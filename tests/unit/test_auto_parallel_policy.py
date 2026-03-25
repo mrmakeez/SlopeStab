@@ -10,15 +10,15 @@ from tests.path_setup import ensure_src_on_path
 ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
+from slope_stab.exceptions import ParallelExecutionError
 from slope_stab.io.json_io import parse_project_input
 from slope_stab.search.auto_parallel_policy import (
     REASON_FORCED_PARALLEL_MODE,
     REASON_FORCED_SERIAL_MODE,
     REASON_POLICY_THRESHOLD_PARALLEL,
     REASON_POLICY_THRESHOLD_SERIAL,
+    REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL,
     REASON_PRESCRIBED_ANALYSIS_SERIAL,
-    REASON_THREAD_BACKEND_DEFAULT_SERIAL,
-    REASON_THREAD_BACKEND_WHITELIST_PARALLEL,
     REASON_UNSUPPORTED_BATCHING_SERIAL,
     REASON_UNSUPPORTED_WORKLOAD_SERIAL,
     REASON_WORKERS_LE_ONE_SERIAL,
@@ -27,6 +27,8 @@ from slope_stab.search.auto_parallel_policy import (
     effective_cpu_count,
     resolve_requested_workers,
 )
+from slope_stab.search.common import evaluate_surface_candidate
+from slope_stab.search.surface_solver import solve_surface_for_context
 
 
 def _load_fixture_payload(name: str) -> dict:
@@ -72,6 +74,31 @@ class AutoParallelPolicyHelperTests(unittest.TestCase):
 
 
 class AutoParallelResolutionTests(unittest.TestCase):
+    class _FakeProcessExecutor:
+        backend = "process"
+
+        def __init__(self, *, context, workers, timeout_seconds=None):
+            self._context = context
+            _ = (workers, timeout_seconds)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def evaluate_surfaces(self, surfaces, driving_moment_tol):
+            evaluations = []
+            for surface in surfaces:
+                evaluations.append(
+                    evaluate_surface_candidate(
+                        surface,
+                        lambda current: solve_surface_for_context(self._context, current),
+                        driving_moment_tol=driving_moment_tol,
+                    )
+                )
+            return evaluations
+
     def test_prescribed_analysis_emits_serial_reason(self) -> None:
         project = parse_project_input(_load_fixture_payload("case1.json"))
         result = run_analysis(project)
@@ -103,7 +130,10 @@ class AutoParallelResolutionTests(unittest.TestCase):
     def test_explicit_worker_overrequest_clamps(self) -> None:
         payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="parallel", workers=99)
         project = parse_project_input(payload)
-        with patch("slope_stab.analysis.effective_cpu_count", return_value=3):
+        with (
+            patch("slope_stab.analysis.effective_cpu_count", return_value=3),
+            patch("slope_stab.analysis.ParallelSurfaceExecutor", self._FakeProcessExecutor),
+        ):
             result = run_analysis(project)
         parallel_meta = result.metadata["search"]["parallel"]
         self.assertEqual(parallel_meta["requested_mode"], "parallel")
@@ -111,35 +141,26 @@ class AutoParallelResolutionTests(unittest.TestCase):
         self.assertEqual(parallel_meta["resolved_workers"], 3)
         self.assertEqual(parallel_meta["decision_reason"], REASON_FORCED_PARALLEL_MODE)
 
-    def test_thread_backend_defaults_to_serial_for_auto_mode(self) -> None:
-        class _ThreadExecutor:
-            backend = "thread"
-
-            def __init__(self, *args: object, **kwargs: object) -> None:
-                _ = (args, kwargs)
-
-            def __enter__(self) -> "_ThreadExecutor":
-                return self
-
-            def __exit__(self, exc_type: object, exc: object, tb: object) -> bool:
-                _ = (exc_type, exc, tb)
-                return False
-
-            def evaluate_surfaces(self, *args: object, **kwargs: object) -> list[object]:
-                raise AssertionError("Thread fallback in auto mode must resolve serial before batch evaluation.")
-
+    def test_process_startup_failure_defaults_to_serial_for_auto_mode(self) -> None:
         payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="auto", workers=0)
         project = parse_project_input(payload)
         with (
             patch("slope_stab.analysis.effective_cpu_count", return_value=4),
             patch("slope_stab.analysis.process_policy_allows_parallel", return_value=True),
-            patch("slope_stab.analysis.ParallelSurfaceExecutor", _ThreadExecutor),
+            patch("slope_stab.analysis.ParallelSurfaceExecutor", side_effect=PermissionError("denied")),
         ):
             result = run_analysis(project)
         parallel_meta = result.metadata["search"]["parallel"]
         self.assertEqual(parallel_meta["resolved_mode"], "serial")
-        self.assertEqual(parallel_meta["decision_reason"], REASON_THREAD_BACKEND_DEFAULT_SERIAL)
-        self.assertEqual(parallel_meta["backend"], "thread")
+        self.assertEqual(parallel_meta["decision_reason"], REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL)
+        self.assertEqual(parallel_meta["backend"], "serial")
+
+    def test_process_startup_failure_raises_for_forced_parallel_mode(self) -> None:
+        payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="parallel", workers=2)
+        project = parse_project_input(payload)
+        with patch("slope_stab.analysis.ParallelSurfaceExecutor", side_effect=PermissionError("denied")):
+            with self.assertRaises(ParallelExecutionError):
+                run_analysis(project)
 
     def test_parallel_metadata_contract_and_reason_enum(self) -> None:
         payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="auto", workers=0, min_batch_size=9)
@@ -170,8 +191,7 @@ class AutoParallelResolutionTests(unittest.TestCase):
                 REASON_FORCED_SERIAL_MODE,
                 REASON_FORCED_PARALLEL_MODE,
                 REASON_WORKERS_LE_ONE_SERIAL,
-                REASON_THREAD_BACKEND_DEFAULT_SERIAL,
-                REASON_THREAD_BACKEND_WHITELIST_PARALLEL,
+                REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL,
                 REASON_UNSUPPORTED_WORKLOAD_SERIAL,
                 REASON_UNSUPPORTED_BATCHING_SERIAL,
                 REASON_POLICY_THRESHOLD_PARALLEL,

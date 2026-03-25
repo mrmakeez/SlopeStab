@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, TimeoutError
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from dataclasses import dataclass
 
 from slope_stab.exceptions import ConvergenceError, GeometryError, ParallelExecutionError
@@ -57,21 +57,12 @@ class ParallelSurfaceExecutor:
         timeout_seconds: float | None = None,
     ) -> None:
         self._context = context
-        self._workers = workers
         self._timeout_seconds = timeout_seconds
-        self._backend = "process"
-        self._executor: ProcessPoolExecutor | ThreadPoolExecutor | None
-        try:
-            self._executor = ProcessPoolExecutor(
-                max_workers=workers,
-                initializer=_init_surface_worker,
-                initargs=(context,),
-            )
-        except (OSError, PermissionError):
-            # Controlled fallback for restricted environments that cannot spawn
-            # process workers. Ordering and failure semantics are unchanged.
-            self._executor = ThreadPoolExecutor(max_workers=workers)
-            self._backend = "thread"
+        self._executor: ProcessPoolExecutor | None = ProcessPoolExecutor(
+            max_workers=workers,
+            initializer=_init_surface_worker,
+            initargs=(context,),
+        )
 
     def close(self) -> None:
         if self._executor is not None:
@@ -86,18 +77,7 @@ class ParallelSurfaceExecutor:
 
     @property
     def backend(self) -> str:
-        return self._backend
-
-    def _evaluate_surface_task_thread(self, task: SurfaceEvaluationTask) -> SurfaceEvaluationTaskResult:
-        try:
-            result = solve_surface_for_context(self._context, task.surface)
-            return SurfaceEvaluationTaskResult(task_id=task.task_id, analysis_result=result, error_reason=None)
-        except (ConvergenceError, GeometryError, ValueError):
-            return SurfaceEvaluationTaskResult(
-                task_id=task.task_id,
-                analysis_result=None,
-                error_reason="evaluation_exception",
-            )
+        return "process"
 
     def evaluate_surfaces(
         self,
@@ -109,16 +89,10 @@ class ParallelSurfaceExecutor:
         if self._executor is None:
             raise ParallelExecutionError("Parallel executor is closed.")
 
-        if self._backend == "process":
-            futures = [
-                self._executor.submit(_evaluate_surface_task, SurfaceEvaluationTask(task_id=idx, surface=surface))
-                for idx, surface in enumerate(surfaces)
-            ]
-        else:
-            futures = [
-                self._executor.submit(self._evaluate_surface_task_thread, SurfaceEvaluationTask(task_id=idx, surface=surface))
-                for idx, surface in enumerate(surfaces)
-            ]
+        futures = [
+            self._executor.submit(_evaluate_surface_task, SurfaceEvaluationTask(task_id=idx, surface=surface))
+            for idx, surface in enumerate(surfaces)
+        ]
 
         results: list[SurfaceEvaluationTaskResult] = []
         for idx, future in enumerate(futures):

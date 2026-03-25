@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any, Callable
 
-from slope_stab.exceptions import ConvergenceError, GeometryError
+from slope_stab.exceptions import ConvergenceError, GeometryError, ParallelExecutionError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import (
     AnalysisResult,
@@ -19,9 +19,8 @@ from slope_stab.search.auto_parallel_policy import (
     REASON_FORCED_SERIAL_MODE,
     REASON_POLICY_THRESHOLD_PARALLEL,
     REASON_POLICY_THRESHOLD_SERIAL,
+    REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL,
     REASON_PRESCRIBED_ANALYSIS_SERIAL,
-    REASON_THREAD_BACKEND_DEFAULT_SERIAL,
-    REASON_THREAD_BACKEND_WHITELIST_PARALLEL,
     REASON_UNSUPPORTED_BATCHING_SERIAL,
     REASON_UNSUPPORTED_WORKLOAD_SERIAL,
     REASON_WORKERS_LE_ONE_SERIAL,
@@ -32,7 +31,6 @@ from slope_stab.search.auto_parallel_policy import (
     effective_cpu_count,
     process_policy_allows_parallel,
     resolve_requested_workers,
-    thread_policy_allows_parallel,
 )
 from slope_stab.search.auto_refine import run_auto_refine_search
 from slope_stab.search.cmaes_global import run_cmaes_global_search
@@ -254,69 +252,22 @@ def _initial_parallel_resolution(
     )
 
 
-def _finalize_resolution_for_backend(
+def _resolution_for_process_startup_failure(
     initial: ParallelResolution,
-    backend: str,
-    search: SearchInput,
-    analysis_method: str,
 ) -> ParallelResolution:
     if initial.resolved_mode != "parallel":
         return initial
-
-    if initial.requested_mode == "parallel":
-        return ParallelResolution(
-            requested_mode=initial.requested_mode,
-            requested_workers=initial.requested_workers,
-            resolved_mode="parallel",
-            resolved_workers=initial.resolved_workers,
-            decision_reason=REASON_FORCED_PARALLEL_MODE,
-            workload_class=initial.workload_class,
-            batching_class=initial.batching_class,
-            evidence_version=initial.evidence_version,
-            backend=backend,
-        )
-
-    if backend == "process":
-        return ParallelResolution(
-            requested_mode=initial.requested_mode,
-            requested_workers=initial.requested_workers,
-            resolved_mode="parallel",
-            resolved_workers=initial.resolved_workers,
-            decision_reason=REASON_POLICY_THRESHOLD_PARALLEL,
-            workload_class=initial.workload_class,
-            batching_class=initial.batching_class,
-            evidence_version=initial.evidence_version,
-            backend=backend,
-        )
-
-    if thread_policy_allows_parallel(
-        search_method=search.method,
-        analysis_method=analysis_method,
-        workload_class=initial.workload_class,
-        batching_class=initial.batching_class,
-    ):
-        return ParallelResolution(
-            requested_mode=initial.requested_mode,
-            requested_workers=initial.requested_workers,
-            resolved_mode="parallel",
-            resolved_workers=initial.resolved_workers,
-            decision_reason=REASON_THREAD_BACKEND_WHITELIST_PARALLEL,
-            workload_class=initial.workload_class,
-            batching_class=initial.batching_class,
-            evidence_version=initial.evidence_version,
-            backend=backend,
-        )
 
     return ParallelResolution(
         requested_mode=initial.requested_mode,
         requested_workers=initial.requested_workers,
         resolved_mode="serial",
         resolved_workers=1,
-        decision_reason=REASON_THREAD_BACKEND_DEFAULT_SERIAL,
+        decision_reason=REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL,
         workload_class=initial.workload_class,
         batching_class=initial.batching_class,
         evidence_version=initial.evidence_version,
-        backend=backend,
+        backend="serial",
     )
 
 
@@ -575,18 +526,27 @@ def run_analysis(
         decision = initial_resolution
 
         if initial_resolution.run_parallel:
-            with ParallelSurfaceExecutor(
-                context=context,
-                workers=initial_resolution.resolved_workers,
-                timeout_seconds=requested_parallel.timeout_seconds,
-            ) as executor:
-                decision = _finalize_resolution_for_backend(
-                    initial=initial_resolution,
-                    backend=executor.backend,
-                    search=project.search,
-                    analysis_method=project.analysis.method,
+            try:
+                executor_cm = ParallelSurfaceExecutor(
+                    context=context,
+                    workers=initial_resolution.resolved_workers,
+                    timeout_seconds=requested_parallel.timeout_seconds,
                 )
-                if decision.run_parallel:
+            except (OSError, PermissionError) as exc:
+                if initial_resolution.requested_mode == "parallel":
+                    raise ParallelExecutionError(
+                        f"Process backend startup failed for forced parallel mode: {exc}"
+                    ) from exc
+                decision = _resolution_for_process_startup_failure(initial_resolution)
+                result, winning_surface, search_payload = runner(
+                    project,
+                    profile,
+                    evaluate_surface,
+                    None,
+                    1,
+                )
+            else:
+                with executor_cm as executor:
                     batch_evaluate_surfaces = executor.evaluate_surfaces
                     result, winning_surface, search_payload = runner(
                         project,
@@ -594,14 +554,6 @@ def run_analysis(
                         evaluate_surface,
                         batch_evaluate_surfaces,
                         requested_parallel.min_batch_size,
-                    )
-                else:
-                    result, winning_surface, search_payload = runner(
-                        project,
-                        profile,
-                        evaluate_surface,
-                        None,
-                        1,
                     )
         else:
             result, winning_surface, search_payload = runner(

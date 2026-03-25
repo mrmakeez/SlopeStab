@@ -8,6 +8,7 @@ from tests.path_setup import ensure_src_on_path
 ensure_src_on_path()
 
 from slope_stab.testing.unittest_runner import (
+    TEST_DECISION_NO_TARGETS_DISCOVERED,
     TEST_MODE_AUTO_PARALLEL,
     TEST_MODE_SERIAL,
     UnittestTargetOutcome,
@@ -154,6 +155,21 @@ class UnittestRunnerWorkerPolicyTests(unittest.TestCase):
                 pythonpath="src",
             )
         self.assertEqual([item.target for item in outcomes], ["sample_b", "sample_a"])
+
+    def test_no_targets_discovered_is_a_failure(self) -> None:
+        with patch("slope_stab.testing.unittest_runner._discover_target_modules", return_value=[]):
+            run_result = run_unittest_suite_with_execution(
+                requested_mode=TEST_MODE_SERIAL,
+                requested_workers=1,
+                start_directory="tests",
+                pattern="definitely_no_tests_*.py",
+                top_level_directory=".",
+            )
+        self.assertEqual(run_result.targets, [])
+        self.assertFalse(run_result.all_passed)
+        self.assertEqual(run_result.discovery_error, TEST_DECISION_NO_TARGETS_DISCOVERED)
+        self.assertEqual(run_result.execution.decision_reason, TEST_DECISION_NO_TARGETS_DISCOVERED)
+        self.assertEqual(run_result.execution.backend, "serial")
 
 
 if __name__ == "__main__":

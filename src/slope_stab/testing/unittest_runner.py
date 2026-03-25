@@ -23,6 +23,7 @@ TEST_DECISION_FORCED_SERIAL_MODE = "forced_serial_mode"
 TEST_DECISION_WORKERS_LE_ONE_SERIAL = "workers_le_one_serial"
 TEST_DECISION_PROCESS_BACKEND_PARALLEL = "process_backend_parallel"
 TEST_DECISION_THREAD_BACKEND_DEFAULT_SERIAL = "thread_backend_default_serial"
+TEST_DECISION_NO_TARGETS_DISCOVERED = "no_test_targets_discovered"
 
 TEST_EVIDENCE_VERSION = "unittest-auto-v1"
 
@@ -59,10 +60,11 @@ class UnittestRunResult:
     start_directory: str
     pattern: str
     top_level_directory: str
+    discovery_error: str | None = None
 
     @property
     def all_passed(self) -> bool:
-        return all(item.passed for item in self.targets)
+        return self.discovery_error is None and bool(self.targets) and all(item.passed for item in self.targets)
 
 
 def effective_unittest_cpu_count() -> int:
@@ -212,6 +214,29 @@ def run_unittest_suite_with_execution(
     )
     src_directory = str((Path(resolved_top_level_directory) / "src").resolve())
     pythonpath = _compose_pythonpath([src_directory])
+
+    if not targets:
+        requested_workers_for_discovery = (
+            1
+            if requested_mode == TEST_MODE_SERIAL
+            else resolve_unittest_requested_workers(requested_workers, effective_unittest_cpu_count())
+        )
+        execution = UnittestExecution(
+            requested_mode=requested_mode,
+            resolved_mode=TEST_RESOLVED_MODE_SERIAL,
+            decision_reason=TEST_DECISION_NO_TARGETS_DISCOVERED,
+            backend=TEST_BACKEND_SERIAL,
+            requested_workers=requested_workers_for_discovery,
+            resolved_workers=1,
+        )
+        return UnittestRunResult(
+            targets=[],
+            execution=execution,
+            start_directory=resolved_start_directory,
+            pattern=pattern,
+            top_level_directory=resolved_top_level_directory,
+            discovery_error=TEST_DECISION_NO_TARGETS_DISCOVERED,
+        )
 
     if requested_mode == TEST_MODE_SERIAL:
         execution = UnittestExecution(

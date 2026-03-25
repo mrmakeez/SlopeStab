@@ -84,6 +84,8 @@ def resolve_verify_requested_workers(configured_workers: int, available_workers:
 
 def _relative_error(actual: float, expected: float) -> float:
     if expected == 0.0:
+        if actual == 0.0:
+            return 0.0
         return float("inf")
     return abs(actual - expected) / abs(expected)
 
