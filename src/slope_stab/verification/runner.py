@@ -320,7 +320,19 @@ def run_verification_suite_with_execution(
         requested_workers=normalized_requested_workers,
         resolved_workers=normalized_requested_workers,
     )
-    return VerificationRunResult(outcomes=_evaluate_cases_parallel(executor_cm), execution=execution)
+    try:
+        outcomes = _evaluate_cases_parallel(executor_cm)
+    except (OSError, PermissionError):
+        fallback_execution = VerificationExecution(
+            requested_mode=VERIFY_MODE_AUTO_PARALLEL,
+            resolved_mode=VERIFY_RESOLVED_MODE_SERIAL,
+            decision_reason=VERIFY_DECISION_THREAD_BACKEND_DEFAULT_SERIAL,
+            backend=VERIFY_BACKEND_THREAD,
+            requested_workers=normalized_requested_workers,
+            resolved_workers=1,
+        )
+        return VerificationRunResult(outcomes=_evaluate_cases_serial(), execution=fallback_execution)
+    return VerificationRunResult(outcomes=outcomes, execution=execution)
 
 
 def run_verification_suite(workers: int = 1) -> list[VerificationOutcome]:

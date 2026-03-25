@@ -18,6 +18,7 @@ from slope_stab.search.common import (
 
 TANGENT_EPS_RAD = math.radians(0.5)
 _DIVISION_EDGE_EPS = 1e-4
+_LOCAL_TOE_LOCKED_POLISH_MIN_IMPROVEMENT = 1e-4
 
 
 @dataclass(frozen=True)
@@ -283,6 +284,15 @@ def run_auto_refine_search(
             best_surface=best_surface,
             best_result=best_result,
         )
+        best_surface, best_result = _run_toe_locked_local_xright_beta_polish(
+            profile=profile,
+            config=config,
+            evaluate_surface=evaluate_surface,
+            batch_evaluate_surfaces=batch_evaluate_surfaces,
+            min_batch_size=min_batch_size,
+            best_surface=best_surface,
+            best_result=best_result,
+        )
 
     if best_result is None or best_surface is None:
         raise ConvergenceError("Auto-refine search did not produce any valid surfaces.")
@@ -379,43 +389,115 @@ def _run_toe_locked_beta_refinement(
     if not (config.search_limits.x_min <= profile.x_toe <= config.search_limits.x_max):
         return best_surface, best_result
 
-    x_left = profile.x_toe
-    x_right = best_surface.x_right
-    if x_right <= x_left:
+    return _run_toe_locked_refinement_for_xright_values(
+        profile=profile,
+        evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
+        best_surface=best_surface,
+        best_result=best_result,
+        x_right_values=[best_surface.x_right],
+    )
+
+
+def _run_toe_locked_local_xright_beta_polish(
+    profile: UniformSlopeProfile,
+    config: AutoRefineSearchInput,
+    evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
+    best_surface: PrescribedCircleInput,
+    best_result: AnalysisResult,
+) -> tuple[PrescribedCircleInput, AnalysisResult]:
+    # Deterministic local sweep around incumbent toe-anchored right endpoint.
+    if not (config.search_limits.x_min <= profile.x_toe <= config.search_limits.x_max):
         return best_surface, best_result
 
+    right_min = max(config.search_limits.x_min, profile.crest_x)
+    right_max = min(config.search_limits.x_max, profile.crest_x + 0.2 * profile.h)
+    if right_max <= right_min:
+        return best_surface, best_result
+
+    coarse_step = (right_max - right_min) / 20.0
+    if coarse_step <= 0.0:
+        return best_surface, best_result
+
+    x_right_center = min(max(best_surface.x_right, right_min), right_max)
+    half_window = 6.0 * coarse_step
+    local_step = 0.5 * coarse_step
+    local_min = max(right_min, x_right_center - half_window)
+    local_max = min(right_max, x_right_center + half_window)
+    if local_max <= local_min:
+        x_right_values = [local_min]
+    else:
+        x_right_values = sorted(
+            {
+                min(max(x_right_center + offset * local_step, local_min), local_max)
+                for offset in range(-12, 13)
+            }
+        )
+
+    polished_surface, polished_result = _run_toe_locked_refinement_for_xright_values(
+        profile=profile,
+        evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
+        best_surface=best_surface,
+        best_result=best_result,
+        x_right_values=x_right_values,
+    )
+    # Accept only meaningful improvements to avoid platform-dependent drift in
+    # near-flat objective regions while preserving deterministic tie-break rules.
+    if polished_result.fos < best_result.fos - _LOCAL_TOE_LOCKED_POLISH_MIN_IMPROVEMENT:
+        return polished_surface, polished_result
+    return best_surface, best_result
+
+
+def _run_toe_locked_refinement_for_xright_values(
+    profile: UniformSlopeProfile,
+    evaluate_surface: SurfaceEvaluator,
+    batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
+    min_batch_size: int,
+    best_surface: PrescribedCircleInput,
+    best_result: AnalysisResult,
+    x_right_values: list[float],
+) -> tuple[PrescribedCircleInput, AnalysisResult]:
+    x_left = profile.x_toe
     y_left = profile.y_ground(x_left)
-    y_right = profile.y_ground(x_right)
     beta_samples = 61
     theta_lo = TANGENT_EPS_RAD
     theta_hi = 0.5 * math.pi - TANGENT_EPS_RAD
 
-    candidates: list[PrescribedCircleInput | None] = []
-    for k in range(beta_samples):
-        u = k / (beta_samples - 1)
-        beta = theta_lo + (theta_hi - theta_lo) * u
-        candidates.append(circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
-
-    use_batch = batch_evaluate_surfaces is not None and len(candidates) >= max(1, min_batch_size)
-    evaluations = evaluate_surface_candidates_batch(
-        surfaces=candidates,
-        evaluate_surface=evaluate_surface,
-        driving_moment_tol=1e-6,
-        batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
-    )
-    for evaluation in evaluations:
-        if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
+    for x_right in x_right_values:
+        if x_right <= x_left:
             continue
-        result = evaluation.result
+        y_right = profile.y_ground(x_right)
+        candidates: list[PrescribedCircleInput | None] = []
+        for k in range(beta_samples):
+            u = k / (beta_samples - 1)
+            beta = theta_lo + (theta_hi - theta_lo) * u
+            candidates.append(circle_from_endpoints_and_tangent((x_left, y_left), (x_right, y_right), beta))
 
-        if result.fos < best_result.fos - TIE_TOL:
-            best_surface = evaluation.surface
-            best_result = result
-        elif abs(result.fos - best_result.fos) <= TIE_TOL:
-            candidate_key = surface_key(evaluation.surface)
-            best_key = surface_key(best_surface)
-            if candidate_key < best_key:
+        use_batch = batch_evaluate_surfaces is not None and len(candidates) >= max(1, min_batch_size)
+        evaluations = evaluate_surface_candidates_batch(
+            surfaces=candidates,
+            evaluate_surface=evaluate_surface,
+            driving_moment_tol=1e-6,
+            batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
+        )
+        for evaluation in evaluations:
+            if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
+                continue
+            result = evaluation.result
+
+            if result.fos < best_result.fos - TIE_TOL:
                 best_surface = evaluation.surface
                 best_result = result
+            elif abs(result.fos - best_result.fos) <= TIE_TOL:
+                candidate_key = surface_key(evaluation.surface)
+                best_key = surface_key(best_surface)
+                if candidate_key < best_key:
+                    best_surface = evaluation.surface
+                    best_result = result
 
     return best_surface, best_result

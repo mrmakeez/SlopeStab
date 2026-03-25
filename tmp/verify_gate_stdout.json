@@ -1,0 +1,929 @@
+{
+  "all_passed": true,
+  "execution": {
+    "requested_mode": "auto_parallel",
+    "resolved_mode": "parallel",
+    "decision_reason": "process_backend_parallel",
+    "backend": "process",
+    "requested_workers": 4,
+    "resolved_workers": 4,
+    "evidence_version": "verify-auto-v1"
+  },
+  "cases": [
+    {
+      "name": "Case 1",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 0.9867459682442103,
+        "driving_moment": 11867.795700959037,
+        "resisting_moment": 11710.499559867303,
+        "iterations": 4,
+        "residual": 3.370121954482386e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 1.7031755789598257e-05,
+          "tolerance": 0.0001,
+          "expected": 0.986763,
+          "passed": true
+        },
+        "driving_rel_error": {
+          "value": 4.177032341290807e-05,
+          "tolerance": 0.001,
+          "expected": 11867.3,
+          "passed": true
+        },
+        "resisting_rel_error": {
+          "value": 2.5581105984729366e-05,
+          "tolerance": 0.001,
+          "expected": 11710.2,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 2",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 2.112690256657952,
+        "driving_moment": 5715.192598294387,
+        "resisting_moment": 12074.431717340196,
+        "iterations": 4,
+        "residual": 0.0007663130541826213,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.00013974334204824856,
+          "tolerance": 0.0005,
+          "expected": 2.11283,
+          "passed": true
+        },
+        "driving_rel_error": {
+          "value": 1.2702846902043621e-05,
+          "tolerance": 0.001,
+          "expected": 5715.12,
+          "passed": true
+        },
+        "resisting_rel_error": {
+          "value": 5.534386131828227e-05,
+          "tolerance": 0.001,
+          "expected": 12075.1,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 3",
+      "case_type": "auto_refine_parity",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 0.9855735911261961,
+        "driving_moment": 10849.419901812427,
+        "resisting_moment": 10692.901734265297,
+        "iterations": 4,
+        "residual": 3.780725014157493e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.0008684088738039053,
+          "tolerance": 0.001,
+          "expected": 0.986442,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "value": 0.0,
+            "tolerance": 0.2,
+            "expected": 30.0,
+            "passed": true
+          },
+          "y_left": {
+            "value": 0.0,
+            "tolerance": 0.2,
+            "expected": 25.0,
+            "passed": true
+          },
+          "x_right": {
+            "value": 0.06300000000000239,
+            "tolerance": 0.2,
+            "expected": 51.137,
+            "passed": true
+          },
+          "y_right": {
+            "value": 0.0,
+            "tolerance": 0.2,
+            "expected": 35.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "value": 0.06572391769928414,
+          "tolerance": 0.1,
+          "expected": 26.793,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "center_distance": 1.9175864508321225,
+        "valid_surfaces": 9908,
+        "invalid_surfaces": 9092,
+        "generated_surfaces": 19000,
+        "iteration_diagnostics_count": 10
+      }
+    },
+    {
+      "name": "Case 4",
+      "case_type": "auto_refine_parity",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 1.2342508441784803,
+        "driving_moment": 43252.66424570782,
+        "resisting_moment": 53384.637358233245,
+        "iterations": 7,
+        "residual": 7.641732154350933e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.0004191558215196345,
+          "tolerance": 0.001,
+          "expected": 1.23467,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "value": 0.0,
+            "tolerance": 0.2,
+            "expected": 30.0,
+            "passed": true
+          },
+          "y_left": {
+            "value": 0.0,
+            "tolerance": 0.2,
+            "expected": 25.0,
+            "passed": true
+          },
+          "x_right": {
+            "value": 0.19081250495816704,
+            "tolerance": 0.2,
+            "expected": 58.068,
+            "passed": true
+          },
+          "y_right": {
+            "value": 0.0,
+            "tolerance": 0.2,
+            "expected": 45.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "value": 0.03329466670227752,
+          "tolerance": 0.1,
+          "expected": 43.234,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "center_distance": 1.4980530835276904,
+        "valid_surfaces": 41958,
+        "invalid_surfaces": 55917,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    },
+    {
+      "name": "Case 3 (Surcharge 50kPa Benchmark)",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 0.9041398440674706,
+        "driving_moment": 18634.102686613125,
+        "resisting_moment": 16847.834697411625,
+        "iterations": 5,
+        "residual": 4.900347527347915e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.0001528440674706255,
+          "tolerance": 0.005,
+          "expected": 0.903987,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 2 (Global Search Benchmark)",
+      "case_type": "global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 2.1068669010280643,
+        "driving_moment": 5472.215072182208,
+        "resisting_moment": 11529.228810887595,
+        "iterations": 4,
+        "residual": 0.0007855609339908476,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 2.1068669010280643,
+          "threshold": 2.12283,
+          "benchmark": 2.11283,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.005963098971935921,
+        "delta_vs_threshold": -0.015963098971935707
+      }
+    },
+    {
+      "name": "Case 3 (Global Search Benchmark)",
+      "case_type": "global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 0.9855735911261961,
+        "driving_moment": 10849.419901812427,
+        "resisting_moment": 10692.901734265297,
+        "iterations": 4,
+        "residual": 3.780725014157493e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 0.9855735911261961,
+          "threshold": 0.996442,
+          "benchmark": 0.986442,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0008684088738039053,
+        "delta_vs_threshold": -0.010868408873803914
+      }
+    },
+    {
+      "name": "Case 4 (Global Search Benchmark)",
+      "case_type": "global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 1.2350333905038875,
+        "driving_moment": 40601.32291741315,
+        "resisting_moment": 50143.98950163595,
+        "iterations": 7,
+        "residual": 8.129668100087528e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 1.2350333905038875,
+          "threshold": 1.24467,
+          "benchmark": 1.23467,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": 0.0003633905038875618,
+        "delta_vs_threshold": -0.009636609496112447
+      }
+    },
+    {
+      "name": "Case 2 (Cuckoo Global Search Benchmark)",
+      "case_type": "cuckoo_global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 2.0951035758090724,
+        "driving_moment": 7044.037581343729,
+        "resisting_moment": 14757.988324806734,
+        "iterations": 4,
+        "residual": 0.0006012753742630217,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 2.0951035758090724,
+          "threshold": 2.12283,
+          "benchmark": 2.11283,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.017726424190927847,
+        "delta_vs_threshold": -0.027726424190927634
+      }
+    },
+    {
+      "name": "Case 3 (Cuckoo Global Search Benchmark)",
+      "case_type": "cuckoo_global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 0.9855735911261961,
+        "driving_moment": 10849.419901812427,
+        "resisting_moment": 10692.901734265297,
+        "iterations": 4,
+        "residual": 3.780725014157493e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 0.9855735911261961,
+          "threshold": 0.996442,
+          "benchmark": 0.986442,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0008684088738039053,
+        "delta_vs_threshold": -0.010868408873803914
+      }
+    },
+    {
+      "name": "Case 4 (Cuckoo Global Search Benchmark)",
+      "case_type": "cuckoo_global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 1.234789456316632,
+        "driving_moment": 40947.89210313934,
+        "resisting_moment": 50562.02542734753,
+        "iterations": 7,
+        "residual": 8.063470841213061e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 1.234789456316632,
+          "threshold": 1.24467,
+          "benchmark": 1.23467,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": 0.00011945631663201617,
+        "delta_vs_threshold": -0.009880543683367993
+      }
+    },
+    {
+      "name": "Case 2 (CMAES Global Search Benchmark)",
+      "case_type": "cmaes_global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 2.092268494117491,
+        "driving_moment": 6601.375804076473,
+        "resisting_moment": 13811.850612698725,
+        "iterations": 4,
+        "residual": 0.0006481642915470154,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 2.092268494117491,
+          "threshold": 2.12283,
+          "benchmark": 2.11283,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.020561505882509046,
+        "delta_vs_threshold": -0.030561505882508833
+      }
+    },
+    {
+      "name": "Case 3 (CMAES Global Search Benchmark)",
+      "case_type": "cmaes_global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 0.9854913165550199,
+        "driving_moment": 11060.440852674752,
+        "resisting_moment": 10899.968417581367,
+        "iterations": 4,
+        "residual": 3.774773152809274e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 0.9854913165550199,
+          "threshold": 0.996442,
+          "benchmark": 0.986442,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0009506834449801715,
+        "delta_vs_threshold": -0.01095068344498018
+      }
+    },
+    {
+      "name": "Case 4 (CMAES Global Search Benchmark)",
+      "case_type": "cmaes_global_search_benchmark",
+      "analysis_method": "bishop_simplified",
+      "passed": true,
+      "solver": {
+        "fos": 1.2342144131698918,
+        "driving_moment": 42694.869374533846,
+        "resisting_moment": 52694.623150455474,
+        "iterations": 7,
+        "residual": 7.728619004465642e-05,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 1.2342144131698918,
+          "threshold": 1.24467,
+          "benchmark": 1.23467,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0004555868301081567,
+        "delta_vs_threshold": -0.010455586830108166
+      }
+    },
+    {
+      "name": "Case 2 (Spencer Prescribed Benchmark)",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 2.1076066622121568,
+        "driving_moment": 5715.192598294387,
+        "resisting_moment": 12045.377995990855,
+        "iterations": 16,
+        "residual": 2.220446049250313e-15,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.004073337787843023,
+          "tolerance": 0.005,
+          "expected": 2.11168,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 3 (Spencer Prescribed Benchmark)",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 0.9852329651838863,
+        "driving_moment": 10613.8392784874,
+        "resisting_moment": 10457.10434432934,
+        "iterations": 11,
+        "residual": 2.042810365310288e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.0001010348161137875,
+          "tolerance": 0.002,
+          "expected": 0.985334,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 4 (Spencer Prescribed Benchmark)",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 1.2313411856819836,
+        "driving_moment": 41245.368059752655,
+        "resisting_moment": 50787.120410585645,
+        "iterations": 19,
+        "residual": 3.774758283725532e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 6.881431801630811e-05,
+          "tolerance": 0.002,
+          "expected": 1.23141,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 3 (Spencer Surcharge 50kPa Benchmark)",
+      "case_type": "prescribed_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 0.9033015821365566,
+        "driving_moment": 18634.102686613125,
+        "resisting_moment": 16832.214438512696,
+        "iterations": 13,
+        "residual": 6.616929226765933e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.00010958213655665183,
+          "tolerance": 0.005,
+          "expected": 0.903192,
+          "passed": true
+        }
+      },
+      "diagnostics": {}
+    },
+    {
+      "name": "Case 3 (Spencer Auto-Refine Parity)",
+      "case_type": "auto_refine_parity",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 0.9845592655341403,
+        "driving_moment": 10849.419901812427,
+        "resisting_moment": 10681.896889999927,
+        "iterations": 11,
+        "residual": 2.375877272697835e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.0007747344658597388,
+          "tolerance": 0.002,
+          "expected": 0.985334,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "value": 0.0008487011712006165,
+            "tolerance": 0.3,
+            "expected": 29.9991512988288,
+            "passed": true
+          },
+          "y_left": {
+            "value": 0.0,
+            "tolerance": 0.3,
+            "expected": 25.0,
+            "passed": true
+          },
+          "x_right": {
+            "value": 0.0686315369741024,
+            "tolerance": 0.3,
+            "expected": 51.1313684630259,
+            "passed": true
+          },
+          "y_right": {
+            "value": 0.0,
+            "tolerance": 0.3,
+            "expected": 35.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "value": 0.06584672843356155,
+          "tolerance": 0.12,
+          "expected": 26.7899128131506,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "center_distance": 1.9188655309220177,
+        "valid_surfaces": 6290,
+        "invalid_surfaces": 12710,
+        "generated_surfaces": 19000,
+        "iteration_diagnostics_count": 10
+      }
+    },
+    {
+      "name": "Case 4 (Spencer Auto-Refine Parity)",
+      "case_type": "auto_refine_parity",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 1.2310219982946804,
+        "driving_moment": 42572.16462370894,
+        "resisting_moment": 52407.27116680828,
+        "iterations": 18,
+        "residual": 4.440892098500626e-16,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_abs_error": {
+          "value": 0.0003880017053194962,
+          "tolerance": 0.002,
+          "expected": 1.23141,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "value": 0.019511592404800382,
+            "tolerance": 0.3,
+            "expected": 30.0195115924048,
+            "passed": true
+          },
+          "y_left": {
+            "value": 0.015609273923800515,
+            "tolerance": 0.3,
+            "expected": 25.0156092739238,
+            "passed": true
+          },
+          "x_right": {
+            "value": 0.15043185434824835,
+            "tolerance": 0.3,
+            "expected": 57.6041766085651,
+            "passed": true
+          },
+          "y_right": {
+            "value": 0.0,
+            "tolerance": 0.3,
+            "expected": 45.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "value": 0.041965581734047824,
+          "tolerance": 0.12,
+          "expected": 39.9948933227408,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "center_distance": 1.774930873851876,
+        "valid_surfaces": 23682,
+        "invalid_surfaces": 74193,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    },
+    {
+      "name": "Case 2 (Spencer Global Search Benchmark)",
+      "case_type": "global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 2.1006465282893303,
+        "driving_moment": 5470.195282244333,
+        "resisting_moment": 11490.946728711231,
+        "iterations": 21,
+        "residual": 8.43769498715119e-15,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 2.1006465282893303,
+          "threshold": 2.1216799999999996,
+          "benchmark": 2.11168,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.011033471710669485,
+        "delta_vs_threshold": -0.02103347171066927
+      }
+    },
+    {
+      "name": "Case 3 (Spencer Global Search Benchmark)",
+      "case_type": "global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 0.9845592655341403,
+        "driving_moment": 10849.419901812427,
+        "resisting_moment": 10681.896889999927,
+        "iterations": 11,
+        "residual": 2.375877272697835e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 0.9845592655341403,
+          "threshold": 0.995334,
+          "benchmark": 0.985334,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0007747344658597388,
+        "delta_vs_threshold": -0.010774734465859748
+      }
+    },
+    {
+      "name": "Case 4 (Spencer Global Search Benchmark)",
+      "case_type": "global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 1.232962602541411,
+        "driving_moment": 37913.079087802515,
+        "resisting_moment": 46745.40866245534,
+        "iterations": 20,
+        "residual": 1.7763568394002505e-15,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 1.232962602541411,
+          "threshold": 1.24141,
+          "benchmark": 1.23141,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": 0.0015526025414112077,
+        "delta_vs_threshold": -0.008447397458588801
+      }
+    },
+    {
+      "name": "Case 2 (Spencer Cuckoo Global Search Benchmark)",
+      "case_type": "cuckoo_global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 2.0892741504631376,
+        "driving_moment": 6917.565016251877,
+        "resisting_moment": 14452.68977260316,
+        "iterations": 17,
+        "residual": 2.680678276802458e-16,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 2.0892741504631376,
+          "threshold": 2.1216799999999996,
+          "benchmark": 2.11168,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0224058495368622,
+        "delta_vs_threshold": -0.032405849536861986
+      }
+    },
+    {
+      "name": "Case 3 (Spencer Cuckoo Global Search Benchmark)",
+      "case_type": "cuckoo_global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 0.9845592655341403,
+        "driving_moment": 10849.419901812427,
+        "resisting_moment": 10681.896889999927,
+        "iterations": 11,
+        "residual": 2.375877272697835e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 0.9845592655341403,
+          "threshold": 0.995334,
+          "benchmark": 0.985334,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0007747344658597388,
+        "delta_vs_threshold": -0.010774734465859748
+      }
+    },
+    {
+      "name": "Case 4 (Spencer Cuckoo Global Search Benchmark)",
+      "case_type": "cuckoo_global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 1.232962602541411,
+        "driving_moment": 37913.079087802515,
+        "resisting_moment": 46745.40866245534,
+        "iterations": 20,
+        "residual": 1.7763568394002505e-15,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 1.232962602541411,
+          "threshold": 1.24141,
+          "benchmark": 1.23141,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": 0.0015526025414112077,
+        "delta_vs_threshold": -0.008447397458588801
+      }
+    },
+    {
+      "name": "Case 2 (Spencer CMAES Global Search Benchmark)",
+      "case_type": "cmaes_global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 2.0875680164659225,
+        "driving_moment": 6562.705597763277,
+        "resisting_moment": 13700.09430737249,
+        "iterations": 17,
+        "residual": 1.0392166220520126e-15,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 2.0875680164659225,
+          "threshold": 2.1216799999999996,
+          "benchmark": 2.11168,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.024111983534077286,
+        "delta_vs_threshold": -0.03411198353407707
+      }
+    },
+    {
+      "name": "Case 3 (Spencer CMAES Global Search Benchmark)",
+      "case_type": "cmaes_global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 0.9844871235839167,
+        "driving_moment": 11025.119982250266,
+        "resisting_moment": 10854.088658493127,
+        "iterations": 11,
+        "residual": 2.375877272697835e-14,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 0.9844871235839167,
+          "threshold": 0.995334,
+          "benchmark": 0.985334,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0008468764160833864,
+        "delta_vs_threshold": -0.010846876416083395
+      }
+    },
+    {
+      "name": "Case 4 (Spencer CMAES Global Search Benchmark)",
+      "case_type": "cmaes_global_search_benchmark",
+      "analysis_method": "spencer",
+      "passed": true,
+      "solver": {
+        "fos": 1.230970874099168,
+        "driving_moment": 42084.669849433645,
+        "resisting_moment": 51805.002830732235,
+        "iterations": 17,
+        "residual": 4.996003610813204e-13,
+        "converged": true
+      },
+      "hard_checks": {
+        "fos_vs_benchmark_plus_margin": {
+          "value": 1.230970874099168,
+          "threshold": 1.24141,
+          "benchmark": 1.23141,
+          "margin": 0.01,
+          "passed": true
+        }
+      },
+      "diagnostics": {
+        "delta_vs_benchmark": -0.0004391259008318382,
+        "delta_vs_threshold": -0.010439125900831847
+      }
+    }
+  ]
+}

@@ -104,6 +104,24 @@ class VerificationRunnerWorkerPolicyTests(unittest.TestCase):
         self.assertEqual(run_result.execution.backend, "process")
         self.assertEqual(run_result.execution.decision_reason, "process_backend_parallel")
 
+    def test_auto_mode_submit_startup_failure_falls_back_serial(self) -> None:
+        with (
+            patch("slope_stab.verification.runner.effective_verify_cpu_count", return_value=5),
+            patch("slope_stab.verification.runner.ProcessPoolExecutor", return_value=object()),
+            patch("slope_stab.verification.runner._evaluate_cases_parallel", side_effect=PermissionError("denied")),
+            patch("slope_stab.verification.runner._evaluate_cases_serial", return_value=[_fake_outcome()]),
+        ):
+            run_result = run_verification_suite_with_execution(
+                requested_mode=VERIFY_MODE_AUTO_PARALLEL,
+                requested_workers=0,
+            )
+
+        self.assertEqual(run_result.execution.requested_workers, 4)
+        self.assertEqual(run_result.execution.resolved_mode, "serial")
+        self.assertEqual(run_result.execution.resolved_workers, 1)
+        self.assertEqual(run_result.execution.backend, "thread")
+        self.assertEqual(run_result.execution.decision_reason, "thread_backend_default_serial")
+
 
 if __name__ == "__main__":
     unittest.main()

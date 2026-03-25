@@ -1,0 +1,308 @@
+{
+  "all_passed": false,
+  "execution": {
+    "requested_mode": "auto_parallel",
+    "resolved_mode": "parallel",
+    "decision_reason": "process_backend_parallel",
+    "backend": "process",
+    "requested_workers": 4,
+    "resolved_workers": 4,
+    "evidence_version": "unittest-auto-v1"
+  },
+  "discovery": {
+    "start_directory": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/tests",
+    "pattern": "test_*.py",
+    "top_level_directory": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab",
+    "error": null
+  },
+  "targets": [
+    {
+      "target": "tests.integration.test_verification_cases",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 574.919,
+      "stdout": "",
+      "stderr": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/lib/python3.14/site-packages/cma/s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 571.940s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_case3_auto_refine",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 9.81,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 7.406s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_case4_auto_refine",
+      "passed": false,
+      "returncode": 1,
+      "seconds": 258.822,
+      "stdout": "",
+      "stderr": "E.\n======================================================================\nERROR: test_case4_auto_refine_parity (tests.regression.test_case4_auto_refine.Case4AutoRefineParityTests.test_case4_auto_refine_parity)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/tests/regression/test_case4_auto_refine.py\", line 19, in test_case4_auto_refine_parity\n    result = run_analysis(project)\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py\", line 551, in run_analysis\n    result, winning_surface, search_payload = runner(\n                                              ~~~~~~^\n        project,\n        ^^^^^^^^\n    ...<3 lines>...\n        requested_parallel.min_batch_size,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py\", line 286, in _run_auto_refine_mode\n    auto_result = run_auto_refine_search(\n        profile=profile,\n    ...<3 lines>...\n        min_batch_size=min_batch_size,\n    )\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/search/auto_refine.py\", line 199, in run_auto_refine_search\n    evaluations = evaluate_surface_candidates_batch(\n        surfaces=candidate_surfaces,\n    ...<2 lines>...\n        batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,\n    )\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/search/common.py\", line 229, in evaluate_surface_candidates_batch\n    batch_results = batch_evaluate_surfaces(valid_surfaces, driving_moment_tol)\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/search/parallel_executor.py\", line 93, in evaluate_surfaces\n    self._executor.submit(_evaluate_surface_task, SurfaceEvaluationTask(task_id=idx, surface=surface))\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 816, in submit\n    self._adjust_process_count()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 775, in _adjust_process_count\n    self._spawn_process()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 793, in _spawn_process\n    p.start()\n    ~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py\", line 121, in start\n    self._popen = self._Popen(self)\n                  ~~~~~~~~~~~^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/context.py\", line 300, in _Popen\n    return Popen(process_obj)\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_forkserver.py\", line 35, in __init__\n    super().__init__(process_obj)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py\", line 20, in __init__\n    self._launch(process_obj)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_forkserver.py\", line 51, in _launch\n    self.sentinel, w = forkserver.connect_to_new_process(self._fds)\n                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/forkserver.py\", line 89, in connect_to_new_process\n    self.ensure_running()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/forkserver.py\", line 160, in ensure_running\n    listener.bind(address)\n    ~~~~~~~~~~~~~^^^^^^^^^\nOSError: [Errno 95] Operation not supported\n\n----------------------------------------------------------------------\nRan 2 tests in 256.406s\n\nFAILED (errors=1)\n"
+    },
+    {
+      "target": "tests.regression.test_cli_analyze_parallel",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 20.435,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 20.287s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cli_test",
+      "passed": false,
+      "returncode": 1,
+      "seconds": 12.279,
+      "stdout": "",
+      "stderr": "..F.\n======================================================================\nFAIL: test_cli_test_parallel_default_contract (tests.regression.test_cli_test.CliTestRegressionTests.test_cli_test_parallel_default_contract)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/tests/regression/test_cli_test.py\", line 40, in test_cli_test_parallel_default_contract\n    self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py\", line 192, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py\", line 188, in main\n    return args.func(args)\n           ~~~~~~~~~^^^^^^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py\", line 98, in _cmd_test\n    run_result = run_unittest_suite_with_execution(\n        requested_mode=requested_mode,\n    ...<3 lines>...\n        top_level_directory=args.top_level_directory,\n    )\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py\", line 305, in run_unittest_suite_with_execution\n    targets=_evaluate_targets_parallel(targets, executor_cm, resolved_top_level_directory, pythonpath),\n            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py\", line 169, in _evaluate_targets_parallel\n    futures = [executor.submit(_run_unittest_target, target, cwd, pythonpath) for target in targets]\n               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 816, in submit\n    self._adjust_process_count()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 775, in _adjust_process_count\n    self._spawn_process()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 793, in _spawn_process\n    p.start()\n    ~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py\", line 121, in start\n    self._popen = self._Popen(self)\n                  ~~~~~~~~~~~^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/context.py\", line 300, in _Popen\n    return Popen(process_obj)\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_forkserver.py\", line 35, in __init__\n    super().__init__(process_obj)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py\", line 20, in __init__\n    self._launch(process_obj)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_forkserver.py\", line 51, in _launch\n    self.sentinel, w = forkserver.connect_to_new_process(self._fds)\n                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/forkserver.py\", line 89, in connect_to_new_process\n    self.ensure_running()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/forkserver.py\", line 160, in ensure_running\n    listener.bind(address)\n    ~~~~~~~~~~~~~^^^^^^^^^\nOSError: [Errno 95] Operation not supported\n\n\n----------------------------------------------------------------------\nRan 4 tests in 12.112s\n\nFAILED (failures=1)\n"
+    },
+    {
+      "target": "tests.regression.test_cli_verify",
+      "passed": false,
+      "returncode": 1,
+      "seconds": 5.753,
+      "stdout": "",
+      "stderr": "F.\n======================================================================\nFAIL: test_verify_command (tests.regression.test_cli_verify.CliRegressionTests.test_verify_command)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/tests/regression/test_cli_verify.py\", line 24, in test_verify_command\n    self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py\", line 192, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py\", line 188, in main\n    return args.func(args)\n           ~~~~~~~~~^^^^^^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py\", line 48, in _cmd_verify\n    run_result = run_verification_suite_with_execution(\n        requested_mode=requested_mode,\n        requested_workers=requested_workers,\n    )\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py\", line 323, in run_verification_suite_with_execution\n    return VerificationRunResult(outcomes=_evaluate_cases_parallel(executor_cm), execution=execution)\n                                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py\", line 259, in _evaluate_cases_parallel\n    futures = [executor.submit(_evaluate_case, idx) for idx in range(len(VERIFICATION_CASES))]\n               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 816, in submit\n    self._adjust_process_count()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 775, in _adjust_process_count\n    self._spawn_process()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/process.py\", line 793, in _spawn_process\n    p.start()\n    ~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/process.py\", line 121, in start\n    self._popen = self._Popen(self)\n                  ~~~~~~~~~~~^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/context.py\", line 300, in _Popen\n    return Popen(process_obj)\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_forkserver.py\", line 35, in __init__\n    super().__init__(process_obj)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py\", line 20, in __init__\n    self._launch(process_obj)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_forkserver.py\", line 51, in _launch\n    self.sentinel, w = forkserver.connect_to_new_process(self._fds)\n                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/forkserver.py\", line 89, in connect_to_new_process\n    self.ensure_running()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/james/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/multiprocessing/forkserver.py\", line 160, in ensure_running\n    listener.bind(address)\n    ~~~~~~~~~~~~~^^^^^^^^^\nOSError: [Errno 95] Operation not supported\n\n\n----------------------------------------------------------------------\nRan 2 tests in 5.604s\n\nFAILED (failures=1)\n"
+    },
+    {
+      "target": "tests.regression.test_cmaes_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 19.421,
+      "stdout": "",
+      "stderr": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/lib/python3.14/site-packages/cma/s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 16.690s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cmaes_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 29.331,
+      "stdout": "",
+      "stderr": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/lib/python3.14/site-packages/cma/s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 26.516s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cuckoo_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 14.704,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 11.919s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cuckoo_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 20.496,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 17.809s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 15.5,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 12.959s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_parallel_search_behavior",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 24.615,
+      "stdout": "",
+      "stderr": "./mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/lib/python3.14/site-packages/cma/s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n..\n----------------------------------------------------------------------\nRan 3 tests in 21.759s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cmaes_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 131.506,
+      "stdout": "",
+      "stderr": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/lib/python3.14/site-packages/cma/s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 128.834s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cmaes_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 205.695,
+      "stdout": "",
+      "stderr": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/lib/python3.14/site-packages/cma/s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 202.834s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cuckoo_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 107.297,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 104.612s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cuckoo_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 144.328,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 141.502s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 102.984,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 100.175s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_prescribed_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.627,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.007s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_surcharge_case2",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.857,
+      "stdout": "",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.018s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_surcharge_case3",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.561,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.007s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_surcharge_case4",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.497,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.003s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_auto_parallel_policy",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 40.115,
+      "stdout": "",
+      "stderr": "...........\n----------------------------------------------------------------------\nRan 11 tests in 37.280s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_bishop_solver",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.705,
+      "stdout": "",
+      "stderr": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.002s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_cli_test_contract",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.92,
+      "stdout": "",
+      "stderr": "..usage: python -m unittest test [-h] [--output OUTPUT] [--serial |\n                               --workers WORKERS]\n                               [--start-directory START_DIRECTORY]\n                               [--pattern PATTERN]\n                               [--top-level-directory TOP_LEVEL_DIRECTORY]\npython -m unittest test: error: argument --workers: not allowed with argument --serial\n..\n----------------------------------------------------------------------\nRan 4 tests in 0.025s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_cli_verify_contract",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.862,
+      "stdout": "",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.019s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_cmaes_global_search",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.754,
+      "stdout": "",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_geometry",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.538,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_loads_schema",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.717,
+      "stdout": "",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_objective_evaluator_batch",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.682,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_search_auto_refine",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 9.174,
+      "stdout": "",
+      "stderr": "......................\n----------------------------------------------------------------------\nRan 22 tests in 6.416s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_slicing",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.922,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_spencer_solver",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.748,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.005s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_surcharge_slice_forces",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.761,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_unittest_runner_workers",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.749,
+      "stdout": "",
+      "stderr": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.020s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_verification_runner_relative_error",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.779,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_verification_runner_workers",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 2.798,
+      "stdout": "",
+      "stderr": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.002s\n\nOK\n"
+    }
+  ]
+}

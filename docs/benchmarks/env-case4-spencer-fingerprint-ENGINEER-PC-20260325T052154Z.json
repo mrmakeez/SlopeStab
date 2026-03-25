@@ -1,0 +1,322 @@
+{
+  "environment": {
+    "timestamp_utc": "2026-03-25T05:10:29.054809+00:00",
+    "host": "ENGINEER-PC",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "system": "Linux",
+    "release": "6.6.87.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "python": {
+      "version": "3.14.3 (main, Mar 10 2026, 18:18:50) [Clang 21.1.4 ]",
+      "implementation": "CPython",
+      "executable": "/mnt/c/Users/james/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab/.venv/bin/python"
+    },
+    "uname": {
+      "system": "Linux",
+      "node": "ENGINEER-PC",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "cpu_count": 16,
+    "dependencies": {
+      "numpy": "2.4.3",
+      "scipy": "1.17.1",
+      "cma": "4.4.4"
+    },
+    "multiprocessing": {
+      "default_start_method": "forkserver",
+      "available_start_methods": [
+        "forkserver",
+        "fork",
+        "spawn"
+      ]
+    },
+    "numpy_config_text": "{\n  \"Compilers\": {\n    \"c\": {\n      \"name\": \"gcc\",\n      \"linker\": \"ld.bfd\",\n      \"version\": \"14.2.1\",\n      \"commands\": \"cc\"\n    },\n    \"cython\": {\n      \"name\": \"cython\",\n      \"linker\": \"cython\",\n      \"version\": \"3.2.4\",\n      \"commands\": \"cython\"\n    },\n    \"c++\": {\n      \"name\": \"gcc\",\n      \"linker\": \"ld.bfd\",\n      \"version\": \"14.2.1\",\n      \"commands\": \"c++\"\n    }\n  },\n  \"Machine Information\": {\n    \"host\": {\n      \"cpu\": \"x86_64\",\n      \"family\": \"x86_64\",\n      \"endian\": \"little\",\n      \"system\": \"linux\"\n    },\n    \"build\": {\n      \"cpu\": \"x86_64\",\n      \"family\": \"x86_64\",\n      \"endian\": \"little\",\n      \"system\": \"linux\"\n    }\n  },\n  \"Build Dependencies\": {\n    \"blas\": {\n      \"name\": \"scipy-openblas\",\n      \"found\": true,\n      \"version\": \"0.3.31.dev\",\n      \"detection method\": \"pkgconfig\",\n      \"include directory\": \"/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include\",\n      \"lib directory\": \"/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib\",\n      \"openblas configuration\": \"OpenBLAS 0.3.31.dev  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64\",\n      \"pc file directory\": \"/project/.openblas\"\n    },\n    \"lapack\": {\n      \"name\": \"scipy-openblas\",\n      \"found\": true,\n      \"version\": \"0.3.31.dev\",\n      \"detection method\": \"pkgconfig\",\n      \"include directory\": \"/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include\",\n      \"lib directory\": \"/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib\",\n      \"openblas configuration\": \"OpenBLAS 0.3.31.dev  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64\",\n      \"pc file directory\": \"/project/.openblas\"\n    }\n  },\n  \"Python Information\": {\n    \"path\": \"/tmp/build-env-eaz9oo7u/bin/python\",\n    \"version\": \"3.14\"\n  },\n  \"SIMD Extensions\": {\n    \"baseline\": [\n      \"X86_V2\"\n    ],\n    \"found\": [\n      \"X86_V3\"\n    ],\n    \"not found\": [\n      \"X86_V4\",\n      \"AVX512_ICL\",\n      \"AVX512_SPR\"\n    ]\n  }\n}"
+  },
+  "preflight": {
+    "default_process_pool": {
+      "context": "default",
+      "ok": false,
+      "elapsed_seconds": 0.009570008000082453,
+      "error_type": "PermissionError",
+      "error_message": "[Errno 1] Operation not permitted"
+    },
+    "fork_process_pool": {
+      "context": "fork",
+      "ok": true,
+      "elapsed_seconds": 0.012106011001378647,
+      "result": [
+        4,
+        9
+      ]
+    }
+  },
+  "case_reference": {
+    "name": "Case 4 (Spencer Auto-Refine Parity)",
+    "case_type": "auto_refine_parity",
+    "analysis_method": "spencer",
+    "expected": {
+      "fos": 1.23141,
+      "fos_tolerance": 0.002,
+      "radius": 39.9948933227408,
+      "radius_rel_tolerance": 0.12,
+      "center": {
+        "xc": 22.5811777177525,
+        "yc": 64.3127170691117
+      },
+      "left": {
+        "x": 30.0195115924048,
+        "y": 25.0156092739238
+      },
+      "right": {
+        "x": 57.6041766085651,
+        "y": 45.0
+      },
+      "endpoint_abs_tolerance": 0.3
+    }
+  },
+  "runs": [
+    {
+      "run_index": 1,
+      "elapsed_seconds": 228.0567549389998,
+      "solver": {
+        "fos": 1.2310219982946804,
+        "driving_moment": 42572.16462370894,
+        "resisting_moment": 52407.27116680828,
+        "iterations": 18,
+        "residual": 4.440892098500626e-16,
+        "converged": true
+      },
+      "surface": {
+        "xc": 21.66087230708156,
+        "yc": 65.83041847519999,
+        "r": 41.6733022874208,
+        "x_left": 30.0,
+        "y_left": 25.0,
+        "x_right": 57.754608462913346,
+        "y_right": 45.0
+      },
+      "search_counts": {
+        "valid_surfaces": 23682,
+        "invalid_surfaces": 74193,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    },
+    {
+      "run_index": 2,
+      "elapsed_seconds": 228.4141473719992,
+      "solver": {
+        "fos": 1.2310219982946804,
+        "driving_moment": 42572.16462370894,
+        "resisting_moment": 52407.27116680828,
+        "iterations": 18,
+        "residual": 4.440892098500626e-16,
+        "converged": true
+      },
+      "surface": {
+        "xc": 21.66087230708156,
+        "yc": 65.83041847519999,
+        "r": 41.6733022874208,
+        "x_left": 30.0,
+        "y_left": 25.0,
+        "x_right": 57.754608462913346,
+        "y_right": 45.0
+      },
+      "search_counts": {
+        "valid_surfaces": 23682,
+        "invalid_surfaces": 74193,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    },
+    {
+      "run_index": 3,
+      "elapsed_seconds": 228.46223068200015,
+      "solver": {
+        "fos": 1.2310219982946804,
+        "driving_moment": 42572.16462370894,
+        "resisting_moment": 52407.27116680828,
+        "iterations": 18,
+        "residual": 4.440892098500626e-16,
+        "converged": true
+      },
+      "surface": {
+        "xc": 21.66087230708156,
+        "yc": 65.83041847519999,
+        "r": 41.6733022874208,
+        "x_left": 30.0,
+        "y_left": 25.0,
+        "x_right": 57.754608462913346,
+        "y_right": 45.0
+      },
+      "search_counts": {
+        "valid_surfaces": 23682,
+        "invalid_surfaces": 74193,
+        "generated_surfaces": 97875,
+        "iteration_diagnostics_count": 15
+      }
+    }
+  ],
+  "gate_evaluation": {
+    "all_runs_passed": true,
+    "per_run": [
+      {
+        "run_index": 1,
+        "fos_abs_error": {
+          "expected": 1.23141,
+          "tolerance": 0.002,
+          "actual": 1.2310219982946804,
+          "actual_error": 0.0003880017053194962,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "expected": 30.0195115924048,
+            "tolerance": 0.3,
+            "actual_error": 0.019511592404800382,
+            "passed": true
+          },
+          "y_left": {
+            "expected": 25.0156092739238,
+            "tolerance": 0.3,
+            "actual_error": 0.015609273923800515,
+            "passed": true
+          },
+          "x_right": {
+            "expected": 57.6041766085651,
+            "tolerance": 0.3,
+            "actual_error": 0.15043185434824835,
+            "passed": true
+          },
+          "y_right": {
+            "expected": 45.0,
+            "tolerance": 0.3,
+            "actual_error": 0.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "expected": 39.9948933227408,
+          "tolerance": 0.12,
+          "actual": 41.6733022874208,
+          "actual_error": 0.041965581734047824,
+          "passed": true
+        },
+        "overall_passed": true
+      },
+      {
+        "run_index": 2,
+        "fos_abs_error": {
+          "expected": 1.23141,
+          "tolerance": 0.002,
+          "actual": 1.2310219982946804,
+          "actual_error": 0.0003880017053194962,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "expected": 30.0195115924048,
+            "tolerance": 0.3,
+            "actual_error": 0.019511592404800382,
+            "passed": true
+          },
+          "y_left": {
+            "expected": 25.0156092739238,
+            "tolerance": 0.3,
+            "actual_error": 0.015609273923800515,
+            "passed": true
+          },
+          "x_right": {
+            "expected": 57.6041766085651,
+            "tolerance": 0.3,
+            "actual_error": 0.15043185434824835,
+            "passed": true
+          },
+          "y_right": {
+            "expected": 45.0,
+            "tolerance": 0.3,
+            "actual_error": 0.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "expected": 39.9948933227408,
+          "tolerance": 0.12,
+          "actual": 41.6733022874208,
+          "actual_error": 0.041965581734047824,
+          "passed": true
+        },
+        "overall_passed": true
+      },
+      {
+        "run_index": 3,
+        "fos_abs_error": {
+          "expected": 1.23141,
+          "tolerance": 0.002,
+          "actual": 1.2310219982946804,
+          "actual_error": 0.0003880017053194962,
+          "passed": true
+        },
+        "endpoint_abs_error": {
+          "x_left": {
+            "expected": 30.0195115924048,
+            "tolerance": 0.3,
+            "actual_error": 0.019511592404800382,
+            "passed": true
+          },
+          "y_left": {
+            "expected": 25.0156092739238,
+            "tolerance": 0.3,
+            "actual_error": 0.015609273923800515,
+            "passed": true
+          },
+          "x_right": {
+            "expected": 57.6041766085651,
+            "tolerance": 0.3,
+            "actual_error": 0.15043185434824835,
+            "passed": true
+          },
+          "y_right": {
+            "expected": 45.0,
+            "tolerance": 0.3,
+            "actual_error": 0.0,
+            "passed": true
+          }
+        },
+        "radius_rel_error": {
+          "expected": 39.9948933227408,
+          "tolerance": 0.12,
+          "actual": 41.6733022874208,
+          "actual_error": 0.041965581734047824,
+          "passed": true
+        },
+        "overall_passed": true
+      }
+    ]
+  },
+  "determinism": {
+    "all_runs_identical": true,
+    "unique_signature_count": 1,
+    "spread": {
+      "fos": {
+        "min": 1.2310219982946804,
+        "max": 1.2310219982946804,
+        "range": 0.0
+      },
+      "x_right": {
+        "min": 57.754608462913346,
+        "max": 57.754608462913346,
+        "range": 0.0
+      },
+      "r": {
+        "min": 41.6733022874208,
+        "max": 41.6733022874208,
+        "range": 0.0
+      }
+    }
+  }
+}

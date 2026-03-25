@@ -146,6 +146,30 @@ class UnittestRunnerWorkerPolicyTests(unittest.TestCase):
         self.assertEqual(run_result.execution.backend, "process")
         self.assertEqual(run_result.execution.decision_reason, "process_backend_parallel")
 
+    def test_auto_mode_submit_startup_failure_falls_back_serial(self) -> None:
+        with (
+            patch("slope_stab.testing.unittest_runner._discover_target_modules", return_value=["tests.unit.test_geometry"]),
+            patch("slope_stab.testing.unittest_runner.effective_unittest_cpu_count", return_value=5),
+            patch("slope_stab.testing.unittest_runner.ProcessPoolExecutor", return_value=object()),
+            patch("slope_stab.testing.unittest_runner._evaluate_targets_parallel", side_effect=PermissionError("denied")),
+            patch(
+                "slope_stab.testing.unittest_runner._evaluate_targets_serial",
+                return_value=[_fake_target()],
+            ),
+        ):
+            run_result = run_unittest_suite_with_execution(
+                requested_mode=TEST_MODE_AUTO_PARALLEL,
+                requested_workers=0,
+                start_directory="tests",
+                pattern="test_*.py",
+                top_level_directory=".",
+            )
+        self.assertEqual(run_result.execution.requested_workers, 4)
+        self.assertEqual(run_result.execution.resolved_mode, "serial")
+        self.assertEqual(run_result.execution.resolved_workers, 1)
+        self.assertEqual(run_result.execution.backend, "thread")
+        self.assertEqual(run_result.execution.decision_reason, "thread_backend_default_serial")
+
     def test_parallel_target_merge_preserves_input_order(self) -> None:
         with patch("slope_stab.testing.unittest_runner._run_unittest_target", side_effect=lambda target, *_: _fake_target(target)):
             outcomes = _evaluate_targets_parallel(

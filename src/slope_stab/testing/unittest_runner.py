@@ -301,8 +301,26 @@ def run_unittest_suite_with_execution(
         requested_workers=normalized_requested_workers,
         resolved_workers=normalized_requested_workers,
     )
+    try:
+        outcomes = _evaluate_targets_parallel(targets, executor_cm, resolved_top_level_directory, pythonpath)
+    except (OSError, PermissionError):
+        fallback_execution = UnittestExecution(
+            requested_mode=TEST_MODE_AUTO_PARALLEL,
+            resolved_mode=TEST_RESOLVED_MODE_SERIAL,
+            decision_reason=TEST_DECISION_THREAD_BACKEND_DEFAULT_SERIAL,
+            backend=TEST_BACKEND_THREAD,
+            requested_workers=normalized_requested_workers,
+            resolved_workers=1,
+        )
+        return UnittestRunResult(
+            targets=_evaluate_targets_serial(targets, resolved_top_level_directory, pythonpath),
+            execution=fallback_execution,
+            start_directory=resolved_start_directory,
+            pattern=pattern,
+            top_level_directory=resolved_top_level_directory,
+        )
     return UnittestRunResult(
-        targets=_evaluate_targets_parallel(targets, executor_cm, resolved_top_level_directory, pythonpath),
+        targets=outcomes,
         execution=execution,
         start_directory=resolved_start_directory,
         pattern=pattern,
