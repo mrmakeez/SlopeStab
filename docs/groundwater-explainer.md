@@ -18,22 +18,25 @@ Required fields:
 
 Per-slice algorithm:
 
-1. Build integration nodes from slice endpoints plus interior water-surface vertices that fall inside the slice.
-2. For each node, compute:
-   - base ordinate `y_base`
-   - water ordinate `y_water`
-   - `h_eff = max(y_water - y_base, 0)`
-3. Compute pore pressure at each node:
+1. Evaluate at the center of the slice base:
+   - `x_mid = 0.5 * (x_left + x_right)`
+   - `y_base_mid` from linear interpolation of base endpoints
+   - `y_water_mid` and local water-surface slope at `x_mid`
+2. Compute effective head:
+   - `h_eff = max(y_water_mid - y_base_mid, 0)`
+3. Compute pore pressure at base center:
    - custom: `u = gamma_w * h_eff * Hu`
    - auto: `Hu = cos^2(arctan(local_water_surface_slope))`, then `u = gamma_w * h_eff * Hu`
-4. Integrate pore resultant along slice base:
-   - `U = sum(0.5 * (u_i + u_{i+1}) * ds_i)`
-   - `ds_i = (x_{i+1} - x_i) / cos(alpha_slice_base)`
+4. Convert pressure to base-normal resultant:
+   - `U = u * slice.base_length`
+5. Store pore application point at slice-base center:
+   - `pore_x_app = x_mid`
+   - `pore_y_app = y_base_mid`
 
 Strict v1 rule:
 
 - No extrapolation outside provided water-surface `x` range.
-- If required slice integration nodes are outside the supplied range, the surface is invalid.
+- If the required midpoint query is outside the supplied range, the surface is invalid.
 
 ## 2) Ru Coefficient
 

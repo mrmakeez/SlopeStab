@@ -63,18 +63,6 @@ def _base_y_linear(
     return y_left + ratio * (y_right - y_left)
 
 
-def _water_surface_nodes_for_slice(
-    surface_points: tuple[tuple[float, float], ...],
-    x_left: float,
-    x_right: float,
-) -> list[float]:
-    nodes = [x_left, x_right]
-    for x_vertex, _ in surface_points[1:-1]:
-        if x_left < x_vertex < x_right:
-            nodes.append(x_vertex)
-    return sorted(set(nodes))
-
-
 def _water_surface_y_and_slope(
     surface_points: tuple[tuple[float, float], ...],
     x: float,
@@ -110,7 +98,7 @@ def _water_surfaces_pore_resultant(
     x_right: float,
     y_base_left: float,
     y_base_right: float,
-    alpha_rad: float,
+    base_length: float,
 ) -> tuple[float, float, float]:
     if groundwater.hu is None:
         raise GeometryError("Groundwater water_surfaces mode requires hu configuration.")
@@ -119,55 +107,22 @@ def _water_surfaces_pore_resultant(
         raise GeometryError(f"Unsupported groundwater hu.mode: {hu_mode}")
     if hu_mode == "custom" and groundwater.hu.value is None:
         raise GeometryError("Groundwater hu.value is required when hu.mode='custom'.")
-
-    nodes = _water_surface_nodes_for_slice(groundwater.surface, x_left, x_right)
-    x_min = groundwater.surface[0][0]
-    x_max = groundwater.surface[-1][0]
-    for x_node in nodes:
-        if x_node < x_min - _WATER_SURFACE_X_TOL or x_node > x_max + _WATER_SURFACE_X_TOL:
-            raise GeometryError(
-                "Groundwater water surface does not cover prescribed slice x-range."
-            )
-
-    cos_alpha = math.cos(alpha_rad)
-    if abs(cos_alpha) < _VERTICAL_TOL:
-        raise GeometryError("Slice base angle is near vertical during groundwater integration.")
-
-    u_values: list[float] = []
-    for x_node in nodes:
-        y_base = _base_y_linear(x_node, x_left, x_right, y_base_left, y_base_right)
-        y_water, slope = _water_surface_y_and_slope(groundwater.surface, x_node)
-        h_eff = max(y_water - y_base, 0.0)
-
-        if hu_mode == "custom":
-            hu = float(groundwater.hu.value)
-            if hu < 0.0 or hu > 1.0:
-                raise GeometryError("Groundwater hu.value must be in [0, 1].")
-        else:
-            alpha_water = math.atan(slope)
-            hu = math.cos(alpha_water) ** 2
-        u_values.append(groundwater.gamma_w * h_eff * hu)
-
-    segment_forces: list[float] = []
-    segment_mid_x: list[float] = []
-    for idx in range(len(nodes) - 1):
-        x0 = nodes[idx]
-        x1 = nodes[idx + 1]
-        ds = (x1 - x0) / cos_alpha
-        u_avg = 0.5 * (u_values[idx] + u_values[idx + 1])
-        u_segment = u_avg * ds
-        segment_forces.append(u_segment)
-        segment_mid_x.append(0.5 * (x0 + x1))
-
-    pore_force = float(sum(segment_forces))
-    if pore_force <= 0.0:
-        x_app = 0.5 * (x_left + x_right)
-        y_app = _base_y_linear(x_app, x_left, x_right, y_base_left, y_base_right)
-        return 0.0, x_app, y_app
-
-    x_app = float(sum(force * x_mid for force, x_mid in zip(segment_forces, segment_mid_x)) / pore_force)
+    x_app = 0.5 * (x_left + x_right)
     y_app = _base_y_linear(x_app, x_left, x_right, y_base_left, y_base_right)
-    return pore_force, x_app, y_app
+    y_water, slope = _water_surface_y_and_slope(groundwater.surface, x_app)
+    h_eff = max(y_water - y_app, 0.0)
+
+    if hu_mode == "custom":
+        hu = float(groundwater.hu.value)
+        if hu < 0.0 or hu > 1.0:
+            raise GeometryError("Groundwater hu.value must be in [0, 1].")
+    else:
+        alpha_water = math.atan(slope)
+        hu = math.cos(alpha_water) ** 2
+
+    u_mid = groundwater.gamma_w * h_eff * hu
+    pore_force = float(u_mid * base_length)
+    return pore_force, float(x_app), float(y_app)
 
 
 def _ru_pore_resultant(
@@ -203,7 +158,6 @@ def _groundwater_pore_resultant(
     y_base_left: float,
     y_base_right: float,
     width: float,
-    alpha_rad: float,
     base_length: float,
     weight: float,
 ) -> tuple[float, float, float]:
@@ -218,7 +172,7 @@ def _groundwater_pore_resultant(
             x_right=x_right,
             y_base_left=y_base_left,
             y_base_right=y_base_right,
-            alpha_rad=alpha_rad,
+            base_length=base_length,
         )
     if groundwater.model == "ru_coefficient":
         return _ru_pore_resultant(
@@ -328,7 +282,6 @@ def generate_vertical_slices(
             y_base_left=float(y_base_edges[i]),
             y_base_right=float(y_base_edges[i + 1]),
             width=float(dx),
-            alpha_rad=float(alpha[i]),
             base_length=float(base_length[i]),
             weight=float(weights[i]),
         )

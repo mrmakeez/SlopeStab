@@ -88,7 +88,7 @@ class GroundwaterSliceForceTests(unittest.TestCase):
         loads = LoadsInput(
             groundwater=GroundwaterInput(
                 model="water_surfaces",
-                surface=((18.0, 15.0), (48.0, 29.0)),
+                surface=((18.0, 15.0), (30.0, 23.0)),
                 hu=GroundwaterHuInput(mode="custom", value=1.0),
                 gamma_w=9.81,
             )
@@ -103,6 +103,48 @@ class GroundwaterSliceForceTests(unittest.TestCase):
                 gamma=self.gamma,
                 loads=loads,
             )
+
+    def test_water_surface_midpoint_coverage_is_sufficient(self) -> None:
+        loads = LoadsInput(
+            groundwater=GroundwaterInput(
+                model="water_surfaces",
+                surface=((19.5, 16.0), (20.5, 16.5)),
+                hu=GroundwaterHuInput(mode="custom", value=1.0),
+                gamma_w=9.81,
+            )
+        )
+        slices = generate_vertical_slices(
+            profile=self.profile,
+            surface=self.surface,
+            n_slices=1,
+            x_left=19.0,
+            x_right=21.0,
+            gamma=self.gamma,
+            loads=loads,
+        )
+        self.assertEqual(len(slices), 1)
+        self.assertGreaterEqual(slices[0].pore_force, 0.0)
+
+    def test_midpoint_dry_slice_returns_zero_pore_force(self) -> None:
+        loads = LoadsInput(
+            groundwater=GroundwaterInput(
+                model="water_surfaces",
+                surface=self.water_surface,
+                hu=GroundwaterHuInput(mode="custom", value=1.0),
+                gamma_w=9.81,
+            )
+        )
+        slices = generate_vertical_slices(
+            profile=self.profile,
+            surface=self.surface,
+            n_slices=1,
+            x_left=55.269274059682026,
+            x_right=56.60027889383901,
+            gamma=self.gamma,
+            loads=loads,
+        )
+        self.assertEqual(len(slices), 1)
+        self.assertAlmostEqual(slices[0].pore_force, 0.0, places=12)
 
     def test_ru_pore_force_matches_operational_formula(self) -> None:
         ru = 0.5

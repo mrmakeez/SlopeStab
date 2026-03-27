@@ -22,6 +22,7 @@ from slope_stab.models import (
 _CASE5_GEOMETRY = GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0)
 _CASE5_MATERIAL = MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0)
 _CASE5_WATER_SURFACE = ((0.0, 15.0), (18.0, 15.0), (30.0, 23.0), (48.0, 29.0), (66.0, 32.0))
+_CASE5_PARITY_TOL = 1e-4
 
 
 def _case5_project(*, method: str, hu_mode: str, hu_value: float | None, surface: PrescribedCircleInput) -> ProjectInput:
@@ -88,7 +89,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                 ),
             )
         )
-        self.assertLessEqual(abs(result.fos - 1.116900), 0.005)
+        self.assertLessEqual(abs(result.fos - 1.116900), _CASE5_PARITY_TOL)
 
     def test_case5_hu1_spencer_benchmark(self) -> None:
         result = run_analysis(
@@ -107,7 +108,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                 ),
             )
         )
-        self.assertLessEqual(abs(result.fos - 1.117220), 0.005)
+        self.assertLessEqual(abs(result.fos - 1.117220), _CASE5_PARITY_TOL)
 
     def test_case5_hu_auto_bishop_benchmark(self) -> None:
         result = run_analysis(
@@ -126,7 +127,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                 ),
             )
         )
-        self.assertLessEqual(abs(result.fos - 1.157570), 0.005)
+        self.assertLessEqual(abs(result.fos - 1.157570), _CASE5_PARITY_TOL)
 
     def test_case5_hu_auto_spencer_benchmark(self) -> None:
         result = run_analysis(
@@ -145,7 +146,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                 ),
             )
         )
-        self.assertLessEqual(abs(result.fos - 1.157480), 0.005)
+        self.assertLessEqual(abs(result.fos - 1.157480), _CASE5_PARITY_TOL)
 
     def test_case6_ru_bishop_benchmark(self) -> None:
         result = run_analysis(
