@@ -1796,4 +1796,392 @@ Plan revision note (2026-03-23, post GPT-5.4 v3 review): reconciled acceptance w
 Plan revision note (2026-03-23, implementation complete): shipped CLI/runner/docs/tests updates for default verify auto mode + serial override contract, added execution metadata, and closed after full gate success.
 
 Plan status: Closed.
+
+# Implement Groundwater v1 (Water Surfaces with Hu + Ru Coefficient) with Case 5/6 Bishop+Spencer Verification Gates
+
+This ExecPlan is a living document. The sections `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work proceeds.
+
+This repository includes a repo-root `PLANS.md`. This ExecPlan is embedded in that file and must be maintained in accordance with the requirements in that same file.
+
+## Purpose / Big Picture
+
+Users will be able to run groundwater-enabled analyses using two explicit methods under `loads.groundwater`: `water_surfaces` and `ru_coefficient`. `water_surfaces` will support both `Hu` custom values and `Hu` automatic calculation for inclined water surfaces, and `ru_coefficient` will model pore pressure from a per-material Ru value. The change is complete when Case 5 and Case 6 benchmarks pass for both Bishop and Spencer in built-in verification, while all existing baseline verification behavior remains unchanged.
+
+## Progress
+
+- [x] (2026-03-27 16:25 +13:00) Reviewed current groundwater placeholders and confirmed active groundwater models are currently rejected in parser (`loads.groundwater.model != "none"`).
+- [x] (2026-03-27 16:35 +13:00) Reviewed user-provided Case 5/6 assets and confirmed benchmark reports include both Bishop and Spencer global minimum outputs.
+- [x] (2026-03-27 16:45 +13:00) Extracted Water Parameters semantics from attached Slide2 documentation PDF, including equation forms for custom and auto Hu.
+- [x] (2026-03-27 16:55 +13:00) Drafted initial consensus-gated groundwater ExecPlan.
+- [x] (2026-03-27 17:40 +13:00) Completed GPT-5.4 review round 1 triage and revised the plan to remove ambiguity in discretization, Ru formula, and test scope.
+- [x] (2026-03-27 18:05 +13:00) Added explicit verification sequencing: prescribed-surface Case 5/6 checks are mandatory and must pass before any groundwater search checks are added/executed.
+- [x] (2026-03-27 18:22 +13:00) Completed GPT-5.4 review round 2, triaged all suggestions, and revised this plan.
+- [x] (2026-03-27 18:25 +13:00) Recorded explicit Codex + GPT-5.4 consensus for the groundwater ExecPlan scope and sequencing.
+- [x] (2026-03-27 22:05 +13:00) Implemented parser/model/slice/solver groundwater paths for `water_surfaces` and `ru_coefficient`, including deterministic water-surface node handling and solver pore-pressure coupling.
+- [x] (2026-03-27 22:28 +13:00) Added/extended Case 5/6 regression + verification coverage (Bishop + Spencer), then passed full gates (`cli verify`, `cli test`).
+
+## Surprises & Discoveries
+
+- Observation: Local Case 5 and Case 6 references are present under `Verification/Bishop/Case 5` and `Verification/Bishop/Case 6`, and each report includes both Bishop and Spencer result sections.
+  Evidence: `Case5_Hu=1.rfcreport`, `Case5_Hu=Auto.rfcreport`, and `Case6.rfcreport` each contain `Method: bishop simplified` and `Method: spencer`.
+
+- Observation: Reported benchmark FoS values for the added groundwater references are:
+  Evidence: Case 5 Hu=1 -> Bishop `1.116900`, Spencer `1.117220`; Case 5 Hu=Auto -> Bishop `1.157570`, Spencer `1.157480`; Case 6 Ru -> Bishop `1.001250`, Spencer `1.018880`.
+
+- Observation: Slide2 Water Parameters semantics are explicit enough to pin equations and validation ranges.
+  Evidence: Attached PDF states `u = gamma_w * h * Hu`, `Hu_auto = cos^2(alpha)`, and states Ru "between 0 and 1 must be specified"; it also states Ru vertical earth pressure excludes external loads.
+
+- Observation: Existing solver path has pore-force fields on slices/results but solver equations do not currently consume pore pressure in resistance terms.
+  Evidence: `SliceGeometry` includes `pore_force`, but Bishop/Spencer currently compute using `weights = total_vertical_force` and do not subtract pore-pressure contributions.
+
+- Observation: Built-in verify coverage count is currently fixed at 29 and does not include Case 5/6 yet.
+  Evidence: `tests/integration/test_verification_cases.py` asserts 29 outcomes; `src/slope_stab/verification/cases.py` currently defines Case 1-4 and surcharge/global variants only.
+
+## Decision Log
+
+- Decision: Scope groundwater v1 to two explicit methods only: `water_surfaces` and `ru_coefficient`, with no seismic work in this plan.
+  Rationale: Meets owner-requested direction, preserves bounded scope, and aligns with prior consensus ordering (groundwater before seismic).
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Enforce a hard external consensus gate before implementation starts.
+  Rationale: Owner requested that implementation is not permitted until Codex and GPT-5.4 agree on direction and plan.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Treat Hu auto semantics as `Hu = cos^2(alpha)` and pore pressure as `u = gamma_w * h * Hu`.
+  Rationale: Directly matches symbols recovered from attached Slide2 Water Parameters documentation.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Use explicit deterministic Water Surfaces discretization with base-wise integration nodes and deterministic kink tie-break rules.
+  Rationale: Addresses review concern that prior wording was under-specified and could produce non-reproducible implementation choices.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Use explicit Ru operational equations in implementation:
+  - `sigma_v = W_soil / slice.width`
+  - `u = ru * sigma_v`
+  - `U = u * slice.base_length`
+  - Ru uses `W_soil = slice.weight` only, not external loads.
+  Rationale: Removes ambiguity and directly enforces documented Slide2 exclusion of external loads from Ru vertical pressure.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Keep `ru` validation range hard-clamped to `[0, 1]`.
+  Rationale: GPT-5.4 concern was valid if unsupported; attached Slide2 text explicitly states Ru must be between 0 and 1, so clamping is reference-backed, not invented policy.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Add explicit surcharge+Ru exclusion regression.
+  Rationale: This is a subtle but high-risk interaction now that surcharge is baseline-supported and Ru is being added.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Avoid duplicate benchmark sources in `tests/fixtures` for Case 5/6.
+  Rationale: Use `Verification/Bishop/Case 5-6` as the single source of truth for benchmark targets and keep expected values centralized in verification case definitions to reduce drift.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: External GPT-5.4 review v1 suggestions triaged as: accepted (discretization specificity, explicit Ru formula, surcharge+Ru regression, fixture-duplication reduction); rejected (relax Ru range).
+  Rationale: Rejected item conflicts with explicit attached Slide2 admissible-range statement.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Consensus remains pending after review round 1.
+  Rationale: GPT-5.4 explicitly reported "close, but no consensus yet."
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Groundwater verification sequencing is prescribed-first: add and pass Case 5/6 prescribed-surface checks before any groundwater search checks are introduced or run.
+  Rationale: Matches owner directive and enforces verification-first progression from deterministic baseline surfaces to search behavior.
+  Date/Author: 2026-03-27 / Codex + Owner directive
+
+- Decision: External GPT-5.4 review v2 suggestions triaged as accepted (solver insertion specificity and explicit v1 strict-coverage documentation note); no additional blocking issues raised.
+  Rationale: Both suggestions improve implementation safety and user expectation clarity without changing scope or baseline policies.
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Consensus obtained for Groundwater ExecPlan scope and sequencing.
+  Rationale: Codex + GPT-5.4 agree plan is bounded, verification-first, and implementation-ready.
+  Date/Author: 2026-03-27 / Codex + GPT-5.4
+
+- Decision: Preserve slope-direction consistency by normalizing solver trigonometric sign handling from driving-moment direction while keeping absolute driving-moment magnitudes.
+  Rationale: Required to support both Right-to-Left and Left-to-Right benchmark geometries deterministically (Case 6).
+  Date/Author: 2026-03-27 / Codex
+
+- Decision: Spencer groundwater coupling uses effective-base-force form (`cL_eff = cL - U*tan(phi)`, `N' = N-U`) rather than direct `W_eff` substitution.
+  Rationale: Direct `W_eff` substitution failed prescribed benchmarks and caused invalid `m_alpha`; effective-base coupling matched Case 5/6 benchmarks and preserved dry/surcharge baselines.
+  Date/Author: 2026-03-27 / Codex
+
+## Outcomes & Retrospective
+
+Current status:
+
+- Groundwater v1 implementation is complete for `water_surfaces` and `ru_coefficient`.
+- Prescribed Case 5/6 Bishop+Spencer checks are implemented and passing.
+- Full required gates are passing (`python -m slope_stab.cli verify`, `python -m slope_stab.cli test`).
+
+Remaining to completion:
+
+- None for this plan scope.
+
+## Context and Orientation
+
+Groundwater placeholders exist but are inactive:
+
+- `src/slope_stab/models.py` defines `GroundwaterInput(model="none")` and slice fields (`pore_force`, `pore_x_app`, `pore_y_app`).
+- `src/slope_stab/io/json_io.py` currently rejects active groundwater models (`model != "none"`).
+- `src/slope_stab/slicing/slice_generator.py` initializes pore terms to zero for all slices.
+- `src/slope_stab/lem_core/bishop.py` and `src/slope_stab/lem_core/spencer.py` do not yet apply pore-pressure reductions in effective-normal/shear terms.
+- `src/slope_stab/verification/cases.py` and `tests/integration/test_verification_cases.py` do not yet include Case 5/6 groundwater verification coverage.
+
+Reference artifacts to drive verification:
+
+- `Verification/Bishop/Case 5/Hu=1/Case5_Hu=1.rfcreport`
+- `Verification/Bishop/Case 5/Hu=Auto/Case5_Hu=Auto.rfcreport`
+- `Verification/Bishop/Case 6/Case6.rfcreport`
+- Supporting model snapshots in matching `.sli` files for geometry/water-surface metadata.
+
+In this plan:
+
+- "Water Surfaces method" means pore pressure computed from a water-surface polyline and Hu semantics.
+- "Ru method" means pore pressure computed as a fraction of vertical earth pressure per slice.
+- "Hu custom" means explicit user-specified `0 <= Hu <= 1`.
+- "Hu auto" means `Hu = cos^2(alpha)` where `alpha` is local water-surface inclination above the evaluation point.
+
+## External Review Gate
+
+Before any code implementation milestone starts, complete the following review protocol:
+
+1. Share the full current ExecPlan text with GPT-5.4.
+2. Record every GPT-5.4 suggestion in `Decision Log` as accepted/rejected with rationale.
+3. Revise the plan text to incorporate accepted suggestions.
+4. Present the full revised ExecPlan to the owner after each review round.
+5. Repeat until explicit consensus entry is recorded:
+
+   - `Decision: Consensus obtained for Groundwater ExecPlan scope and sequencing.`
+   - `Rationale: Codex + GPT-5.4 agree plan is bounded, verification-first, and implementation-ready.`
+
+Implementation is blocked until this entry exists in this plan.
+
+## Plan of Work
+
+Milestone 1 defines groundwater JSON/model contract and validation rules. Extend `loads.groundwater` from stub to explicit config:
+
+- `model = "none"` (backward-compatible).
+- `model = "water_surfaces"` with:
+  - required `surface` polyline points `[[x, y], ...]` (minimum two points, strictly increasing `x`).
+  - required `hu.mode` in `{ "custom", "auto" }`.
+  - `hu.value` required when mode is `custom` and constrained to `[0, 1]`.
+  - optional `gamma_w` (default `9.81 kN/m^3`).
+- `model = "ru_coefficient"` with:
+  - required `ru` in `[0, 1]` (reference-backed by attached Slide2 doc).
+
+Milestone 2 implements groundwater load models in isolated load modules and wires them into slicing with fully specified deterministic mechanics.
+
+Water Surfaces discretization rule:
+
+- For each slice, build deterministic integration nodes along x:
+  - start with `[x_left, x_right]`,
+  - add any interior water-surface polyline vertex x-values that lie strictly within `(x_left, x_right)`,
+  - sort unique ascending.
+- For each node x:
+  - evaluate base y at x (using slice base linearization consistent with slice base angle convention),
+  - evaluate water-surface y and local slope from the containing polyline segment.
+- Segment selection tie-break at polyline vertices:
+  - if `x` equals an interior vertex, use the segment to the right,
+  - for the final vertex, use the segment to the left.
+- Coverage rule:
+  - if any required node x is outside water-surface polyline x-range, fail the surface explicitly (prescribed run errors; search candidate invalidates deterministically with explicit reason).
+- At each node:
+  - `h = y_water - y_base`,
+  - `h_eff = max(h, 0)`,
+  - `Hu = hu.value` for custom,
+  - `Hu = cos^2(alpha)` for auto, where `alpha = arctan(local_slope)`,
+  - `u = gamma_w * h_eff * Hu`.
+- Integrate pore resultant over slice base by piecewise trapezoid:
+  - `U_segment = 0.5 * (u_i + u_{i+1}) * ds_segment`,
+  - `ds_segment = (x_{i+1} - x_i) / cos(alpha_slice_base)`,
+  - `U = sum(U_segment)`.
+- Resultant application:
+  - `pore_x_app` uses U-weighted centroid of segment midpoints along base projection,
+  - `pore_y_app` is the base ordinate at `pore_x_app`.
+
+Ru operational formula (explicit):
+
+- `W_soil = slice.weight` (soil self-weight only; excludes `external_force_y`).
+- `sigma_v = W_soil / slice.width`.
+- `u = ru * sigma_v`.
+- `U = u * slice.base_length`.
+- Ru therefore excludes surcharge/seismic/external loads by construction.
+
+Milestone 3 integrates pore effects in solver equations for both Bishop and Spencer while preserving all existing no-groundwater behavior.
+
+Solver insertion contract (explicit, required):
+
+- Bishop insertion:
+  - use pore vertical projection in resistance equations (`W_eff = total_vertical_force - U*cos(alpha)`),
+  - keep driving denominator/moment terms based on total vertical force unchanged.
+- Spencer insertion:
+  - use effective-base coupling (`cL_eff = cL - U*tan(phi)`, `N' = N-U`) in `_compute_state`,
+  - keep driving denominator/moment terms based on total vertical force unchanged.
+- Preserve existing finite checks, final-iteration `m_alpha` validity rule, and zero-shear clamp behavior exactly as-is.
+
+Milestone 4 adds verification/test coverage with explicit prescribed-first sequencing.
+
+- Milestone 4A (mandatory first): prescribed-surface groundwater checks.
+  - Extend built-in verification definitions in `src/slope_stab/verification/cases.py` for prescribed Case 5/6 checks:
+    - Case 5 Hu=1 (bishop + spencer),
+    - Case 5 Hu=Auto (bishop + spencer),
+    - Case 6 Ru (bishop + spencer).
+  - Do not add duplicate Case 5/6 benchmark fixtures in `tests/fixtures`; use verification assets and centralized expected values as the single benchmark source.
+  - Add regression tests validating:
+    - prescribed FoS benchmark parity for the above cases,
+    - metadata includes resolved groundwater inputs and per-slice pore outputs,
+    - dry behavior (`h <= 0`, or water-surface none where applicable),
+    - surcharge+Ru interaction rule: pore terms for Ru remain unchanged when surcharge is toggled (given identical geometry/surface/material/ru).
+  - Update integration/regression expectations for increased verify case count.
+
+- Milestone 4B (deferred until 4A is green): groundwater search checks.
+  - Any groundwater search benchmark/parity/oracle checks are out of scope for initial Case 5/6 onboarding and must not be started until all 4A prescribed checks pass in the same branch.
+
+Milestone 5 updates docs and closes the plan.
+
+- Update `AGENTS.md` baseline/support sections and verification gate description to include groundwater Case 5/6 coverage.
+- Update `README.md` load schema and examples for `water_surfaces` and `ru_coefficient`.
+- Add `docs/groundwater-explainer.md` with formulas, tie-break rules, deterministic behavior, and an explicit v1 limitation note:
+  - strict water-surface coverage rule (out-of-range required x-values cause failure/invalidation rather than dry extrapolation).
+- Re-run full required gate and finalize living sections.
+
+## Concrete Steps
+
+Run all commands from:
+
+    C:/Users/JamesMcKerrow/Stanley Gray Limited/SP - ENG/Technical/JAMES TECHNICAL/Codex/SlopeStab
+
+Always set:
+
+    $env:PYTHONPATH='src'
+
+Consensus rounds (no implementation yet):
+
+    1. Share full ExecPlan text with GPT-5.4.
+    2. Capture review notes in a local text artifact.
+    3. Update this plan's Decision Log with accept/reject rationale.
+    4. Present full updated ExecPlan to owner.
+
+Implementation sequence after consensus:
+
+    1. Update models + parser:
+       src/slope_stab/models.py
+       src/slope_stab/io/json_io.py
+    2. Add groundwater load modules and integrate slice calculations:
+       src/slope_stab/loads/
+       src/slope_stab/slicing/slice_generator.py
+    3. Apply pore-force usage in solvers:
+       src/slope_stab/lem_core/bishop.py
+       src/slope_stab/lem_core/spencer.py
+    4. Add/extend tests (prescribed-first ordering):
+       tests/unit/test_loads_schema.py
+       tests/unit/test_groundwater_slice_forces.py (new)
+       tests/regression/test_groundwater_case5_case6.py (new)
+       tests/regression/test_groundwater_ru_surcharge_exclusion.py (new)
+       tests/integration/test_verification_cases.py
+       tests/regression/test_cli_verify.py
+    5. Extend built-in verification cases:
+       src/slope_stab/verification/cases.py
+    6. Update docs:
+       AGENTS.md
+       README.md
+       docs/groundwater-explainer.md (new)
+       docs/surcharge-explainer.md (cross-reference update)
+
+Verification commands after implementation:
+
+    $env:PYTHONPATH='src'; python -m slope_stab.cli verify
+    $env:PYTHONPATH='src'; python -m slope_stab.cli test
+
+Targeted groundwater checks:
+
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_groundwater_case5_case6
+    $env:PYTHONPATH='src'; python -m unittest tests.regression.test_groundwater_ru_surcharge_exclusion
+    $env:PYTHONPATH='src'; python -m unittest tests.unit.test_groundwater_slice_forces
+
+## Validation and Acceptance
+
+Hard acceptance:
+
+- `loads.groundwater.model` accepts `none`, `water_surfaces`, and `ru_coefficient` with explicit validation errors for malformed/unsupported payloads.
+- Water Surfaces calculations follow the exact discretization contract above (node construction, segment tie-break, out-of-range behavior, `u = gamma_w * h * Hu`, trapezoidal base integration, deterministic resultant location).
+- Ru calculations follow exact operational equations:
+  - `sigma_v = W_soil / slice.width`,
+  - `u = ru * sigma_v`,
+  - `U = u * slice.base_length`,
+  - `W_soil = slice.weight` only (external loads excluded).
+- Solver resistance uses pore-pressure effects deterministically for both Bishop and Spencer.
+- Existing no-load and surcharge verification behavior remains unchanged (no regression to Case 1-4 and existing surcharge/global policies).
+- Groundwater verification onboarding is prescribed-first: Case 5/6 prescribed checks must pass before any groundwater search checks are introduced or run.
+
+Groundwater benchmark acceptance (new):
+
+- Case 5 (Water Surfaces, Hu=1):
+  - Bishop FoS ~= `1.116900` within agreed tolerance.
+  - Spencer FoS ~= `1.117220` within agreed tolerance.
+- Case 5 (Water Surfaces, Hu=Auto):
+  - Bishop FoS ~= `1.157570` within agreed tolerance.
+  - Spencer FoS ~= `1.157480` within agreed tolerance.
+- Case 6 (Ru Coefficient):
+  - Bishop FoS ~= `1.001250` within agreed tolerance.
+  - Spencer FoS ~= `1.018880` within agreed tolerance.
+- Ru+surcharge regression:
+  - for matched surfaces, changing surcharge does not change Ru-derived pore terms.
+
+Gate acceptance:
+
+- `python -m slope_stab.cli verify` passes with updated case count.
+- `python -m slope_stab.cli test` passes.
+- If groundwater search checks are added in a later step, they are gated behind a prior green run of the prescribed Case 5/6 groundwater checks.
+
+## Idempotence and Recovery
+
+All steps are additive and rerunnable. If groundwater implementation introduces drift:
+
+- First isolate by rerunning only groundwater-targeted tests.
+- If baseline cases drift, revert groundwater-specific parser/slice/solver edits only; do not alter established Case 1/2 benchmark targets or tolerances.
+- Re-run full verification gate after each rollback/reapply cycle.
+
+## Artifacts and Notes
+
+Groundwater benchmark references extracted during planning:
+
+- Case 5 Hu=1 report: Bishop `FS=1.116900`, Spencer `FS=1.117220`.
+- Case 5 Hu=Auto report: Bishop `FS=1.157570`, Spencer `FS=1.157480`.
+- Case 6 Ru report: Bishop `FS=1.001250`, Spencer `FS=1.018880`.
+
+Slide2 Water Parameters equations from attached PDF:
+
+- `u = gamma_w * h * Hu`
+- `Hu_auto = cos^2(alpha)`
+- Ru admissible range: `0 <= ru <= 1`.
+
+These references must remain fixed unless owner-approved re-baselining is documented.
+
+## Interfaces and Dependencies
+
+Proposed interface targets:
+
+- In `src/slope_stab/models.py`, define groundwater config types with explicit fields for:
+  - water-surface polyline
+  - Hu mode/value
+  - gamma_w
+  - Ru value
+- In `src/slope_stab/io/json_io.py`, parse/validate new groundwater payloads with deterministic errors.
+- In `src/slope_stab/slicing/slice_generator.py`, compute slice-level `pore_force` and application points from groundwater model outputs.
+- In `src/slope_stab/lem_core/bishop.py` and `src/slope_stab/lem_core/spencer.py`, consume pore terms in effective-normal/shear calculations.
+- In `src/slope_stab/analysis.py`, expose groundwater input metadata in outputs (matching existing load metadata pattern).
+
+Dependency policy:
+
+- Keep runtime dependencies unchanged (`numpy`, `scipy`, `cma` required as-is).
+- Do not introduce new runtime dependencies for groundwater v1.
+
+Plan revision note: Added on 2026-03-27 to define a consensus-gated groundwater v1 implementation path supporting Water Surfaces (Hu custom + auto) and Ru Coefficient methods with Case 5/6 Bishop+Spencer verification targets.
+
+Plan revision note (2026-03-27, post GPT-5.4 review v1): tightened groundwater discretization and Ru formulas, added surcharge+Ru exclusion regression, removed benchmark-fixture duplication plan, retained Ru [0,1] clamp with explicit source justification, and left plan in consensus-pending state.
+
+Plan revision note (2026-03-27, post GPT-5.4 review v2): recorded explicit consensus, added solver insertion contract for Bishop/Spencer (`W_eff = total_vertical_force - pore_force` in resistance-equation paths), and added explicit documentation requirement that strict water-surface coverage behavior is an intentional v1 limitation.
+
+Plan revision note (2026-03-27, implementation complete): shipped groundwater parser/model/slicing/solver updates, added Case 5/6 prescribed verification and regression coverage (Bishop + Spencer), and closed after full gate success.
+
+Plan status: Closed.
 ```

@@ -95,9 +95,89 @@ class LoadsSchemaTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
-    def test_parse_rejects_active_groundwater_in_v1(self) -> None:
+    def test_parse_groundwater_water_surfaces_custom(self) -> None:
         payload = _base_payload()
-        payload["loads"] = {"groundwater": {"model": "ru"}}
+        payload["loads"] = {
+            "groundwater": {
+                "model": "water_surfaces",
+                "surface": [[0.0, 15.0], [18.0, 15.0], [30.0, 23.0], [48.0, 29.0], [66.0, 32.0]],
+                "hu": {"mode": "custom", "value": 1.0},
+                "gamma_w": 9.81,
+            }
+        }
+        project = parse_project_input(payload)
+        assert project.loads is not None
+        assert project.loads.groundwater is not None
+        self.assertEqual(project.loads.groundwater.model, "water_surfaces")
+        self.assertEqual(project.loads.groundwater.hu.mode, "custom")
+        self.assertEqual(project.loads.groundwater.hu.value, 1.0)
+        self.assertEqual(len(project.loads.groundwater.surface), 5)
+
+    def test_parse_groundwater_water_surfaces_auto(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {
+            "groundwater": {
+                "model": "water_surfaces",
+                "surface": [[0.0, 15.0], [18.0, 15.0], [30.0, 23.0], [48.0, 29.0], [66.0, 32.0]],
+                "hu": {"mode": "auto"},
+            }
+        }
+        project = parse_project_input(payload)
+        assert project.loads is not None
+        assert project.loads.groundwater is not None
+        self.assertEqual(project.loads.groundwater.model, "water_surfaces")
+        self.assertEqual(project.loads.groundwater.hu.mode, "auto")
+        self.assertIsNone(project.loads.groundwater.hu.value)
+        self.assertEqual(project.loads.groundwater.gamma_w, 9.81)
+
+    def test_parse_groundwater_ru_coefficient(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {"groundwater": {"model": "ru_coefficient", "ru": 0.5}}
+        project = parse_project_input(payload)
+        assert project.loads is not None
+        assert project.loads.groundwater is not None
+        self.assertEqual(project.loads.groundwater.model, "ru_coefficient")
+        self.assertEqual(project.loads.groundwater.ru, 0.5)
+
+    def test_parse_rejects_water_surface_non_increasing_x(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {
+            "groundwater": {
+                "model": "water_surfaces",
+                "surface": [[0.0, 15.0], [18.0, 15.0], [18.0, 23.0]],
+                "hu": {"mode": "custom", "value": 1.0},
+            }
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_hu_custom_without_value(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {
+            "groundwater": {
+                "model": "water_surfaces",
+                "surface": [[0.0, 15.0], [18.0, 15.0]],
+                "hu": {"mode": "custom"},
+            }
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_hu_auto_with_value(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {
+            "groundwater": {
+                "model": "water_surfaces",
+                "surface": [[0.0, 15.0], [18.0, 15.0]],
+                "hu": {"mode": "auto", "value": 0.9},
+            }
+        }
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_ru_out_of_range(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {"groundwater": {"model": "ru_coefficient", "ru": 1.1}}
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 

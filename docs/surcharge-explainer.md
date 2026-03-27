@@ -1,6 +1,6 @@
 # Uniform Surcharge (v1)
 
-This document defines the shipped v1 load behavior and the interface boundaries reserved for future seismic/groundwater support.
+This document defines shipped v1 surcharge behavior.
 
 ## Scope
 
@@ -13,7 +13,6 @@ v1 adds optional crest surcharge loading for both Bishop and Spencer analyses.
 Not implemented in v1:
 
 - Seismic loading models.
-- Groundwater/pore-pressure loading models.
 - Distributed horizontal surcharge components.
 
 ## JSON Interface
@@ -44,7 +43,7 @@ Not implemented in v1:
   - required for `crest_range`
   - must satisfy `x_start < x_end` and both at/above crest start (`x >= geometry.x_toe + geometry.l`)
 
-`seismic.model` and `groundwater.model` accept only `"none"` in v1. Any active model is rejected with explicit validation errors.
+`seismic.model` accepts only `"none"` in v1. Groundwater models are documented separately in `docs/groundwater-explainer.md`.
 
 ## Solver Semantics
 
@@ -54,7 +53,7 @@ Per-slice fields are additive and explicit:
 - `external_force_y`: surcharge contribution.
 - `total_vertical_force = weight + external_force_y`.
 
-v1 intentionally keeps surcharge handling independent from future seismic/groundwater channels by carrying dedicated external/pore fields on slice geometry/results.
+v1 keeps surcharge handling independent from groundwater channels by carrying dedicated external/pore fields on slice geometry/results.
 
 ## Determinism and Compatibility
 

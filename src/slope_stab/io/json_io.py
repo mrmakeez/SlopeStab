@@ -12,6 +12,7 @@ from slope_stab.models import (
     CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
+    GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
     MaterialInput,
@@ -111,6 +112,26 @@ def _parse_seismic_load(seismic_data: object) -> SeismicLoadInput | None:
     return SeismicLoadInput(model=model)
 
 
+def _parse_water_surface_points(surface_data: object, key_prefix: str) -> tuple[tuple[float, float], ...]:
+    if not isinstance(surface_data, list):
+        raise InputValidationError(f"{key_prefix}.surface must be an array of [x, y] points.")
+    if len(surface_data) < 2:
+        raise InputValidationError(f"{key_prefix}.surface must contain at least two points.")
+
+    points: list[tuple[float, float]] = []
+    last_x: float | None = None
+    for idx, point in enumerate(surface_data):
+        if not isinstance(point, (list, tuple)) or len(point) != 2:
+            raise InputValidationError(f"{key_prefix}.surface[{idx}] must be a [x, y] pair.")
+        x = _as_float(point[0], f"{key_prefix}.surface[{idx}][0]")
+        y = _as_float(point[1], f"{key_prefix}.surface[{idx}][1]")
+        if last_x is not None and x <= last_x:
+            raise InputValidationError(f"{key_prefix}.surface x values must be strictly increasing.")
+        points.append((x, y))
+        last_x = x
+    return tuple(points)
+
+
 def _parse_groundwater_load(groundwater_data: object) -> GroundwaterInput | None:
     key_prefix = "loads.groundwater"
     if groundwater_data is None:
@@ -118,9 +139,48 @@ def _parse_groundwater_load(groundwater_data: object) -> GroundwaterInput | None
     if not isinstance(groundwater_data, dict):
         raise InputValidationError(f"'{key_prefix}' must be an object.")
     model = str(_require_key(groundwater_data, "model")).strip().lower()
-    if model != "none":
-        raise InputValidationError(f"{key_prefix}.model='{model}' is not supported in v1 (planned for v2).")
-    return GroundwaterInput(model=model)
+    if model == "none":
+        return GroundwaterInput(model=model)
+
+    if model == "water_surfaces":
+        surface = _parse_water_surface_points(groundwater_data.get("surface"), key_prefix)
+        hu_data = _require_key(groundwater_data, "hu")
+        if not isinstance(hu_data, dict):
+            raise InputValidationError(f"{key_prefix}.hu must be an object.")
+
+        hu_mode = str(_require_key(hu_data, "mode")).strip().lower()
+        if hu_mode not in {"custom", "auto"}:
+            raise InputValidationError(f"{key_prefix}.hu.mode must be one of: custom, auto.")
+
+        hu_value: float | None = None
+        if hu_mode == "custom":
+            if "value" not in hu_data:
+                raise InputValidationError(f"{key_prefix}.hu.value is required when hu.mode='custom'.")
+            hu_value = _as_float(hu_data.get("value"), f"{key_prefix}.hu.value")
+            if hu_value < 0.0 or hu_value > 1.0:
+                raise InputValidationError(f"{key_prefix}.hu.value must be in [0, 1].")
+        elif hu_data.get("value") is not None:
+            raise InputValidationError(f"{key_prefix}.hu.value is not allowed when hu.mode='auto'.")
+
+        gamma_w = _as_float(groundwater_data.get("gamma_w", 9.81), f"{key_prefix}.gamma_w")
+        if gamma_w <= 0.0:
+            raise InputValidationError(f"{key_prefix}.gamma_w must be greater than zero.")
+
+        return GroundwaterInput(
+            model=model,
+            surface=surface,
+            hu=GroundwaterHuInput(mode=hu_mode, value=hu_value),
+            gamma_w=gamma_w,
+            ru=None,
+        )
+
+    if model == "ru_coefficient":
+        ru = _as_float(_require_key(groundwater_data, "ru"), f"{key_prefix}.ru")
+        if ru < 0.0 or ru > 1.0:
+            raise InputValidationError(f"{key_prefix}.ru must be in [0, 1].")
+        return GroundwaterInput(model=model, ru=ru)
+
+    raise InputValidationError(f"{key_prefix}.model must be one of: none, water_surfaces, ru_coefficient.")
 
 
 def _parse_loads(loads_data: object, geometry: GeometryInput) -> LoadsInput | None:

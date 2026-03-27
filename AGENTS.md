@@ -14,6 +14,9 @@ Supported:
 - Uniform slope geometry with infinite flat toe/crest extent
 - Homogeneous Mohr-Coulomb soil
 - Uniform surcharge loading on crest region (`loads.uniform_surcharge` with `crest_infinite` or `crest_range`)
+- Groundwater loading via `loads.groundwater`:
+  - `model = water_surfaces` with `hu.mode = custom|auto`
+  - `model = ru_coefficient` with `0 <= ru <= 1`
 - Circular slip surface input (prescribed geometry)
 - Deterministic circular critical-surface search via `search.method = auto_refine_circular`
 - Deterministic DIRECT-based circular global search via `search.method = direct_global_circular`
@@ -29,7 +32,6 @@ Not supported in baseline:
 - Non-circular surfaces
 - Multi-soil zoning/internal boundaries
 - Seismic loading
-- Groundwater/pore-pressure model
 
 ## Non-Negotiable Rules
 - Verification-first always: do not add new feature paths until baseline verification remains passing.
@@ -91,8 +93,8 @@ Expected:
 - Verification suite reports all cases passed.
 - Unit/integration/regression tests pass.
 - Built-in `cli verify` includes Bishop and Spencer verification coverage:
-  - Bishop: Case 1, Case 2, Case 3, Case 4, plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
-  - Spencer: prescribed benchmarks for Cases 2-4, auto-refine parity for Cases 3-4, and Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Bishop: Case 1, Case 2, Case 3, Case 4, Case 5 (Water Surfaces Hu=1), Case 5 (Water Surfaces Hu=Auto), Case 6 (Ru Coefficient), plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Spencer: prescribed benchmarks for Cases 2-6 (including Case 5 Hu=1/Hu=Auto and Case 6 Ru), auto-refine parity for Cases 3-4, and Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
   - Surcharge benchmark policy: Case 3 surcharge 50 kPa prescribed benchmarks (Bishop + Spencer) are included in `cli verify`.
   - Case 3 surcharge 100 kPa remains a non-verify stress regression in unittest (`tests/regression/test_surcharge_case3.py`).
   - Global benchmark rule remains `FOS(method) <= FOS(benchmark) + 0.01`.
@@ -118,6 +120,7 @@ Expected:
 - Keep deterministic behavior for deterministic paths and fixed-seed repeatability for cuckoo paths; do not alter Case 1/Case 2 benchmark behavior.
 - For seeded stochastic paths (cuckoo/CMAES), random proposal generation and population state updates must remain deterministic in serial order even when candidate scoring is batched.
 - In v1 load handling, `weight` remains soil self-weight; surcharge contribution is represented as `external_force_y` and consumed through total vertical force terms.
+- In v1 groundwater handling, `slice.pore_force` stores base-normal pore resultant `U`; Bishop resistance paths consume its vertical projection (`U * cos(alpha)`), and Spencer uses effective-base coupling (`T = cL + (N-U)tan(phi)`).
 - Keep global-search core logic centralized:
   - candidate objective/caching behavior belongs in shared search-core utilities
   - DIRECT partition selection/splitting behavior belongs in shared search-core utilities
@@ -141,6 +144,6 @@ Deferred until explicitly approved:
 - Layered/zoned soils
 - Advanced load models beyond v1 uniform surcharge
 - Seismic loading
-- Groundwater/pore-pressure model
+- Advanced groundwater models beyond v1 `water_surfaces` and `ru_coefficient`
 
 Any roadmap implementation must be additive and must not alter baseline prescribed Bishop/Spencer outputs.

@@ -46,6 +46,7 @@ class SpencerSolver(LEMSolver):
         f_k: float,
         lambda_value: float,
         weights: np.ndarray,
+        pore_forces: np.ndarray,
         sin_a: np.ndarray,
         cos_a: np.ndarray,
         tan_phi: float,
@@ -75,10 +76,14 @@ class SpencerSolver(LEMSolver):
                 f"Slice {bad_idx + 1}: Spencer B-term approaches zero."
             )
 
-        delta_e = (weights * a_term - (cohesion_base / f_k)) / m_alpha
-        normal = (weights - lambda_value * delta_e - (cohesion_base * sin_a) / f_k) / b_term
+        # Represent pore pressure through effective-base terms:
+        # T = cL + (N - U) * tan(phi), where U is base-normal pore resultant.
+        cohesion_effective = cohesion_base - (pore_forces * tan_phi)
+        delta_e = (weights * a_term - (cohesion_effective / f_k)) / m_alpha
+        normal_total = (weights - lambda_value * delta_e - (cohesion_effective * sin_a) / f_k) / b_term
+        normal = normal_total - pore_forces
 
-        shear_strength = np.maximum(cohesion_base + normal * tan_phi, 0.0)
+        shear_strength = np.maximum(cohesion_base + (normal * tan_phi), 0.0)
 
         force_residual = -float(np.sum(delta_e))
         force_residual_norm = force_residual / scale_force
@@ -110,6 +115,7 @@ class SpencerSolver(LEMSolver):
         x_left = np.fromiter((s.x_left for s in slices), dtype=float)
         x_right = np.fromiter((s.x_right for s in slices), dtype=float)
         weights = np.fromiter((s.total_vertical_force for s in slices), dtype=float)
+        pore_forces = np.fromiter((s.pore_force for s in slices), dtype=float)
         alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
         base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
 
@@ -119,7 +125,10 @@ class SpencerSolver(LEMSolver):
         x_mid = 0.5 * (x_left + x_right)
         x_offset = x_mid - self._surface.xc
         driving_component = weights * (x_offset / self._surface.r)
-        denominator = float(np.sum(driving_component))
+        denominator_raw = float(np.sum(driving_component))
+        direction = 1.0 if denominator_raw >= 0.0 else -1.0
+        sin_a = sin_a * direction
+        denominator = abs(denominator_raw)
         if abs(denominator) < 1e-12:
             raise ConvergenceError("Driving denominator is numerically zero.")
 
@@ -131,6 +140,7 @@ class SpencerSolver(LEMSolver):
                 f_k=fos,
                 lambda_value=lambda_value,
                 weights=weights,
+                pore_forces=pore_forces,
                 sin_a=sin_a,
                 cos_a=cos_a,
                 tan_phi=tan_phi,
@@ -206,7 +216,7 @@ class SpencerSolver(LEMSolver):
                 )
             )
 
-        driving_moment = float(np.sum(weights * x_offset))
+        driving_moment = float(abs(np.sum(weights * x_offset)))
         resisting_moment = best_state.fos * driving_moment
         friction = best_state.shear_strength - best_state.cohesion_base
 

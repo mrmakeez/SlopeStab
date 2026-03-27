@@ -33,8 +33,18 @@ class SeismicLoadInput:
 
 
 @dataclass(frozen=True)
+class GroundwaterHuInput:
+    mode: str
+    value: float | None = None
+
+
+@dataclass(frozen=True)
 class GroundwaterInput:
     model: str = "none"
+    surface: tuple[tuple[float, float], ...] = ()
+    hu: GroundwaterHuInput | None = None
+    gamma_w: float = 9.81
+    ru: float | None = None
 
 
 @dataclass(frozen=True)

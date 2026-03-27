@@ -38,6 +38,7 @@ class BishopSimplifiedSolver(LEMSolver):
         x_left = np.fromiter((s.x_left for s in slices), dtype=float)
         x_right = np.fromiter((s.x_right for s in slices), dtype=float)
         weights = np.fromiter((s.total_vertical_force for s in slices), dtype=float)
+        pore_forces = np.fromiter((s.pore_force for s in slices), dtype=float)
         alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
         base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
 
@@ -51,7 +52,10 @@ class BishopSimplifiedSolver(LEMSolver):
         x_mid = 0.5 * (x_left + x_right)
         x_offset = x_mid - self._surface.xc
         driving_component = weights * (x_offset / self._surface.r)
-        denominator = float(np.sum(driving_component))
+        denominator_raw = float(np.sum(driving_component))
+        direction = 1.0 if denominator_raw >= 0.0 else -1.0
+        sin_a = sin_a * direction
+        denominator = abs(denominator_raw)
         if abs(denominator) < 1e-12:
             raise ConvergenceError("Driving denominator is numerically zero.")
 
@@ -67,7 +71,10 @@ class BishopSimplifiedSolver(LEMSolver):
                     f"Slice {int(slice_ids[bad_idx])}: m_alpha approaches zero at iteration {iteration}."
                 )
 
-            normal = (weights - (cohesion_base_sin / f_k)) / m_alpha
+            # Pore pressure resultant acts normal to the base; the Bishop
+            # transformed equilibrium uses its vertical projection.
+            effective_weights = weights - (pore_forces * cos_a)
+            normal = (effective_weights - (cohesion_base_sin / f_k)) / m_alpha
             friction_raw = normal * tan_phi
             shear_strength_raw = cohesion_base + friction_raw
             shear_strength = np.maximum(shear_strength_raw, 0.0)
@@ -109,13 +116,14 @@ class BishopSimplifiedSolver(LEMSolver):
                 )
             )
 
-        normal = (weights - (cohesion_base_sin / f_k)) / m_alpha
+        effective_weights = weights - (pore_forces * cos_a)
+        normal = (effective_weights - (cohesion_base_sin / f_k)) / m_alpha
         friction_raw = normal * tan_phi
         shear_strength_raw = cohesion_base + friction_raw
         shear_strength = np.maximum(shear_strength_raw, 0.0)
         friction = shear_strength - cohesion_base
 
-        driving_moment = float(np.sum(weights * x_offset))
+        driving_moment = float(abs(np.sum(weights * x_offset)))
         resisting_moment = f_k * driving_moment
 
         slice_results: list[SliceResult] = []

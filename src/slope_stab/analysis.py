@@ -84,7 +84,18 @@ def _loads_to_dict(loads: LoadsInput | None) -> dict[str, Any]:
     if loads.seismic is not None:
         payload["seismic"] = {"model": loads.seismic.model}
     if loads.groundwater is not None:
-        payload["groundwater"] = {"model": loads.groundwater.model}
+        groundwater_payload: dict[str, Any] = {"model": loads.groundwater.model}
+        if loads.groundwater.model == "water_surfaces":
+            groundwater_payload["surface"] = [list(point) for point in loads.groundwater.surface]
+            groundwater_payload["gamma_w"] = loads.groundwater.gamma_w
+            if loads.groundwater.hu is not None:
+                groundwater_payload["hu"] = {
+                    "mode": loads.groundwater.hu.mode,
+                    "value": loads.groundwater.hu.value,
+                }
+        if loads.groundwater.model == "ru_coefficient":
+            groundwater_payload["ru"] = loads.groundwater.ru
+        payload["groundwater"] = groundwater_payload
     return payload
 
 

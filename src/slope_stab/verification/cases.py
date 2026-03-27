@@ -10,6 +10,8 @@ from slope_stab.models import (
     CuckooGlobalSearchInput,
     DirectGlobalSearchInput,
     GeometryInput,
+    GroundwaterHuInput,
+    GroundwaterInput,
     LoadsInput,
     MaterialInput,
     PrescribedCircleInput,
@@ -229,6 +231,109 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=0.903987,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 5 (Water Surfaces Hu=1 Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=30,
+                tolerance=0.0001,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.7467380814499,
+                yc=45.4044062550562,
+                r=31.9273936519829,
+                x_left=18.0011387032865,
+                y_left=15.0007591355243,
+                x_right=57.931283727996,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 15.0), (18.0, 15.0), (30.0, 23.0), (48.0, 29.0), (66.0, 32.0)),
+                    hu=GroundwaterHuInput(mode="custom", value=1.0),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=1.116900,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 5 (Water Surfaces Hu=Auto Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=30,
+                tolerance=0.0001,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.7989617093161,
+                yc=45.42435160635,
+                r=31.9643522782854,
+                x_left=17.9969901778581,
+                y_left=15.0,
+                x_right=58.0157237820054,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 15.0), (18.0, 15.0), (30.0, 23.0), (48.0, 29.0), (66.0, 32.0)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=1.157570,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 6 (Ru Coefficient Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0),
+            material=MaterialInput(gamma=18.0, c=10.8, phi_deg=40.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=30,
+                tolerance=0.0001,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=69.4716746369335,
+                yc=90.1503711737807,
+                r=80.1517372879095,
+                x_left=6.94774912515767,
+                y_left=40.0,
+                x_right=69.9992594556713,
+                y_right=10.0003702721644,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="ru_coefficient",
+                    ru=0.5,
+                )
+            ),
+        ),
+        expected_fos=1.001250,
         fos_tolerance=0.005,
     ),
     GlobalSearchBenchmarkVerificationCase(
@@ -672,6 +777,112 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=0.903192,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 5 (Spencer Water Surfaces Hu=1 Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=30,
+                tolerance=0.0001,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.7306356373665,
+                yc=45.3987904209922,
+                r=31.9171335903235,
+                x_left=18.0011387032864,
+                y_left=15.0007591355243,
+                x_right=57.906264452734,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 15.0), (18.0, 15.0), (30.0, 23.0), (48.0, 29.0), (66.0, 32.0)),
+                    hu=GroundwaterHuInput(mode="custom", value=1.0),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=1.117220,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 5 (Spencer Water Surfaces Hu=Auto Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=30,
+                tolerance=0.0001,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.7989617093161,
+                yc=45.42435160635,
+                r=31.9643522782854,
+                x_left=17.9969901778581,
+                y_left=15.0,
+                x_right=58.0157237820054,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 15.0), (18.0, 15.0), (30.0, 23.0), (48.0, 29.0), (66.0, 32.0)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=1.157480,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 6 (Spencer Ru Coefficient Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0),
+            material=MaterialInput(gamma=18.0, c=10.8, phi_deg=40.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=30,
+                tolerance=0.0001,
+                max_iter=50,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=69.6211856957322,
+                yc=90.016174054555,
+                r=80.0166969745064,
+                x_left=7.16276650620701,
+                y_left=40.0,
+                x_right=69.9992594556713,
+                y_right=10.0003702721644,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="ru_coefficient",
+                    ru=0.5,
+                )
+            ),
+        ),
+        expected_fos=1.018880,
         fos_tolerance=0.005,
     ),
     AutoRefineVerificationCase(

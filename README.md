@@ -24,7 +24,8 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 - Cuckoo global algorithm explainer (seeded stochastic global search): `docs/cuckoo-global-explainer.md`
 - CMAES global algorithm explainer (hybrid DIRECT + CMA-ES + polish): `docs/cmaes-global-explainer.md`
 - Spencer solver explainer (force and moment equilibrium with lambda coupling): `docs/spencer-explainer.md`
-- Uniform surcharge v1 explainer and interface notes for future seismic/groundwater support: `docs/surcharge-explainer.md`
+- Uniform surcharge v1 explainer: `docs/surcharge-explainer.md`
+- Groundwater v1 explainer (Water Surfaces + Ru Coefficient): `docs/groundwater-explainer.md`
 
 ## Analysis Methods
 
@@ -42,11 +43,17 @@ Supported in v1:
   - `magnitude_kpa >= 0`
   - `placement = crest_infinite` (covers crest for `x >= crest_x`)
   - `placement = crest_range` with explicit `x_start/x_end` constrained to crest (`x >= crest_x`)
+- `loads.groundwater` with:
+  - `model = water_surfaces`
+  - required `surface = [[x, y], ...]` (strictly increasing `x`, at least two points)
+  - required `hu.mode = custom|auto`
+  - `hu.value` required when `hu.mode = custom` (`0 <= hu.value <= 1`)
+  - optional `gamma_w` (defaults to `9.81`)
+  - `model = ru_coefficient` with required `ru` (`0 <= ru <= 1`)
 
 Reserved interfaces (v2-ready stubs in v1):
 
 - `loads.seismic.model` supports only `"none"` in v1.
-- `loads.groundwater.model` supports only `"none"` in v1.
 
 Example:
 
@@ -58,7 +65,12 @@ Example:
       "placement": "crest_infinite"
     },
     "seismic": { "model": "none" },
-    "groundwater": { "model": "none" }
+    "groundwater": {
+      "model": "water_surfaces",
+      "surface": [[0.0, 15.0], [18.0, 15.0], [30.0, 23.0], [48.0, 29.0], [66.0, 32.0]],
+      "hu": { "mode": "auto" },
+      "gamma_w": 9.81
+    }
   }
 }
 ```
