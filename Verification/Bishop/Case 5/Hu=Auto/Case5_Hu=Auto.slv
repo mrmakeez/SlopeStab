@@ -1,0 +1,329 @@
+Slide2 View Options File:
+  modeler version: 9.041
+
+display options start:
+  m_show_coordinates_in_tooltip: 0
+  m_show_length_angle_for_segment: 0
+  grid_points: 0
+  current_stage: 0
+  last_print_view_center: 1.79769313486232e+308, 1.79769313486232e+308
+  last_print_view_scale: -1
+  m_show_ratio_for_segment: 0
+  clr_material_boundary: 192, 192, 192
+  clr_profile_boundary: 226, 226, 226
+  clr_external: 128, 128, 128
+  clr_piezo: 0, 0, 255
+  clr_water_table: 0, 0, 255
+  clr_water_table_final: 191, 191, 255
+  clr_tension_crack: 192, 192, 192
+  clr_aniso_surface: 255, 0, 255
+  clr_aniso_surface_3d: 128, 128, 128
+  clr_weak_layer: 175, 75, 7
+  clr_discharge_section: 0, 128, 0
+  clr_damage_region: 136, 51, 1
+  bDrawWeakLayerByMaterial: 1
+  bDrawDamageRegionsHatch: 1
+  lineWidth: 3
+  bShowElements: 1
+  bElementNumbers: 0
+  clr elements: 192, 192, 192
+  bShowRuler: 1
+  bBWRuler: 1
+  use custom ruler distance: no
+  custom ruler value: 5
+  load_factor: 1
+  bolt faceplates: 1
+  discrete_strength_transparent_bk: 0
+  show_discrete_strength_values: 0
+  show_discrete_strength_symbols: 1
+  bBCValues: 1
+  bShowDiscretizationsWithMesh: 0
+  bBoundaryConditions: 1
+  bNodeNumbers: 0
+  bDrawMidside: 1
+  scale_display_items: 1
+  show modeler water_pressure_grid: yes
+  water_pressure_grid_values: 0
+  bShowBoundaryVertices: 1
+  m_show_discharge_value: 0
+  show_soil_profile: no
+  show_boreholes_in_model_mode: no
+  bCopyModelerToolsOnOpen: 0
+  discharge_arrow_scale_factor: 1
+  discharge_arrow_offset: 0
+  clr_bolt_force_arrows: 0, 0, 255
+  bolt_force_arrow_scale_factor: 1
+  sf_font_m_font_size_x10: 120
+  sf_font_m_bold_font: no
+  sf_font_m_italic_font: no
+  sf_font_m_strFontName: "Verdana"
+  sf_font_m_char_set: 1
+  bShowFEAPondedWater: 1
+  ponded water style start:
+    negative_color: 255, 173, 91
+    hatch: yes
+    fill: no
+    hatch_style: 5
+    line_color: 191, 191, 255
+    fill_color: 191, 191, 255
+  ponded water style end:
+  infoviewer start:
+    infoviewer font name: "Calibri"
+    infoviewer font size: 3
+    infoviewer num properties per table: 8
+    clr infoviewer data: 0, 0, 0
+    clr infoviewer data header: 0, 0, 0
+    clr infoviewer table cell header: 240, 240, 240
+    clr infoviewer header: 0, 0, 128
+    infoviewer inner borders: no
+  infoviewer end:
+display options end:
+
+property viewer display options start:
+  m_show_coordinates_in_tooltip: 0
+  m_show_length_angle_for_segment: 0
+  grid_points: 0
+  current_stage: 0
+  last_print_view_center: 1.79769313486232e+308, 1.79769313486232e+308
+  last_print_view_scale: -1
+  m_show_ratio_for_segment: 0
+  clr_material_boundary: 192, 192, 192
+  clr_profile_boundary: 226, 226, 226
+  clr_external: 128, 128, 128
+  clr_piezo: 255, 128, 192
+  clr_water_table: 255, 128, 192
+  clr_water_table_final: 191, 191, 255
+  clr_tension_crack: 192, 192, 192
+  clr_aniso_surface: 255, 0, 255
+  clr_aniso_surface_3d: 128, 128, 128
+  clr_weak_layer: 175, 75, 7
+  clr_discharge_section: 0, 128, 0
+  clr_damage_region: 136, 51, 1
+  bDrawWeakLayerByMaterial: 1
+  bDrawDamageRegionsHatch: 1
+  lineWidth: 3
+  bShowElements: 1
+  bElementNumbers: 0
+  clr elements: 192, 192, 192
+  bShowRuler: 1
+  bBWRuler: 1
+  use custom ruler distance: no
+  custom ruler value: 5
+  load_factor: 1
+  bolt faceplates: 1
+  discrete_strength_transparent_bk: 0
+  show_discrete_strength_values: 0
+  show_discrete_strength_symbols: 1
+  bBCValues: 1
+  bShowDiscretizationsWithMesh: 0
+  bBoundaryConditions: 1
+  bNodeNumbers: 0
+  bDrawMidside: 1
+  scale_display_items: 1
+  show modeler water_pressure_grid: yes
+  water_pressure_grid_values: 0
+  bShowBoundaryVertices: 0
+  m_show_discharge_value: 0
+  show_soil_profile: no
+  show_boreholes_in_model_mode: no
+  bCopyModelerToolsOnOpen: 0
+  discharge_arrow_scale_factor: 1
+  discharge_arrow_offset: 0
+  clr_bolt_force_arrows: 0, 0, 255
+  bolt_force_arrow_scale_factor: 1
+  sf_font_m_font_size_x10: 120
+  sf_font_m_bold_font: no
+  sf_font_m_italic_font: no
+  sf_font_m_strFontName: "Verdana"
+  sf_font_m_char_set: 1
+  bShowFEAPondedWater: 1
+  ponded water style start:
+    negative_color: 255, 173, 91
+    hatch: yes
+    fill: no
+    hatch_style: 5
+    line_color: 191, 191, 255
+    fill_color: 191, 191, 255
+  ponded water style end:
+  infoviewer start:
+    infoviewer font name: "Calibri"
+    infoviewer font size: 3
+    infoviewer num properties per table: 8
+    clr infoviewer data: 0, 0, 0
+    clr infoviewer data header: 0, 0, 0
+    clr infoviewer table cell header: 240, 240, 240
+    clr infoviewer header: 0, 0, 128
+    infoviewer inner borders: no
+  infoviewer end:
+property viewer display options end:
+
+infoviewer options start:
+infoviewer options end:
+
+view settings start:
+  num modeler views open: 1
+  modeler view settings 1 start:
+    view type: "plan view"
+    display options start:
+      m_show_coordinates_in_tooltip: 0
+      m_show_length_angle_for_segment: 0
+      grid_points: 0
+      current_stage: 0
+      last_print_view_center: 1.79769313486232e+308, 1.79769313486232e+308
+      last_print_view_scale: -1
+      m_show_ratio_for_segment: 0
+      clr_material_boundary: 192, 192, 192
+      clr_profile_boundary: 226, 226, 226
+      clr_external: 128, 128, 128
+      clr_piezo: 0, 0, 255
+      clr_water_table: 0, 0, 255
+      clr_water_table_final: 191, 191, 255
+      clr_tension_crack: 192, 192, 192
+      clr_aniso_surface: 255, 0, 255
+      clr_aniso_surface_3d: 128, 128, 128
+      clr_weak_layer: 175, 75, 7
+      clr_discharge_section: 0, 128, 0
+      clr_damage_region: 136, 51, 1
+      bDrawWeakLayerByMaterial: 1
+      bDrawDamageRegionsHatch: 1
+      lineWidth: 3
+      bShowElements: 1
+      bElementNumbers: 0
+      clr elements: 192, 192, 192
+      bShowRuler: 1
+      bBWRuler: 1
+      use custom ruler distance: no
+      custom ruler value: 5
+      load_factor: 1
+      bolt faceplates: 1
+      discrete_strength_transparent_bk: 0
+      show_discrete_strength_values: 0
+      show_discrete_strength_symbols: 1
+      bBCValues: 1
+      bShowDiscretizationsWithMesh: 0
+      bBoundaryConditions: 1
+      bNodeNumbers: 0
+      bDrawMidside: 1
+      scale_display_items: 1
+      show modeler water_pressure_grid: yes
+      water_pressure_grid_values: 0
+      bShowBoundaryVertices: 1
+      m_show_discharge_value: 0
+      show_soil_profile: no
+      show_boreholes_in_model_mode: no
+      bCopyModelerToolsOnOpen: 0
+      discharge_arrow_scale_factor: 1
+      discharge_arrow_offset: 0
+      clr_bolt_force_arrows: 0, 0, 255
+      bolt_force_arrow_scale_factor: 1
+      sf_font_m_font_size_x10: 120
+      sf_font_m_bold_font: no
+      sf_font_m_italic_font: no
+      sf_font_m_strFontName: "Verdana"
+      sf_font_m_char_set: 1
+      bShowFEAPondedWater: 1
+      ponded water style start:
+        negative_color: 255, 173, 91
+        hatch: yes
+        fill: no
+        hatch_style: 5
+        line_color: 191, 191, 255
+        fill_color: 191, 191, 255
+      ponded water style end:
+      infoviewer start:
+        infoviewer font name: "Calibri"
+        infoviewer font size: 3
+        infoviewer num properties per table: 8
+        clr infoviewer data: 0, 0, 0
+        clr infoviewer data header: 0, 0, 0
+        clr infoviewer table cell header: 240, 240, 240
+        clr infoviewer header: 0, 0, 128
+        infoviewer inner borders: no
+      infoviewer end:
+    display options end:
+    property viewer display options start:
+      m_show_coordinates_in_tooltip: 0
+      m_show_length_angle_for_segment: 0
+      grid_points: 0
+      current_stage: 0
+      last_print_view_center: 1.79769313486232e+308, 1.79769313486232e+308
+      last_print_view_scale: -1
+      m_show_ratio_for_segment: 0
+      clr_material_boundary: 192, 192, 192
+      clr_profile_boundary: 226, 226, 226
+      clr_external: 128, 128, 128
+      clr_piezo: 255, 128, 192
+      clr_water_table: 255, 128, 192
+      clr_water_table_final: 191, 191, 255
+      clr_tension_crack: 192, 192, 192
+      clr_aniso_surface: 255, 0, 255
+      clr_aniso_surface_3d: 128, 128, 128
+      clr_weak_layer: 175, 75, 7
+      clr_discharge_section: 0, 128, 0
+      clr_damage_region: 136, 51, 1
+      bDrawWeakLayerByMaterial: 1
+      bDrawDamageRegionsHatch: 1
+      lineWidth: 3
+      bShowElements: 1
+      bElementNumbers: 0
+      clr elements: 192, 192, 192
+      bShowRuler: 1
+      bBWRuler: 1
+      use custom ruler distance: no
+      custom ruler value: 5
+      load_factor: 1
+      bolt faceplates: 1
+      discrete_strength_transparent_bk: 0
+      show_discrete_strength_values: 0
+      show_discrete_strength_symbols: 1
+      bBCValues: 1
+      bShowDiscretizationsWithMesh: 0
+      bBoundaryConditions: 1
+      bNodeNumbers: 0
+      bDrawMidside: 1
+      scale_display_items: 1
+      show modeler water_pressure_grid: yes
+      water_pressure_grid_values: 0
+      bShowBoundaryVertices: 0
+      m_show_discharge_value: 0
+      show_soil_profile: no
+      show_boreholes_in_model_mode: no
+      bCopyModelerToolsOnOpen: 0
+      discharge_arrow_scale_factor: 1
+      discharge_arrow_offset: 0
+      clr_bolt_force_arrows: 0, 0, 255
+      bolt_force_arrow_scale_factor: 1
+      sf_font_m_font_size_x10: 120
+      sf_font_m_bold_font: no
+      sf_font_m_italic_font: no
+      sf_font_m_strFontName: "Verdana"
+      sf_font_m_char_set: 1
+      bShowFEAPondedWater: 1
+      ponded water style start:
+        negative_color: 255, 173, 91
+        hatch: yes
+        fill: no
+        hatch_style: 5
+        line_color: 191, 191, 255
+        fill_color: 191, 191, 255
+      ponded water style end:
+      infoviewer start:
+        infoviewer font name: "Calibri"
+        infoviewer font size: 3
+        infoviewer num properties per table: 8
+        clr infoviewer data: 0, 0, 0
+        clr infoviewer data header: 0, 0, 0
+        clr infoviewer table cell header: 240, 240, 240
+        clr infoviewer header: 0, 0, 128
+        infoviewer inner borders: no
+      infoviewer end:
+    property viewer display options end:
+  modeler view settings 1 end:
+view settings end:
+
+pview layouts start:
+  print view layouts start:
+    num: 0
+  print view layouts end:
+pview layouts end:
+

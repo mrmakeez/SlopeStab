@@ -1,0 +1,867 @@
+
+model description:
+  version: 9.041
+  methods: 10
+  units: metric
+  seismic: 0
+  seismicv: 0
+  seismic_advanced: 0
+  seismic_advanced_method: 0
+  seismic_pseudostatic: 0
+  seismic_pseudostatic_method: 0
+  water: ru
+  direction: left to right
+  tolerance: 0.0001
+  maxiter: 50
+  malpha: 1
+  zero_shear_check: 1
+  tensile check: 0
+  tensile percentage: 95
+  corpeng_check: 0
+  corpeng_val: 0
+  apply_support_to_interslice: 0
+  check_piezo_surface_intersection: 0
+  correctradius: 0
+  correctnormal: 1
+  check_min_lambda: 0
+  check_max_lambda: 0
+  min_lambda: -0.1
+  max_lambda: 6
+  check_discard_below_fs: 0
+  check_discard_above_fs: 0
+  discard_below_fs_val: 0.1
+  discard_above_fs_val: 3
+  init_trial_fs: 1
+  max_change_fs: 0.5
+  min_fs_iter: 0.1
+  check_min_fs_iter: 0
+  check_max_change_fs: 0
+  check_min_slice_weight: 0
+  check_min_slice_width: 0
+  check_max_base_angle: 0
+  min_slice_weight: 0.001
+  min_slice_width: 0.001
+  max_base_angle: 80
+  bMinSlices: 0
+  steffensen: 1
+  multidocmode: 0
+  temp_multi_doc_id: 
+  use_profile: 0
+  sarma_cohesion: 0
+  sarma_phi: 35
+  slices_type: 0
+  sarma_interslice: 0
+  sarma_slice_angle_option: 0
+  sarma_slice_angle_method: 0
+  sarma_optimize_non_vertical: 0
+  seismic_target_fs: 1
+  sarma_intersect_materials: 1
+  gammaw: 9.81
+  maxnegporepressure: 0
+  usemaxnegporepressure: 0
+  watersurf_maxnegporepressure: 0
+  watersurf_usemaxnegporepressure: 1
+  regular_maxnegporepressure: 0
+  regular_usemaxnegporepressure: 0
+  mode: 0
+  search: 1
+  circularsearch: 2
+  datamode: 1
+  nummaterials: 20
+  numanchors: 20
+  discretized: 0
+  fea mesh exists: 0
+  probability_analysis: 0
+  sensitivity analysis: no
+  random_type: 0
+  random_method: 1
+  with_ru: 1
+  seismic_stage2: 0
+  transient: no
+  design_selection: 0
+  singlesource: 1
+  use_yg_for_anchors: 0
+  consider_tension_shear_normal: 0
+  compute_at_origin: 0
+  sort_glued_cells: 0
+  weak_layer_handling: 0
+  advanced_options: no
+  advanced_options_type: 0
+  advanced_options_rdd_method: 0
+  rdd_interpolation_method: 0
+  seismic_interpolation_method: 0
+  time_units: days
+  permeability_units_imperial: feet/year
+  permeability_units_metric: meters/second
+  borehole_num_div: 20
+  borehole_define_by_thickness: 1
+  surface_interp_method: 0
+  interpolate_top_borehole_surface: 0
+  excavate_above_borehole_top_surface: 1
+  use_date_for_stages: 0
+  stage_names: 0
+
+
+material types:
+  soil1 = type: 0 water: 0.5 wtable: 0 c: 10.8 phi: 40 uw: 18 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0.5 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil2 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil3 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil4 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil5 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil6 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil7 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil8 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil9 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil10 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil11 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil12 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil13 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil14 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil15 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil16 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil17 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil18 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil19 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+  soil20 = type: 0 water: 0 wtable: 0 c: 1 phi: 35 uw: 20 hutype: 0 use_block_c: 0 use_block_phi: 0 gw_mode: 0 gw_user_index: -1 gw_k_ratio: 1 gw_k_angle: 0 gw_ks: 1e-07 SK: 1e-07 STYPE: General gw_wc: 0.4 gw_wcr: 0 gw_usemv: 0 gw_mv: 0.0002 gw_use_wc_for_phib: 0 gw_phi_b: 0 gw_aev: 0 rd_undrained: 0 rd_type: 0 rd_cr: 0 rd_phir: 0 withru: 0 stg2: 0 bbar: 0 use_alternate_strength: 0 alternate_mat_index: 0 spatially_variable_material: 0 correlation_length_x: 5 correlation_length_y: 5 mesh_size: 1 hyd_spatially_variable_material: 0 hyd_correlation_length_x: 5 hyd_correlation_length_y: 5 hyd_mesh_size: 1
+
+3d sectional info:
+  section_strike: 0
+
+design standard array:
+18
+  name: None 
+  standard: 0
+  1 1 1 1 1 1
+  1 1 1 1 1
+  1 1 1 1 1 1
+  1 1 1 1
+  name: Eurocode 7 - Design Approach 1, Combination 1 
+  standard: 1
+  1 0 1.35 1.5 1 1
+  1 1 1 1 1
+  1 1.1 1.1 1.1 1.1 1
+  1 1 1 1
+  name: Eurocode 7 - Design Approach 1, Combination 2 
+  standard: 2
+  1 0 1 1.3 1 1
+  1.25 1.25 1.4 1 1.25
+  1 1.1 1.1 1.1 1.1 1
+  1 1 1 1
+  name: Eurocode 7 - Design Approach 2 
+  standard: 3
+  1 0 1.35 1.5 1 1
+  1 1 1 1 1
+  1.1 1.1 1.1 1.1 1.1 1
+  1 1 1 1
+  name: Eurocode 7 - Design Approach 3 
+  standard: 4
+  1 0 1 1.3 1 1
+  1.25 1.25 1.4 1 1.25
+  1 1 1 1 1 1
+  1 1 1 1
+  name: Eurocode 7 2024 - VC3 + M2, Fundamental 
+  standard: 21
+  1 0 1 1.3 1 1
+  1.25 1.25 1.4 1 1.25
+  1 1 1 1 1 0
+  1 1 1 1
+  name: Eurocode 7 2024 - VC3 + M2, Seismic 
+  standard: 22
+  1 1 1 1 1 1
+  1.25 1.25 1.4 1 1.25
+  1 1 1 1 1 1
+  1 1 1 1
+  name: BS 8006:1995 Section 7 - Reinforced Slopes 
+  standard: 5
+  1 1 1.2 1.3 1.5 1
+  1.6 1 1 1 1
+  1.25 1.5 1.5 1.5 1.3 1
+  1 1 1 1
+  name: BS 8006:2010 Section 7 - Reinforced Slopes 
+  standard: 8
+  1 1 1.2 1.3 1.5 1
+  1.6 1 1 1 1
+  1 1.5 1.5 1.5 1.3 1
+  1 1 1 1
+  name: AASHTO 2020 - Strength I 
+  standard: 9
+  0.9 0 1.25 1.75 1 1
+  1 1 1 1 1
+  1 1 1 1 1 0
+  1 1 1 1
+  name: AASHTO 2020 - Extreme Event I 
+  standard: 10
+  1 0 1 1 1 1
+  1 1 1 1 1
+  1 1 1 1 1 1
+  1 1 1 1
+  name: AASHTO 2024 - Strength I 
+  standard: 15
+  0.9 0 1.25 1.75 1 1
+  1 1 1 1 1
+  1 1 1 1 1 0
+  1 1 1 1
+  name: AASHTO 2024 - Extreme Event I 
+  standard: 16
+  1 0 1 1 1 1
+  1 1 1 1 1
+  1 1 1 1 1 1
+  1 1 1 1
+  name: AS4678 2008 - Strength Combination A 
+  standard: 12
+  0.8 0 1.25 1.5 1 1
+  0.7 0.85 0.5 1 1
+  1 0.75 1 1 0.8 0
+  0.8 1 1 1
+  name: AS4678 2008 - Strength Combination C 
+  standard: 13
+  0.8 0 1.25 0.4 1 1
+  0.7 0.85 0.5 1 1
+  1 0.75 1 1 0.8 1
+  0.8 1 1 1
+  name: CSA S6:19 - CHBDC - ULS Combination 1 
+  standard: 17
+  0.8 1 1.25 1.7 1 1
+  1 1 1 1 1
+  1 1 1 1 1 0
+  1 1 1 1
+  name: CSA S6:19 - CHBDC - ULS Combination 5 
+  standard: 18
+  0.8 0 1.25 0 1 1
+  1 1 1 1 1
+  1 1 1 1 1 1
+  1 1 1 1
+  name: CSA S6:19 - CHBDC - ULS Combination 9 
+  standard: 19
+  0.8 0 1.35 0 1 1
+  1 1 1 1 1
+  1 1 1 1 1 0
+  1 1 1 1
+
+user def geo manufacturer file array:
+0
+
+probability settings:
+  sampling_method: 0
+  number_of_samples: 1000
+  analysis_type: 0
+  spatially_variable_analysis: 0
+  spatial_covariance_function: 0
+  spatial_auto_mesh: 1
+  spatial_infinite_correlation_check: 1
+  hermite_order: 3
+
+strength functions:
+
+generalized anisotropic strength functions:
+  numfunctions: 0
+
+start discrete strength fns:
+  num: 0
+
+end discrete strength fns:
+
+modified snowden strength functions:
+  numfunctions: 0
+
+shansep variable functions:
+  numfunctions: 0
+
+shansep material dependent functions:
+  numfunctions: 0
+
+user defined support:
+
+user defined water method:
+
+user defined bc:
+
+anchor types:
+  anchor1 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor2 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor3 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor4 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor5 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor6 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor7 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor8 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor9 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor10 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor11 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor12 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor13 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor14 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor15 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor16 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor17 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor18 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor19 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+  anchor20 = type: 1 fa: 0 sp: 1 cap: 100 factor_flag: 0 factor_tension_plate: 1 factor_bond: 1 factor_shear: 1 factor_compression: 1 ds_flag: 0 ct_flag: 0 applied_factor: 0 fo_flag: 1 fo_ang: 30 ea_common_type: empty ea_short_description: empty
+
+friction factor:
+
+anchor_rspile_assignments:
+num_anchors: 20
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+  num_mat_assign: 0
+
+anchor_rspile_pile_data:
+num_anchors: 20
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+  rspile_version_num: -1 rspile_analysis_mode: 
+  rspile_guid: 
+
+depth dependent connection strengths:
+
+dpoly interpolation tables:
+
+block model 3d:
+ name: empty
+ id: 
+ filepath: 
+ total_num_blocks: 0
+ rotation: 0
+ definition_type: 0
+ block_size_x: 0  block_size_y: 0  block_size_z: 0
+ num_blocks_i: 0  num_blocks_j: 0  num_blocks_k: 0
+ min_centroid_x: 0  min_centroid_y: 0  min_centroid_z: 0
+ max_centroid_x: 0  max_centroid_y: 0  max_centroid_z: 0
+ min_corner_x: 0  min_corner_y: 0  min_corner_z: 0
+ max_corner_x: 0  max_corner_y: 0  max_corner_z: 0
+ num_materials: 0
+ extra_params: 0
+ offset_x: 0  offset_y: 0  offset_z: 0
+
+pressure profile:
+
+tension crack properties:
+  type: filled  angle_flag: 0  angle_value: 10
+
+gen aniso advanced options:
+  ga_multijoint_handling: 1  ga_consider_weaker_bedding: 0
+vertices:
+  1 x: 0  y: 0
+  2 x: 80  y: 0
+  3 x: 80  y: 10
+  4 x: 70  y: 10
+  5 x: 10  y: 40
+  6 x: 0  y: 40
+
+profile_vertices:
+
+cells:
+  1  vertices: [4,2,3] material: soil1
+  2  vertices: [2,4,1] material: soil1
+  3  vertices: [6,1,5] material: soil1
+  4  vertices: [4,5,1] material: soil1
+
+profile_cells:
+
+anchors:
+
+back analysis of support:
+  compute: no
+  fs: 2
+  load elevation: 0
+  angle from horz: 0
+
+tension map:
+  compute: no
+  fs: 1
+  improved algo: yes
+  ignore design factors: yes
+
+water table:
+
+drawdown line:
+
+piezos:
+
+tension crack:
+
+anisotropic surfaces:
+
+3d anisotropic surfaces:
+
+weak layers:
+
+d0 polylines:
+
+support designer regions:
+
+pore pressures:
+
+slope:
+  1  vertices: [6,5,4,3]
+
+exterior:
+  1  vertices: [1,2,3,4,5,6]
+
+forces:
+
+noncircular analysis:
+  slices: 30
+
+circular analysis:
+  slices: 30
+
+search focus:
+
+slope limits:
+  x1: 0 y1: 40 x2: 80 y2: 10
+
+grids:
+
+centers:
+
+surfaces:
+
+grid search:
+  rinc: 10
+  composite: 0
+  reverse_curvature: 1
+
+block search:
+  samples: 5000
+  leftstart: 135
+  leftend: 135
+  rightstart: 45
+  rightend: 45
+  random: 1
+  convex: 0
+  optimize: 0
+  multiple_groups: 0
+
+path search:
+  samples: 1000
+  random: 1
+  convex: 1
+  optimize: 1
+
+user defined search:
+  convex: 0
+  optimize: 0
+
+threepoint search:
+  composite: 0
+  reverse_curvature: 1
+  samples: 5000
+  random: 1
+  weightlower: 1
+
+maxcoverage search:
+  divisionsalong: 10
+  circlesperdiv: 10
+  iterations: 10
+  percentkept: 50
+  composite: 0
+
+simulatedannealing search:
+  nvertices: 8
+  ngen: 1000
+  max_steps: 20
+  nepsilon: 5
+  ftol: 0.0001
+  c: 8
+  convex: 1
+  optimize: 1
+
+autoslope search:
+  divisionsalong: 10
+  circlesperdiv: 10
+  iterations: 10
+  percentkept: 50
+  numvertices: 12
+  optimize: 1
+
+cuckoo search:
+  nvertices: 8
+  nsurf: 1000
+  maxiterations: 200
+  numnests: 50
+  optimize: 1
+  convex: 1
+
+pso search:
+  nvertices: 8
+  nsurf: 1000
+  maxiterations: 200
+  numparticles: 50
+  optimize: 1
+  convex: 1
+  b_unimodal: 1
+
+optimize surfaces:
+  min_delta_fos: 1e-09
+  step_reduction_factor: 0.5
+  max_iterations: 4000
+  convex_surfaces_only: 0
+  which_surface: 0
+  less_than_fs: 1.5
+  snap_distance: 0.01
+  snap_distance_auto: 1
+  do_snap: 1
+  use_checks: 1
+  max_concave_angle: 2
+  use_max_concave_angle: 1
+  total_concave_angle: 2
+  use_total_concave_angle: 1
+  optimization_option: 1
+  sa_max_iterations: 20
+  sa_iteration_tolerance: 0.001
+  sa_relative_tolerance: 0.0001
+  sa_max_concave_angle: 2
+  sa_use_max_concave_angle: 1
+
+gwmesh setup:
+1500 0
+0 0 0.1
+
+gwmesh auto refine mesh:
+1
+
+disc regions:
+  0
+
+new density regions:
+  0
+
+fea analysis:
+ maxiter: 500 tolerance: 1e-06 history: 1 fea_timesteps: 0 fea_maxitertransient: 500 fea_tolerancetransient: 1e-06
+
+discharge sections start:
+  num discharge sections: 0
+discharge sections end:
+
+
+material random vars:
+  num: 0
+
+material correlation matrix:
+  num: 0
+
+material correlation equated:
+  num: 0
+
+material correlation entries:
+  num: 0
+
+support random vars:
+  num: 0
+
+hydraulic random vars:
+  num: 0
+
+hydraulic correlation matrix:
+  num: 0
+
+hydraulic correlation equated:
+  num: 0
+
+hydraulic correlation entries:
+  num: 0
+
+seismic random var:
+    2, 0, 0, 0, is_on: 0
+    2, 0, 0, 0, is_on: 0
+    0, 0.5
+
+water table stats:
+    2, 0.5, 0
+    determ wt usage: Mean
+
+drawdown line stats:
+    2, 0.5, 0
+    determ rd usage: Mean
+
+stats params tension crack:
+  2, 0.5, 0
+  2, 0, 0, 0, is_on: 0
+    determ tc usage: Mean
+
+stats params piezos:
+
+spatial hydraulic query start:
+spatial hydraulic query end:
+
+
+interface:
+
+material gen. hoek-brown:
+  num: 1  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 2  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 3  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 4  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 5  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 6  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 7  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 8  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 9  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 10  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 11  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 12  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 13  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 14  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 15  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 16  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 17  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 18  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 19  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+  num: 20  gsi: 50  mi: 10  disturbance: 0  use_gsi_mi_d: 0  use_block_gsi: 0  use_block_mi: 0  use_block_d: 0
+
+material ghb gsi depth:
+  num: 1  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 2  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 3  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 4  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 5  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 6  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 7  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 8  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 9  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 10  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 11  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 12  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 13  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 14  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 15  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 16  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 17  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 18  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 19  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+  num: 20  vd: 0  gsi: 50  gsiv: 0  dgsi: 0  cgsi: 0  cutgsi: 0  datgsi: 0
+
+material ghb mi depth:
+  num: 1  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 2  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 3  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 4  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 5  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 6  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 7  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 8  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 9  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 10  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 11  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 12  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 13  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 14  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 15  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 16  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 17  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 18  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 19  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+  num: 20  mi: 10  miv: 0  dmi: 0  cmi: 0  cutmi: 0  datmi: 0
+
+dpoly interpolation tables:
+
+material ghb D depth:
+  num: 1  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 2  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 3  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 4  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 5  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 6  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 7  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 8  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 9  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 10  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 11  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 12  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 13  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 14  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 15  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 16  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 17  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 18  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 19  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+  num: 20  D: 0  Dv: 0  dD: 0  cD: 0  cutD: 0  datD: 0 d0poly: -1 d0poly_guid:  dpoly_interp_method: 0 d_top: 1 d_table: -1
+
+material properties:
+  Material 1    red: 242  green: 206  blue: 0  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {2B248CEF-31EF-42c3-9158-2070E639B7D8}
+  Material 2    red: 60  green: 179  blue: 113  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {B6E12924-1030-4f43-A111-8E7C486FBA86}
+  Material 3    red: 255  green: 104  blue: 32  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {2AE18694-F207-43c7-AE46-81B1F501E864}
+  Material 4    red: 123  green: 123  blue: 192  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {1B5CE0BC-7F8B-4dc7-A851-A4C0B319F16C}
+  Material 5    red: 139  green: 139  blue: 0  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {2F9C1468-3F68-4ad8-9B38-FBACEDE31325}
+  Material 6    red: 165  green: 42  blue: 0  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {D214B9B9-AC86-4a17-9A5B-9079E77007B8}
+  Material 7    red: 162  green: 34  blue: 255  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {7F457F89-023F-480a-9F81-B46E45EB68C1}
+  Material 8    red: 152  green: 251  blue: 152  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {009CC599-A298-498b-99AE-5D81AC0B600B}
+  Material 9    red: 255  green: 200  blue: 255  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {B7C6A171-E1C7-4caf-BD13-DAB6512CD3BC}
+  Material 10    red: 0  green: 180  blue: 0  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {C908C159-A9ED-4831-B0A7-5A30ECFB1755}
+  Material 11    red: 255  green: 255  blue: 155  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {68814B84-98B2-47c7-9ED8-D44893F46899}
+  Material 12    red: 215  green: 118  blue: 104  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {3760E7F1-72EC-4610-9E12-91CBAE600697}
+  Material 13    red: 190  green: 192  blue: 211  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {19B6D588-652F-4dfd-B9AA-BC02B8FF7A37}
+  Material 14    red: 210  green: 180  blue: 140  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {697E7DC9-3DD9-4f68-A1FB-4048FC53A104}
+  Material 15    red: 212  green: 255  blue: 255  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {26D0E9F6-F647-4683-8FB0-CD67BCF04905}
+  Material 16    red: 183  green: 219  blue: 219  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {108A79E6-010D-4c9f-8159-8C2C494ABE82}
+  Material 17    red: 197  green: 197  blue: 137  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {73C6EB46-DCF0-49cc-AEF8-38B024D3321B}
+  Material 18    red: 0  green: 85  blue: 0  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {947B3AFB-326A-40e9-9C76-39E650323575}
+  Material 19    red: 153  green: 211  blue: 133  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {1C5542C0-7D88-44d3-9877-150FE2A5F112}
+  Material 20    red: 203  green: 150  blue: 20  has_hatch: 0 hatch2: 0  hatch_clr: 0 guid: {E0BCBF24-234A-4f70-AC54-11F340B45CBD}
+  Support 1    red: 0  green: 0  blue: 255 guid: {83180BA9-CF17-4f7c-83AF-48F65B259E29}
+  Support 2    red: 75  green: 0  blue: 130 guid: {B041F2B4-368B-47f9-BBEF-884C14050648}
+  Support 3    red: 0  green: 255  blue: 0 guid: {252E461B-DFBE-4c9b-9AA5-0B097DB74AFF}
+  Support 4    red: 255  green: 0  blue: 255 guid: {EC82F127-F84A-4db4-B8F5-297FB853AE86}
+  Support 5    red: 255  green: 0  blue: 0 guid: {F9DCA41A-EACC-455b-B553-13B2477B558F}
+  Support 6    red: 165  green: 42  blue: 0 guid: {C881DB6A-772A-4952-810E-5A35051632EB}
+  Support 7    red: 56  green: 144  blue: 144 guid: {73EDEF8F-011B-4323-817D-2B93F35108EB}
+  Support 8    red: 255  green: 255  blue: 0 guid: {D90A8166-418A-453d-A2DB-BC4BCF4E7CF3}
+  Support 9    red: 255  green: 192  blue: 200 guid: {347C1F70-65F5-4570-8CBE-F104C707C1A2}
+  Support 10    red: 0  green: 255  blue: 255 guid: {D70539D5-5A27-4794-A058-E18D592E3403}
+  Support 11    red: 0  green: 0  blue: 0 guid: {A5E67CFF-DB89-4548-BDAF-56E4F4B587CA}
+  Support 12    red: 128  green: 128  blue: 192 guid: {901A896F-A002-4fca-8042-C47B3FA6D2A9}
+  Support 13    red: 128  green: 128  blue: 0 guid: {B33474E5-3843-40d9-B962-437CB4CF13F6}
+  Support 14    red: 128  green: 0  blue: 0 guid: {F65B34DA-77ED-4c20-91D5-E3BC2F90904A}
+  Support 15    red: 152  green: 248  blue: 152 guid: {1E381B21-F283-44aa-A152-3C13F2CCED60}
+  Support 16    red: 0  green: 0  blue: 128 guid: {810D4022-CB55-433c-9460-6889DAFA2015}
+  Support 17    red: 200  green: 200  blue: 200 guid: {C27B2B7C-54AE-4690-8F94-D3C7684644B2}
+  Support 18    red: 128  green: 0  blue: 128 guid: {3A663C76-04B4-4a8d-9564-4C8BF1C1C01D}
+  Support 19    red: 0  green: 128  blue: 128 guid: {579037E0-5048-4d90-959B-BB88445DE808}
+  Support 20    red: 255  green: 128  blue: 0 guid: {9714263B-0241-4adb-B462-5FE6808AAD90}
+
+block model 3d:
+ name: empty
+ id: 
+ filepath: 
+ total_num_blocks: 0
+ rotation: 0
+ definition_type: 0
+ block_size_x: 0  block_size_y: 0  block_size_z: 0
+ num_blocks_i: 0  num_blocks_j: 0  num_blocks_k: 0
+ min_centroid_x: 0  min_centroid_y: 0  min_centroid_z: 0
+ max_centroid_x: 0  max_centroid_y: 0  max_centroid_z: 0
+ min_corner_x: 0  min_corner_y: 0  min_corner_z: 0
+ max_corner_x: 0  max_corner_y: 0  max_corner_z: 0
+ num_materials: 0
+ extra_params: 0
+ offset_x: 0  offset_y: 0  offset_z: 0
+
+geometry gui_ids:
+# ----------------------------------------------------------------------------------------------
+guid: {53074587-C30E-499e-95FE-DD988615D121}
+
+geometry info:
+#0:External boundary  1:Excavation  2:Joint  3:Material  4:Stage  5: Master Profile  6: Profile Bound
+#  Material Type    End Flag        Vertex (x,y)        Disc (x,y)       A.B.I    Visible    Temporary
+# ----------------------------------------------------------------------------------------------
+         0                0        0.00000000000000,0.00000000000000           0              0          1          0
+         0                0        80.0000000000000,0.00000000000000           0              0          1          0
+         0                0        80.0000000000000,10.0000000000000           0              0          1          0
+         0                0        70.0000000000000,10.0000000000000           0              0          1          0
+         0                0        10.0000000000000,40.0000000000000           0              0          1          0
+         0                1        0.00000000000000,40.0000000000000           0              0          1          0
+
+soil profile start:
+  soil_extents_left: 0
+  soil_extents_right: 20
+  soil_extents_top: 0
+  soil_extents_bottom: -10
+  always_reassign: yes
+  imported_from_rslog: no
+  soil_extents_points start:
+    dpoint array start:
+      num points: 8
+      0: 0, 0
+      1: 20, 0
+      2: 20, -10
+      3: 0, -10
+      4: 0, 0
+      5: 20, 0
+      6: 20, -10
+      7: 0, -10
+    dpoint array end:
+  soil_extents_points end:
+soil profile end:
+
+soil boreholes start:
+  num boreholes: 0
+soil boreholes end:
+
+
+soil profile flags start:
+  from boreholes start:
+    num: 0
+  from boreholes end:
+soil profile flags end:
+
+slammer options start:
+  m_acceleration_options: 3
+  m_scaling_option: 0
+  m_slope_displacement_option: 0
+  m_linear_elastic_model: yes
+  m_rigorous_types: 2
+  m_scale_factor: 1
+  m_swv_above: 300
+  m_swv_below: 300
+  m_damping_ratio: 5
+  m_reference_strain: 0.05
+  m_digitization_interval: 0
+  m_seismic_record start:
+    num: 0
+  m_seismic_record end:
+  m_newmark_user_times start:
+    num: 0
+  m_newmark_user_times end:
+  m_newmark_user_accelerations start:
+    num: 0
+  m_newmark_user_accelerations end:
+  m_earthquake_id: 0
+  m_record_id: 0
+  m_example_earthquake_text: ""
+slammer options end:
+

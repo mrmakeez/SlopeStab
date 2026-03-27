@@ -1,0 +1,30 @@
+Slide Interpret View States File:
+  version: "9.041"
+  sli CRC: 0
+  slw CRC: 0
+
+Views States Start:
+  num states: 1
+  view state name 1: "Default"
+  view state ID 1: "{5037F2AC-661D-4bb5-A4C0-7EDD5B9BDDC1}"
+  view state {5037F2AC-661D-4bb5-A4C0-7EDD5B9BDDC1} start:
+    tools start:
+      num tools: 0
+    tools end:
+    gw queries start:
+      num queries: 1
+    gw queries end:
+    result queries start:
+      num result queries: 0
+    result queries end:
+    hydraulic query start:
+    hydraulic query end:
+    print preview layouts start:
+      num: 0
+    print preview layouts end:
+    views start:
+      num views: 0
+    views end:
+  view state {5037F2AC-661D-4bb5-A4C0-7EDD5B9BDDC1} end:
+Views States End:
+

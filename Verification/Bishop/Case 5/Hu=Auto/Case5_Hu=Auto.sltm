@@ -1,0 +1,20 @@
+Slide Tools File:
+  version: 9.041
+
+tools data start:
+  num tools: 0
+tools data end:
+
+project summary start:
+  project_title: "SLIDE - An Interactive Slope Stability Program"
+  analysis: ""
+  author: "Rocscience Inc."
+  date_created: "12/12/2016"
+  comments1: ""
+  comments2: ""
+  comments3: ""
+  comments4: ""
+  comments5: ""
+  company: "Rocscience Inc."
+project summary end:
+

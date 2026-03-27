@@ -1,0 +1,8 @@
+Verification Purpose: To verify that the watertable features are working in a similar way to Slide2 implementation
+"PublishedSource5.pdf" - Problem Definition (note that Case 3 is simply Case 1 put with auto-refine used inlieu of a grid search)
+"Case 5.sli" - Slide2 Model
+"Case 5.s01" - Slide2 Model Output (Standard Output)
+"Case 5.pdf" - Slide2 Report
+
+Notes:
+•Hu=1

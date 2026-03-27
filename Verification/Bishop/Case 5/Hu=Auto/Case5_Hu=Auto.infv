@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XDocumentWithMetadata>
+  <Metadata>
+    <MetadataEntry>
+      <MetadataName>SaveTime</MetadataName>
+      <MetadataValue>27/03/2026 3:51:21 pm</MetadataValue>
+    </MetadataEntry>
+  </Metadata>
+  <InfoViewerPreferences>
+    <SelectedSections>
+      <Cover-Page>true</Cover-Page>
+      <Table-of-Contents>true</Table-of-Contents>
+      <Title>true</Title>
+      <Project-Summary>true</Project-Summary>
+      <General-Settings>true</General-Settings>
+      <Analysis-Options>true</Analysis-Options>
+      <Groundwater-Analysis>true</Groundwater-Analysis>
+      <Random-Numbers>true</Random-Numbers>
+      <Surface-Options>true</Surface-Options>
+      <Seismic-Loading>true</Seismic-Loading>
+      <Materials>true</Materials>
+      <Global-Minimums>true</Global-Minimums>
+      <Global-Minimum-Support-Data>true</Global-Minimum-Support-Data>
+      <Valid-and-Invalid-Surfaces>true</Valid-and-Invalid-Surfaces>
+      <Slice-Data>true</Slice-Data>
+      <Interslice-Data>true</Interslice-Data>
+      <Discharge-Sections>true</Discharge-Sections>
+      <Entity-Information>true</Entity-Information>
+    </SelectedSections>
+    <CoverPageOptions>
+      <UseCompanyLogo>true</UseCompanyLogo>
+      <UseCoverImage>true</UseCoverImage>
+      <UseTextBox1>true</UseTextBox1>
+      <UseTextBox2>true</UseTextBox2>
+      <UseTextBox3>true</UseTextBox3>
+      <CompanyLogoAlignment>At Top Left</CompanyLogoAlignment>
+      <CoverImageAlignment>At Center</CoverImageAlignment>
+      <CompanyLogoFilePath>pack://application:,,,/ReportFlow;component/Logo/Rocscience_Logo_Primary1000_px.png</CompanyLogoFilePath>
+      <CoverImageFilePath>pack://application:,,,/ReportFlow;component/Logo/Slide2-Cover_square.png</CoverImageFilePath>
+      <TextBox1>SLIDE - An Interactive Slope Stability Program</TextBox1>
+      <TextBox2></TextBox2>
+      <TextBox3>Rocscience Inc.</TextBox3>
+    </CoverPageOptions>
+    <HeaderOptions>
+      <LayoutOption>Left Right</LayoutOption>
+      <Left>Project Name</Left>
+      <Right>Date</Right>
+      <Middle>None</Middle>
+      <UseDivider>false</UseDivider>
+    </HeaderOptions>
+    <FooterOptions>
+      <LayoutOption>Left Right</LayoutOption>
+      <Left>Company Logo</Left>
+      <Right>Page</Right>
+      <Middle>None</Middle>
+      <UseDivider>false</UseDivider>
+    </FooterOptions>
+    <StyleEditOptions>
+      <Font>Tahoma</Font>
+      <FontSize>Normal</FontSize>
+      <HeaderAlignment>Left</HeaderAlignment>
+      <SectionTitleColour>
+        <A>255</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </SectionTitleColour>
+      <TableHeaderColour>
+        <A>255</A>
+        <R>211</R>
+        <G>211</G>
+        <B>211</B>
+      </TableHeaderColour>
+      <DataColour>
+        <A>255</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </DataColour>
+      <TableSubHeaderColour>
+        <A>255</A>
+        <R>220</R>
+        <G>220</G>
+        <B>220</B>
+      </TableSubHeaderColour>
+      <AlternatingRowsColour>
+        <A>255</A>
+        <R>245</R>
+        <G>245</G>
+        <B>245</B>
+      </AlternatingRowsColour>
+      <TopDividerColour>
+        <A>255</A>
+        <R>0</R>
+        <G>100</G>
+        <B>0</B>
+      </TopDividerColour>
+      <BottomDividerColour>
+        <A>255</A>
+        <R>232</R>
+        <G>125</G>
+        <B>19</B>
+      </BottomDividerColour>
+      <PageBreaks>true</PageBreaks>
+    </StyleEditOptions>
+    <Comments />
+    <ImagePaths />
+    <Watermark>
+      <Text></Text>
+      <TextDirection>ForwardDiagonal</TextDirection>
+      <FontFamily>Verdana</FontFamily>
+      <Size>36</Size>
+      <Style>Regular</Style>
+      <Colour>-65536</Colour>
+      <Image></Image>
+      <ImageViewMode>Clip</ImageViewMode>
+      <ImageTiling>false</ImageTiling>
+      <ImageAlign>MiddleCenter</ImageAlign>
+      <ImageTransparency>0</ImageTransparency>
+      <ShowBehind>true</ShowBehind>
+      <PageRange></PageRange>
+    </Watermark>
+    <PageSetup>
+      <IsLandscape>false</IsLandscape>
+      <PageSizeHeight>1100</PageSizeHeight>
+      <PageSizeWidth>850</PageSizeWidth>
+      <Units>HundredthsOfAnInch</Units>
+      <Width>850</Width>
+      <Height>1100</Height>
+      <LeftMargin>50</LeftMargin>
+      <TopMargin>50</TopMargin>
+      <RightMargin>50</RightMargin>
+      <BottomMargin>50</BottomMargin>
+    </PageSetup>
+    <ScaleFactor>1</ScaleFactor>
+    <AutoFitToPagesWidth>0</AutoFitToPagesWidth>
+  </InfoViewerPreferences>
+</XDocumentWithMetadata>

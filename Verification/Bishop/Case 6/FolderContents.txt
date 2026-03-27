@@ -1,0 +1,8 @@
+Verification Purpose: To verify that the pore pressure "Ru" features is working in a similar way to Slide2 implementation
+"PublishedSource6.pdf" - Problem Definition (note that Case 3 is simply Case 1 put with auto-refine used inlieu of a grid search)
+"Case6.sli" - Slide2 Model
+"Case6.s01" - Slide2 Model Output (Standard Output)
+"Case 6.pdf" - Slide2 Report
+
+Notes:
+•Ru=0.5
