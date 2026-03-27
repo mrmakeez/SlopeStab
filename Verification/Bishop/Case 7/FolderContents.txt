@@ -1,0 +1,7 @@
+Verification Purpose: To verify that the auto Hu feature & ponded water is working in a similar way to Slide2 implementation
+"Case7.slmd" - Slide2 Model
+"\Case7" - Slide2 Model Output (Standard Output)
+"Case 7.pdf" - Slide2 Report
+
+Notes:
+•Steeply plunging watertable & ponded water
