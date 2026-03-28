@@ -24,7 +24,7 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)
         payload = json.loads(proc.stdout)
         self.assertTrue(payload["all_passed"])
-        self.assertEqual(len(payload["cases"]), 35)
+        self.assertEqual(len(payload["cases"]), 39)
         self.assertIn("execution", payload)
 
         execution = payload["execution"]
@@ -56,9 +56,13 @@ class CliRegressionTests(unittest.TestCase):
         self.assertIn("Case 5 (Water Surfaces Hu=1 Benchmark)", cases)
         self.assertIn("Case 5 (Water Surfaces Hu=Auto Benchmark)", cases)
         self.assertIn("Case 6 (Ru Coefficient Benchmark)", cases)
+        self.assertIn("Case 7 (Ponded Water Hu=Auto Benchmark)", cases)
+        self.assertIn("Case 8 (Ponded Water Hu=Auto Benchmark)", cases)
         self.assertIn("Case 5 (Spencer Water Surfaces Hu=1 Benchmark)", cases)
         self.assertIn("Case 5 (Spencer Water Surfaces Hu=Auto Benchmark)", cases)
         self.assertIn("Case 6 (Spencer Ru Coefficient Benchmark)", cases)
+        self.assertIn("Case 7 (Spencer Ponded Water Hu=Auto Benchmark)", cases)
+        self.assertIn("Case 8 (Spencer Ponded Water Hu=Auto Benchmark)", cases)
         self.assertNotIn("Case 3 (Surcharge 100kPa Benchmark)", cases)
 
         self.assertEqual(cases["Case 1"]["case_type"], "prescribed_benchmark")

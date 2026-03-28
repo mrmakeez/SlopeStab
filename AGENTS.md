@@ -93,8 +93,8 @@ Expected:
 - Verification suite reports all cases passed.
 - Unit/integration/regression tests pass.
 - Built-in `cli verify` includes Bishop and Spencer verification coverage:
-  - Bishop: Case 1, Case 2, Case 3, Case 4, Case 5 (Water Surfaces Hu=1), Case 5 (Water Surfaces Hu=Auto), Case 6 (Ru Coefficient), plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
-  - Spencer: prescribed benchmarks for Cases 2-6 (including Case 5 Hu=1/Hu=Auto and Case 6 Ru), auto-refine parity for Cases 3-4, and Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Bishop: Case 1, Case 2, Case 3, Case 4, Case 5 (Water Surfaces Hu=1), Case 5 (Water Surfaces Hu=Auto), Case 6 (Ru Coefficient), Case 7 (Ponded Water Hu=Auto), Case 8 (Ponded Water Hu=Auto), plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Spencer: prescribed benchmarks for Cases 2-8 (including Case 5 Hu=1/Hu=Auto, Case 6 Ru, and Cases 7-8 ponded water Hu=Auto), auto-refine parity for Cases 3-4, and Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
   - Surcharge benchmark policy: Case 3 surcharge 50 kPa prescribed benchmarks (Bishop + Spencer) are included in `cli verify`.
   - Case 3 surcharge 100 kPa remains a non-verify stress regression in unittest (`tests/regression/test_surcharge_case3.py`).
   - Global benchmark rule remains `FOS(method) <= FOS(benchmark) + 0.01`.

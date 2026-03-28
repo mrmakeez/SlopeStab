@@ -18,7 +18,7 @@ Required fields:
 
 Per-slice algorithm:
 
-1. Evaluate at the center of the slice base:
+1. Evaluate pore pressure at the center of the slice base:
    - `x_mid = 0.5 * (x_left + x_right)`
    - `y_base_mid` from linear interpolation of base endpoints
    - `y_water_mid` and local water-surface slope at `x_mid`
@@ -32,6 +32,12 @@ Per-slice algorithm:
 5. Store pore application point at slice-base center:
    - `pore_x_app = x_mid`
    - `pore_y_app = y_base_mid`
+
+6. Evaluate ponded-water top loading over the slice top boundary where water is above ground:
+   - `h_pond(x) = max(y_water(x) - y_ground(x), 0)`
+   - vertical ponded resultant (downward): `F_y_pond = gamma_w * integral(h_pond(x) dx)`
+   - horizontal ponded resultant on sloping submerged top: `F_x_pond = -gamma_w * integral(h_pond(x) * slope_ground(x) dx)`
+   - ponded resultants are added into slice external load channels (`external_force_x`, `external_force_y`) with deterministic application points.
 
 Strict v1 rule:
 
@@ -55,12 +61,15 @@ External loads (`external_force_y`) are excluded from Ru pore-pressure construct
 
 ## 3) Solver Coupling
 
-Groundwater acts through effective-normal resistance terms:
+Groundwater acts through two channels:
 
 - Bishop: resistance equations use pore vertical projection (`U * cos(alpha)`).
 - Spencer: resistance equations use effective-base coupling (`T = cL + (N - U) tan(phi)`).
 
-Driving moment terms remain based on total vertical loads.
+Ponded-water and surcharge resultants are treated as external slice loads:
+
+- vertical components contribute through total vertical force terms.
+- horizontal and vertical external components both contribute through external moment terms about slip-center.
 
 ## 4) Verification Coverage
 
@@ -69,3 +78,5 @@ Built-in `cli verify` includes groundwater prescribed checks:
 - Case 5 (Water Surfaces, Hu=1): Bishop + Spencer
 - Case 5 (Water Surfaces, Hu=Auto): Bishop + Spencer
 - Case 6 (Ru Coefficient): Bishop + Spencer
+- Case 7 (Ponded Water, Hu=Auto): Bishop + Spencer
+- Case 8 (Ponded Water, Hu=Auto): Bishop + Spencer

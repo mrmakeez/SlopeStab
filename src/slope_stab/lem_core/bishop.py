@@ -37,7 +37,12 @@ class BishopSimplifiedSolver(LEMSolver):
         slice_ids = np.fromiter((s.slice_id for s in slices), dtype=int)
         x_left = np.fromiter((s.x_left for s in slices), dtype=float)
         x_right = np.fromiter((s.x_right for s in slices), dtype=float)
-        weights = np.fromiter((s.total_vertical_force for s in slices), dtype=float)
+        soil_weights = np.fromiter((s.weight for s in slices), dtype=float)
+        external_force_x = np.fromiter((s.external_force_x for s in slices), dtype=float)
+        external_force_y = np.fromiter((s.external_force_y for s in slices), dtype=float)
+        external_x_app = np.fromiter((s.external_x_app for s in slices), dtype=float)
+        external_y_app = np.fromiter((s.external_y_app for s in slices), dtype=float)
+        weights = soil_weights + external_force_y
         pore_forces = np.fromiter((s.pore_force for s in slices), dtype=float)
         alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
         base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
@@ -51,7 +56,14 @@ class BishopSimplifiedSolver(LEMSolver):
 
         x_mid = 0.5 * (x_left + x_right)
         x_offset = x_mid - self._surface.xc
-        driving_component = weights * (x_offset / self._surface.r)
+        external_x_offset = external_x_app - self._surface.xc
+        external_y_offset = external_y_app - self._surface.yc
+        driving_moment_component = (
+            (soil_weights * x_offset)
+            + (external_force_y * external_x_offset)
+            - (external_force_x * external_y_offset)
+        )
+        driving_component = driving_moment_component / self._surface.r
         denominator_raw = float(np.sum(driving_component))
         direction = 1.0 if denominator_raw >= 0.0 else -1.0
         sin_a = sin_a * direction
@@ -123,7 +135,7 @@ class BishopSimplifiedSolver(LEMSolver):
         shear_strength = np.maximum(shear_strength_raw, 0.0)
         friction = shear_strength - cohesion_base
 
-        driving_moment = float(abs(np.sum(weights * x_offset)))
+        driving_moment = float(abs(np.sum(driving_moment_component)))
         resisting_moment = f_k * driving_moment
 
         slice_results: list[SliceResult] = []

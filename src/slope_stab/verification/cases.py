@@ -336,6 +336,76 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_fos=1.001250,
         fos_tolerance=0.005,
     ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 7 (Ponded Water Hu=Auto Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=6.0, l=2.0, x_toe=5.0, y_toe=3.0),
+            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=50,
+                tolerance=0.001,
+                max_iter=75,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=1.65885679531231,
+                yc=9.0,
+                r=6.865877145366,
+                x_left=5.00078365866115,
+                y_left=3.00235097598346,
+                x_right=8.52473394067831,
+                y_right=9.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 4.609), (5.53621, 4.60862), (6.44028, 7.32085), (12.0, 8.0)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=0.940158,
+        fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 8 (Ponded Water Hu=Auto Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=6.0, l=7.0, x_toe=5.0, y_toe=3.0),
+            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            analysis=AnalysisInput(
+                method="bishop_simplified",
+                n_slices=50,
+                tolerance=0.001,
+                max_iter=75,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=5.81157572491755,
+                yc=13.042352415468,
+                r=10.0749729401736,
+                x_left=5.00012832564169,
+                y_left=3.00010999340716,
+                x_right=15.0400353306367,
+                y_right=9.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 7.184), (9.8819, 7.18448), (20.0, 9.0)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=2.511620,
+        fos_tolerance=0.005,
+    ),
     GlobalSearchBenchmarkVerificationCase(
         case_type="global_search_benchmark",
         search_method="direct_global_circular",
@@ -884,6 +954,78 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         ),
         expected_fos=1.018880,
         fos_tolerance=0.005,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 7 (Spencer Ponded Water Hu=Auto Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=6.0, l=2.0, x_toe=5.0, y_toe=3.0),
+            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=50,
+                tolerance=0.001,
+                max_iter=75,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=2.47419041573854,
+                yc=10.3792666017876,
+                r=7.75902007436276,
+                x_left=5.01615097845115,
+                y_left=3.04845293535344,
+                x_right=10.1096351411987,
+                y_right=9.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 4.609), (5.53621, 4.60862), (6.44028, 7.32085), (12.0, 8.0)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=1.049400,
+        fos_tolerance=0.02,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 8 (Spencer Ponded Water Hu=Auto Benchmark)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=6.0, l=7.0, x_toe=5.0, y_toe=3.0),
+            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            analysis=AnalysisInput(
+                method="spencer",
+                n_slices=50,
+                tolerance=0.001,
+                max_iter=75,
+                f_init=1.0,
+            ),
+            prescribed_surface=PrescribedCircleInput(
+                xc=5.81157572491755,
+                yc=13.042352415468,
+                r=10.0749729401736,
+                x_left=5.00012832564169,
+                y_left=3.00010999340716,
+                x_right=15.0400353306367,
+                y_right=9.0,
+            ),
+            loads=LoadsInput(
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 7.184), (9.8819, 7.18448), (20.0, 9.0)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                )
+            ),
+        ),
+        expected_fos=2.505910,
+        fos_tolerance=0.02,
     ),
     AutoRefineVerificationCase(
         case_type="auto_refine_parity",

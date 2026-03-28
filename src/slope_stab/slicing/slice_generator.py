@@ -14,6 +14,7 @@ from slope_stab.surfaces.circular import CircularSlipSurface
 _NEG_HEIGHT_TOL = 1e-9
 _VERTICAL_TOL = 1e-12
 _WATER_SURFACE_X_TOL = 1e-9
+_PONDED_NUMERIC_SAMPLES = 129
 
 
 def _integration_nodes(x_edges: np.ndarray, profile: UniformSlopeProfile) -> np.ndarray:
@@ -90,6 +91,114 @@ def _water_surface_y_and_slope(
     slope = (y1 - y0) / (x1 - x0)
     y = y0 + slope * (x - x0)
     return y, slope
+
+
+def _ground_y_and_slope(
+    profile: UniformSlopeProfile,
+    x: float,
+) -> tuple[float, float]:
+    y = float(profile.y_ground(x))
+    if x < profile.x_toe:
+        slope = 0.0
+    elif x > profile.crest_x:
+        slope = 0.0
+    else:
+        slope = profile.h / profile.l if abs(profile.l) > _VERTICAL_TOL else 0.0
+    return y, float(slope)
+
+
+def _combine_external_resultants(
+    *,
+    resultants: list[tuple[float, float, float, float]],
+    x_mid: float,
+    y_mid: float,
+) -> tuple[float, float, float, float]:
+    if not resultants:
+        return 0.0, 0.0, x_mid, y_mid
+
+    sum_fx = 0.0
+    sum_fy = 0.0
+    sum_x_fy = 0.0
+    sum_y_fx = 0.0
+    for fx, fy, x_app, y_app in resultants:
+        sum_fx += fx
+        sum_fy += fy
+        sum_x_fy += x_app * fy
+        sum_y_fx += y_app * fx
+
+    if abs(sum_fy) > _VERTICAL_TOL:
+        x_app = sum_x_fy / sum_fy
+    elif abs(sum_fx) > _VERTICAL_TOL:
+        x_app = sum(x_app * abs(fx) for fx, _, x_app, _ in resultants) / sum(
+            abs(fx) for fx, _, _, _ in resultants
+        )
+    else:
+        x_app = x_mid
+
+    if abs(sum_fx) > _VERTICAL_TOL:
+        y_app = sum_y_fx / sum_fx
+    elif abs(sum_fy) > _VERTICAL_TOL:
+        y_app = sum(y_app * abs(fy) for _, fy, _, y_app in resultants) / sum(
+            abs(fy) for _, fy, _, _ in resultants
+        )
+    else:
+        y_app = y_mid
+
+    return float(sum_fx), float(sum_fy), float(x_app), float(y_app)
+
+
+def _ponded_water_top_resultant(
+    profile: UniformSlopeProfile,
+    groundwater: GroundwaterInput,
+    x_left: float,
+    x_right: float,
+) -> tuple[float, float, float, float]:
+    if groundwater.model != "water_surfaces":
+        return 0.0, 0.0, 0.5 * (x_left + x_right), float(profile.y_ground(0.5 * (x_left + x_right)))
+
+    x_min = groundwater.surface[0][0]
+    x_max = groundwater.surface[-1][0]
+    x_eval_left = max(x_left, x_min)
+    x_eval_right = min(x_right, x_max)
+    x_mid = 0.5 * (x_left + x_right)
+    y_mid = float(profile.y_ground(x_mid))
+    if x_eval_right <= x_eval_left:
+        return 0.0, 0.0, x_mid, y_mid
+
+    # Deterministic fixed-node numerical integration; this keeps behavior stable
+    # while allowing ponded-depth integration across piecewise profile/water surfaces.
+    xs = np.linspace(x_eval_left, x_eval_right, _PONDED_NUMERIC_SAMPLES, dtype=float)
+    y_ground = np.empty_like(xs)
+    slopes = np.empty_like(xs)
+    y_water = np.empty_like(xs)
+    for idx, x in enumerate(xs):
+        y_g, slope_g = _ground_y_and_slope(profile, float(x))
+        y_w, _ = _water_surface_y_and_slope(groundwater.surface, float(x))
+        y_ground[idx] = y_g
+        slopes[idx] = slope_g
+        y_water[idx] = y_w
+
+    depth = np.maximum(y_water - y_ground, 0.0)
+    area = float(np.trapezoid(depth, xs))
+    if area <= _VERTICAL_TOL:
+        return 0.0, 0.0, x_mid, y_mid
+
+    gamma_w = float(groundwater.gamma_w)
+    fy = gamma_w * area
+
+    x_depth_moment = float(np.trapezoid(xs * depth, xs))
+    x_fy_moment = gamma_w * x_depth_moment
+    x_app_fy = x_fy_moment / fy if abs(fy) > _VERTICAL_TOL else x_mid
+
+    # Horizontal hydrostatic resultant on sloping submerged top profile.
+    fx_density = depth * slopes
+    fx = -gamma_w * float(np.trapezoid(fx_density, xs))
+    y_fx_moment = -gamma_w * float(np.trapezoid(y_ground * fx_density, xs))
+    y_app_fx = y_fx_moment / fx if abs(fx) > _VERTICAL_TOL else y_mid
+
+    x_app = float(x_app_fy)
+    y_app = float(y_app_fx if abs(fx) > _VERTICAL_TOL else profile.y_ground(x_app))
+    return float(fx), float(fy), x_app, y_app
 
 
 def _water_surfaces_pore_resultant(
@@ -256,10 +365,9 @@ def generate_vertical_slices(
     groundwater = loads.groundwater if loads is not None else None
     slices: list[SliceGeometry] = []
     for i in range(n_slices):
-        ext_force_y = 0.0
-        ext_force_x = 0.0
-        ext_x_app = float(0.5 * (x_edges[i] + x_edges[i + 1]))
-        ext_y_app = float(0.5 * (y_top_edges[i] + y_top_edges[i + 1]))
+        x_mid = float(0.5 * (x_edges[i] + x_edges[i + 1]))
+        y_mid = float(0.5 * (y_top_edges[i] + y_top_edges[i + 1]))
+        ext_resultants: list[tuple[float, float, float, float]] = []
 
         if surcharge is not None and surcharge.magnitude_kpa > 0.0:
             overlap_interval = _surcharge_overlap_interval(
@@ -271,9 +379,26 @@ def generate_vertical_slices(
             if overlap_interval is not None:
                 overlap_left, overlap_right = overlap_interval
                 overlap_width = overlap_right - overlap_left
-                ext_force_y = surcharge.magnitude_kpa * overlap_width
-                ext_x_app = 0.5 * (overlap_left + overlap_right)
-                ext_y_app = float(profile.y_ground(ext_x_app))
+                surcharge_fy = surcharge.magnitude_kpa * overlap_width
+                surcharge_x_app = 0.5 * (overlap_left + overlap_right)
+                surcharge_y_app = float(profile.y_ground(surcharge_x_app))
+                ext_resultants.append((0.0, float(surcharge_fy), float(surcharge_x_app), float(surcharge_y_app)))
+
+        if groundwater is not None and groundwater.model == "water_surfaces":
+            ponded_fx, ponded_fy, ponded_x_app, ponded_y_app = _ponded_water_top_resultant(
+                profile=profile,
+                groundwater=groundwater,
+                x_left=float(x_edges[i]),
+                x_right=float(x_edges[i + 1]),
+            )
+            if abs(ponded_fx) > _VERTICAL_TOL or abs(ponded_fy) > _VERTICAL_TOL:
+                ext_resultants.append((ponded_fx, ponded_fy, ponded_x_app, ponded_y_app))
+
+        ext_force_x, ext_force_y, ext_x_app, ext_y_app = _combine_external_resultants(
+            resultants=ext_resultants,
+            x_mid=x_mid,
+            y_mid=y_mid,
+        )
 
         pore_force, pore_x_app, pore_y_app = _groundwater_pore_resultant(
             groundwater=groundwater,

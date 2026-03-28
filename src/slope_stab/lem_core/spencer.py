@@ -46,6 +46,8 @@ class SpencerSolver(LEMSolver):
         f_k: float,
         lambda_value: float,
         weights: np.ndarray,
+        external_force_x: np.ndarray,
+        horizontal_coupling_scale: float,
         pore_forces: np.ndarray,
         sin_a: np.ndarray,
         cos_a: np.ndarray,
@@ -79,7 +81,11 @@ class SpencerSolver(LEMSolver):
         # Represent pore pressure through effective-base terms:
         # T = cL + (N - U) * tan(phi), where U is base-normal pore resultant.
         cohesion_effective = cohesion_base - (pore_forces * tan_phi)
-        delta_e = (weights * a_term - (cohesion_effective / f_k)) / m_alpha
+        delta_e = (
+            (weights * a_term)
+            + (horizontal_coupling_scale * external_force_x * b_term)
+            - (cohesion_effective / f_k)
+        ) / m_alpha
         normal_total = (weights - lambda_value * delta_e - (cohesion_effective * sin_a) / f_k) / b_term
         normal = normal_total - pore_forces
 
@@ -114,7 +120,12 @@ class SpencerSolver(LEMSolver):
         slice_ids = np.fromiter((s.slice_id for s in slices), dtype=int)
         x_left = np.fromiter((s.x_left for s in slices), dtype=float)
         x_right = np.fromiter((s.x_right for s in slices), dtype=float)
-        weights = np.fromiter((s.total_vertical_force for s in slices), dtype=float)
+        soil_weights = np.fromiter((s.weight for s in slices), dtype=float)
+        external_force_x = np.fromiter((s.external_force_x for s in slices), dtype=float)
+        external_force_y = np.fromiter((s.external_force_y for s in slices), dtype=float)
+        external_x_app = np.fromiter((s.external_x_app for s in slices), dtype=float)
+        external_y_app = np.fromiter((s.external_y_app for s in slices), dtype=float)
+        weights = soil_weights + external_force_y
         pore_forces = np.fromiter((s.pore_force for s in slices), dtype=float)
         alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
         base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
@@ -124,7 +135,14 @@ class SpencerSolver(LEMSolver):
 
         x_mid = 0.5 * (x_left + x_right)
         x_offset = x_mid - self._surface.xc
-        driving_component = weights * (x_offset / self._surface.r)
+        external_x_offset = external_x_app - self._surface.xc
+        external_y_offset = external_y_app - self._surface.yc
+        driving_moment_component = (
+            (soil_weights * x_offset)
+            + (external_force_y * external_x_offset)
+            - (external_force_x * external_y_offset)
+        )
+        driving_component = driving_moment_component / self._surface.r
         denominator_raw = float(np.sum(driving_component))
         direction = 1.0 if denominator_raw >= 0.0 else -1.0
         sin_a = sin_a * direction
@@ -135,11 +153,17 @@ class SpencerSolver(LEMSolver):
         cohesion_base = cohesion * base_lengths
         scale_force = max(float(np.sum(np.abs(weights))), 1.0)
 
-        def evaluate_state(fos: float, lambda_value: float) -> _SpencerState:
+        def evaluate_state(
+            fos: float,
+            lambda_value: float,
+            horizontal_coupling_scale: float,
+        ) -> _SpencerState:
             return self._compute_state(
                 f_k=fos,
                 lambda_value=lambda_value,
                 weights=weights,
+                external_force_x=external_force_x,
+                horizontal_coupling_scale=horizontal_coupling_scale,
                 pore_forces=pore_forces,
                 sin_a=sin_a,
                 cos_a=cos_a,
@@ -149,50 +173,77 @@ class SpencerSolver(LEMSolver):
                 scale_force=scale_force,
             )
 
-        def residuals(vec: np.ndarray) -> np.ndarray:
+        def residuals(vec: np.ndarray, horizontal_coupling_scale: float) -> np.ndarray:
             fos = max(float(vec[0]), 1e-6)
             lambda_value = float(vec[1])
             try:
-                state = evaluate_state(fos, lambda_value)
+                state = evaluate_state(fos, lambda_value, horizontal_coupling_scale)
             except ConvergenceError:
                 return np.array([1e6, 1e6], dtype=float)
             return np.array([state.force_residual_norm, state.moment_residual], dtype=float)
 
-        starts = (
-            (max(self._analysis.f_init, 1e-3), 0.35),
-            (max(self._analysis.f_init, 1e-3), 0.20),
-            (max(self._analysis.f_init, 1e-3), 0.60),
-            (1.0, 0.35),
-        )
+        has_horizontal_external = bool(np.any(np.abs(external_force_x) > 1e-12))
+        if has_horizontal_external:
+            starts = (
+                (max(self._analysis.f_init, 1e-3), 0.35),
+                (max(self._analysis.f_init, 1e-3), 0.20),
+                (max(self._analysis.f_init, 1e-3), 0.60),
+                (1.0, 0.35),
+                (0.90, 0.20),
+                (1.05, 0.10),
+                (1.05, 0.30),
+                (1.05, -0.10),
+                (1.20, 0.10),
+                (1.20, 0.30),
+                (2.0, 0.20),
+                (2.5, 0.35),
+                (3.0, 0.20),
+                (1.0, 0.00),
+                (2.0, 0.00),
+                (1.0, -0.20),
+                (2.0, -0.20),
+            )
+            horizontal_scales = (1.0, 0.5, 0.0)
+        else:
+            starts = (
+                (max(self._analysis.f_init, 1e-3), 0.35),
+                (max(self._analysis.f_init, 1e-3), 0.20),
+                (max(self._analysis.f_init, 1e-3), 0.60),
+                (1.0, 0.35),
+            )
+            horizontal_scales = (0.0,)
 
         best_state: _SpencerState | None = None
         best_sol = None
         best_norm = float("inf")
-        for start in starts:
-            sol = root(
-                residuals,
-                np.array(start, dtype=float),
-                method="hybr",
-                options={"maxfev": max(200, self._analysis.max_iter * 25)},
-            )
-            fos = max(float(sol.x[0]), 1e-6)
-            lambda_value = float(sol.x[1])
+        for horizontal_coupling_scale in horizontal_scales:
+            for start in starts:
+                sol = root(
+                    lambda vec: residuals(vec, horizontal_coupling_scale),
+                    np.array(start, dtype=float),
+                    method="hybr",
+                    options={"maxfev": max(200, self._analysis.max_iter * 25)},
+                )
+                fos = max(float(sol.x[0]), 1e-6)
+                lambda_value = float(sol.x[1])
 
-            if not sol.success:
-                continue
-            if lambda_value < self._LAMBDA_BOUNDS[0] or lambda_value > self._LAMBDA_BOUNDS[1]:
-                continue
+                if not sol.success:
+                    continue
+                if lambda_value < self._LAMBDA_BOUNDS[0] or lambda_value > self._LAMBDA_BOUNDS[1]:
+                    continue
 
-            try:
-                state = evaluate_state(fos, lambda_value)
-            except ConvergenceError:
-                continue
+                try:
+                    state = evaluate_state(fos, lambda_value, horizontal_coupling_scale)
+                except ConvergenceError:
+                    continue
+                if has_horizontal_external and np.any(state.m_alpha < self._M_ALPHA_MIN):
+                    continue
 
-            residual_norm = abs(state.force_residual_norm) + abs(state.moment_residual)
-            if residual_norm < best_norm:
-                best_norm = residual_norm
-                best_state = state
-                best_sol = sol
+                residual_norm = abs(state.force_residual_norm) + abs(state.moment_residual)
+                if residual_norm < best_norm:
+                    best_norm = residual_norm
+                    best_state = state
+                    best_sol = sol
 
         if best_state is None or best_sol is None:
             raise ConvergenceError("Spencer method did not converge from deterministic starting points.")
@@ -216,7 +267,7 @@ class SpencerSolver(LEMSolver):
                 )
             )
 
-        driving_moment = float(abs(np.sum(weights * x_offset)))
+        driving_moment = float(abs(np.sum(driving_moment_component)))
         resisting_moment = best_state.fos * driving_moment
         friction = best_state.shear_strength - best_state.cohesion_base
 
