@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.optimize import root
+from scipy.optimize import brentq, root
 
 from slope_stab.exceptions import ConvergenceError
 from slope_stab.lem_core.base import LEMSolver
@@ -47,7 +47,6 @@ class SpencerSolver(LEMSolver):
         lambda_value: float,
         weights: np.ndarray,
         external_force_x: np.ndarray,
-        horizontal_coupling_scale: float,
         pore_forces: np.ndarray,
         sin_a: np.ndarray,
         cos_a: np.ndarray,
@@ -83,7 +82,7 @@ class SpencerSolver(LEMSolver):
         cohesion_effective = cohesion_base - (pore_forces * tan_phi)
         delta_e = (
             (weights * a_term)
-            + (horizontal_coupling_scale * external_force_x * b_term)
+            + (external_force_x * b_term)
             - (cohesion_effective / f_k)
         ) / m_alpha
         normal_total = (weights - lambda_value * delta_e - (cohesion_effective * sin_a) / f_k) / b_term
@@ -156,14 +155,12 @@ class SpencerSolver(LEMSolver):
         def evaluate_state(
             fos: float,
             lambda_value: float,
-            horizontal_coupling_scale: float,
         ) -> _SpencerState:
             return self._compute_state(
                 f_k=fos,
                 lambda_value=lambda_value,
                 weights=weights,
                 external_force_x=external_force_x,
-                horizontal_coupling_scale=horizontal_coupling_scale,
                 pore_forces=pore_forces,
                 sin_a=sin_a,
                 cos_a=cos_a,
@@ -173,14 +170,142 @@ class SpencerSolver(LEMSolver):
                 scale_force=scale_force,
             )
 
-        def residuals(vec: np.ndarray, horizontal_coupling_scale: float) -> np.ndarray:
+        def residuals(vec: np.ndarray) -> np.ndarray:
             fos = max(float(vec[0]), 1e-6)
             lambda_value = float(vec[1])
             try:
-                state = evaluate_state(fos, lambda_value, horizontal_coupling_scale)
+                state = evaluate_state(fos, lambda_value)
             except ConvergenceError:
                 return np.array([1e6, 1e6], dtype=float)
             return np.array([state.force_residual_norm, state.moment_residual], dtype=float)
+
+        def solve_lambda_zero_fallback() -> tuple[_SpencerState | None, int, dict[str, float | bool | str]]:
+            fallback_meta: dict[str, float | bool | str] = {
+                "attempted": False,
+                "accepted": False,
+                "bracket_found": False,
+            }
+
+            if not has_horizontal_external:
+                fallback_meta["reason"] = "no_horizontal_external_force"
+                return None, 0, fallback_meta
+
+            fallback_meta["attempted"] = True
+
+            probe_values = [
+                1e-4,
+                5e-4,
+                1e-3,
+                2e-3,
+                5e-3,
+                1e-2,
+                2e-2,
+                5e-2,
+                1e-1,
+                2e-1,
+                3.5e-1,
+                5e-1,
+                7.5e-1,
+                1.0,
+                1.25,
+                1.5,
+                2.0,
+                2.5,
+                3.0,
+                4.0,
+                5.0,
+                7.5,
+                10.0,
+                15.0,
+                20.0,
+            ]
+            probe_values.append(max(self._analysis.f_init, 1e-6))
+            probe_values = sorted(set(probe_values))
+
+            bracket: tuple[float, float] | None = None
+            last_f: float | None = None
+            last_r: float | None = None
+            eval_calls = 0
+
+            for fos_probe in probe_values:
+                try:
+                    probe_state = evaluate_state(float(fos_probe), 0.0)
+                except ConvergenceError:
+                    continue
+                eval_calls += 1
+                residual = float(probe_state.force_residual_norm)
+                if not math.isfinite(residual):
+                    continue
+                if abs(residual) <= self._analysis.tolerance:
+                    bracket = (float(fos_probe), float(fos_probe))
+                    break
+                if last_f is not None and last_r is not None and residual * last_r < 0.0:
+                    bracket = (float(last_f), float(fos_probe))
+                    break
+                last_f = float(fos_probe)
+                last_r = residual
+
+            if bracket is None:
+                fallback_meta["reason"] = "lambda_zero_bracket_not_found"
+                fallback_meta["eval_calls"] = float(eval_calls)
+                return None, eval_calls, fallback_meta
+
+            fallback_meta["bracket_found"] = True
+            fallback_meta["bracket_left"] = float(bracket[0])
+            fallback_meta["bracket_right"] = float(bracket[1])
+
+            if abs(bracket[1] - bracket[0]) <= 1e-15:
+                try:
+                    state = evaluate_state(float(bracket[0]), 0.0)
+                except ConvergenceError:
+                    fallback_meta["reason"] = "lambda_zero_state_failed_at_exact_probe"
+                    return None, eval_calls, fallback_meta
+            else:
+                def force_residual_lambda_zero(fos_value: float) -> float:
+                    return float(evaluate_state(float(fos_value), 0.0).force_residual_norm)
+
+                try:
+                    root_fos, root_info = brentq(
+                        force_residual_lambda_zero,
+                        float(bracket[0]),
+                        float(bracket[1]),
+                        xtol=max(1e-9, self._analysis.tolerance * 0.1),
+                        rtol=1e-12,
+                        maxiter=max(100, self._analysis.max_iter * 10),
+                        full_output=True,
+                        disp=False,
+                    )
+                except (ValueError, RuntimeError, ConvergenceError):
+                    fallback_meta["reason"] = "lambda_zero_brentq_failed"
+                    fallback_meta["eval_calls"] = float(eval_calls)
+                    return None, eval_calls, fallback_meta
+
+                eval_calls += int(getattr(root_info, "function_calls", 0))
+                try:
+                    state = evaluate_state(float(root_fos), 0.0)
+                except ConvergenceError:
+                    fallback_meta["reason"] = "lambda_zero_state_failed_after_brentq"
+                    fallback_meta["eval_calls"] = float(eval_calls)
+                    return None, eval_calls, fallback_meta
+
+            fallback_meta["force_residual_norm"] = float(state.force_residual_norm)
+            fallback_meta["moment_residual"] = float(state.moment_residual)
+            fallback_meta["min_m_alpha"] = float(np.min(state.m_alpha))
+            fallback_meta["eval_calls"] = float(eval_calls)
+
+            if abs(state.force_residual_norm) > self._analysis.tolerance:
+                fallback_meta["reason"] = "lambda_zero_force_residual_exceeds_tolerance"
+                return None, eval_calls, fallback_meta
+            if abs(state.moment_residual) > self._analysis.tolerance:
+                fallback_meta["reason"] = "lambda_zero_moment_residual_exceeds_tolerance"
+                return None, eval_calls, fallback_meta
+            if np.any(state.m_alpha < self._M_ALPHA_MIN):
+                fallback_meta["reason"] = "lambda_zero_m_alpha_below_threshold"
+                return None, eval_calls, fallback_meta
+
+            fallback_meta["accepted"] = True
+            fallback_meta["reason"] = "accepted"
+            return state, eval_calls, fallback_meta
 
         has_horizontal_external = bool(np.any(np.abs(external_force_x) > 1e-12))
         if has_horizontal_external:
@@ -203,7 +328,6 @@ class SpencerSolver(LEMSolver):
                 (1.0, -0.20),
                 (2.0, -0.20),
             )
-            horizontal_scales = (1.0, 0.5, 0.0)
         else:
             starts = (
                 (max(self._analysis.f_init, 1e-3), 0.35),
@@ -211,42 +335,64 @@ class SpencerSolver(LEMSolver):
                 (max(self._analysis.f_init, 1e-3), 0.60),
                 (1.0, 0.35),
             )
-            horizontal_scales = (0.0,)
 
         best_state: _SpencerState | None = None
         best_sol = None
         best_norm = float("inf")
-        for horizontal_coupling_scale in horizontal_scales:
-            for start in starts:
-                sol = root(
-                    lambda vec: residuals(vec, horizontal_coupling_scale),
-                    np.array(start, dtype=float),
-                    method="hybr",
-                    options={"maxfev": max(200, self._analysis.max_iter * 25)},
+        best_any_norm = float("inf")
+        best_any_min_m_alpha: float | None = None
+        for start in starts:
+            sol = root(
+                residuals,
+                np.array(start, dtype=float),
+                method="hybr",
+                options={"maxfev": max(200, self._analysis.max_iter * 25)},
+            )
+            fos = max(float(sol.x[0]), 1e-6)
+            lambda_value = float(sol.x[1])
+
+            if not sol.success:
+                continue
+            if lambda_value < self._LAMBDA_BOUNDS[0] or lambda_value > self._LAMBDA_BOUNDS[1]:
+                continue
+
+            try:
+                state = evaluate_state(fos, lambda_value)
+            except ConvergenceError:
+                continue
+
+            residual_norm = abs(state.force_residual_norm) + abs(state.moment_residual)
+            if residual_norm < best_any_norm:
+                best_any_norm = residual_norm
+                best_any_min_m_alpha = float(np.min(state.m_alpha))
+
+            if has_horizontal_external and np.any(state.m_alpha < self._M_ALPHA_MIN):
+                continue
+
+            if residual_norm < best_norm:
+                best_norm = residual_norm
+                best_state = state
+                best_sol = sol
+
+        solve_path = "two_dimensional"
+        solver_evaluations = int(getattr(best_sol, "nfev", 0)) if best_sol is not None else 0
+        lambda_zero_meta: dict[str, float | bool | str] = {
+            "attempted": False,
+            "accepted": False,
+        }
+        if best_state is None:
+            fallback_state, fallback_evals, fallback_meta = solve_lambda_zero_fallback()
+            lambda_zero_meta = fallback_meta
+            solver_evaluations = max(solver_evaluations, int(fallback_evals))
+            if fallback_state is None:
+                raise ConvergenceError(
+                    "Spencer method did not converge from deterministic 2D solve and lambda=0 fallback; "
+                    f"best_2d_residual={best_any_norm if math.isfinite(best_any_norm) else 'none'}, "
+                    f"best_2d_min_m_alpha={best_any_min_m_alpha if best_any_min_m_alpha is not None else 'none'}, "
+                    f"lambda0_reason={fallback_meta.get('reason', 'not_attempted')}."
                 )
-                fos = max(float(sol.x[0]), 1e-6)
-                lambda_value = float(sol.x[1])
-
-                if not sol.success:
-                    continue
-                if lambda_value < self._LAMBDA_BOUNDS[0] or lambda_value > self._LAMBDA_BOUNDS[1]:
-                    continue
-
-                try:
-                    state = evaluate_state(fos, lambda_value, horizontal_coupling_scale)
-                except ConvergenceError:
-                    continue
-                if has_horizontal_external and np.any(state.m_alpha < self._M_ALPHA_MIN):
-                    continue
-
-                residual_norm = abs(state.force_residual_norm) + abs(state.moment_residual)
-                if residual_norm < best_norm:
-                    best_norm = residual_norm
-                    best_state = state
-                    best_sol = sol
-
-        if best_state is None or best_sol is None:
-            raise ConvergenceError("Spencer method did not converge from deterministic starting points.")
+            best_state = fallback_state
+            solve_path = "lambda_zero_fallback"
 
         if abs(best_state.force_residual_norm) > self._analysis.tolerance:
             raise ConvergenceError(
@@ -312,7 +458,7 @@ class SpencerSolver(LEMSolver):
         return AnalysisResult(
             fos=best_state.fos,
             converged=True,
-            iterations=max(1, int(getattr(best_sol, "nfev", 1))),
+            iterations=max(1, solver_evaluations),
             residual=history[-1].delta,
             driving_moment=driving_moment,
             resisting_moment=resisting_moment,
@@ -324,7 +470,13 @@ class SpencerSolver(LEMSolver):
                     "lambda": best_state.lambda_value,
                     "force_residual_norm": best_state.force_residual_norm,
                     "moment_residual": best_state.moment_residual,
-                    "nfev": int(getattr(best_sol, "nfev", 0)),
+                    "nfev": solver_evaluations,
+                    "solve_path": solve_path,
+                    "best_2d_residual": (
+                        float(best_any_norm) if math.isfinite(best_any_norm) else None
+                    ),
+                    "best_2d_min_m_alpha": best_any_min_m_alpha,
+                    "lambda_zero": lambda_zero_meta,
                 }
             },
         )

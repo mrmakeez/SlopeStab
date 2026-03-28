@@ -989,7 +989,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=1.049400,
-        fos_tolerance=0.02,
+        fos_tolerance=0.005,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -1025,7 +1025,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=2.505910,
-        fos_tolerance=0.02,
+        fos_tolerance=0.005,
     ),
     AutoRefineVerificationCase(
         case_type="auto_refine_parity",

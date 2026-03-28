@@ -1,0 +1,340 @@
+{
+  "all_passed": true,
+  "execution": {
+    "requested_mode": "auto_parallel",
+    "resolved_mode": "parallel",
+    "decision_reason": "process_backend_parallel",
+    "backend": "process",
+    "requested_workers": 4,
+    "resolved_workers": 4,
+    "evidence_version": "unittest-auto-v1"
+  },
+  "discovery": {
+    "start_directory": "C:\\Users\\JamesMcKerrow\\Stanley Gray Limited\\SP - ENG\\Technical\\JAMES TECHNICAL\\Codex\\SlopeStab\\tests",
+    "pattern": "test_*.py",
+    "top_level_directory": "C:\\Users\\JamesMcKerrow\\Stanley Gray Limited\\SP - ENG\\Technical\\JAMES TECHNICAL\\Codex\\SlopeStab",
+    "error": null
+  },
+  "targets": [
+    {
+      "target": "tests.integration.test_verification_cases",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 505.23,
+      "stdout": "",
+      "stderr": "C:\\Python314\\Lib\\site-packages\\cma\\s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 504.618s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_case3_auto_refine",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 7.407,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 6.871s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_case4_auto_refine",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 250.107,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 249.559s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cli_analyze_parallel",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 15.366,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 15.277s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cli_test",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 3.392,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 3.306s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cli_verify",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 238.984,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 238.892s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cmaes_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 18.035,
+      "stdout": "",
+      "stderr": "C:\\Python314\\Lib\\site-packages\\cma\\s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 17.315s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cmaes_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 29.81,
+      "stdout": "",
+      "stderr": "C:\\Python314\\Lib\\site-packages\\cma\\s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 29.093s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cuckoo_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 13.728,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 13.008s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_cuckoo_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 20.014,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 19.306s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 13.988,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 13.324s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_groundwater_case5_case6",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.738,
+      "stdout": "",
+      "stderr": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.045s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_groundwater_case7_case8",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 1.153,
+      "stdout": "",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.444s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_groundwater_ru_surcharge_exclusion",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.723,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.006s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_parallel_search_behavior",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 22.196,
+      "stdout": "",
+      "stderr": ".C:\\Python314\\Lib\\site-packages\\cma\\s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n..\n----------------------------------------------------------------------\nRan 3 tests in 21.459s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cmaes_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 115.456,
+      "stdout": "",
+      "stderr": "C:\\Python314\\Lib\\site-packages\\cma\\s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 114.808s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cmaes_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 175.01,
+      "stdout": "",
+      "stderr": "C:\\Python314\\Lib\\site-packages\\cma\\s.py:16: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available\n  _warnings.warn('Could not import matplotlib.pyplot, therefore'\n.\n----------------------------------------------------------------------\nRan 1 test in 174.405s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cuckoo_global_oracle",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 89.839,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 89.256s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_cuckoo_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 126.143,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 125.564s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_global_search_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 89.012,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 88.441s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_spencer_prescribed_benchmark",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.576,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.007s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_surcharge_case2",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.567,
+      "stdout": "",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.013s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_surcharge_case3",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.57,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.007s\n\nOK\n"
+    },
+    {
+      "target": "tests.regression.test_surcharge_case4",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.552,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.004s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_auto_parallel_policy",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 34.074,
+      "stdout": "",
+      "stderr": "...........\n----------------------------------------------------------------------\nRan 11 tests in 33.466s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_bishop_solver",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.595,
+      "stdout": "",
+      "stderr": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.002s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_cli_test_contract",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.588,
+      "stdout": "",
+      "stderr": "..usage: python.exe -m unittest test [-h] [--output OUTPUT] [--serial |\n                                   --workers WORKERS]\n                                   [--start-directory START_DIRECTORY]\n                                   [--pattern PATTERN]\n                                   [--top-level-directory TOP_LEVEL_DIRECTORY]\npython.exe -m unittest test: error: argument --workers: not allowed with argument --serial\n..\n----------------------------------------------------------------------\nRan 4 tests in 0.005s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_cli_verify_contract",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.64,
+      "stdout": "",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.004s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_cmaes_global_search",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.601,
+      "stdout": "",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_geometry",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.585,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_groundwater_slice_forces",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.592,
+      "stdout": "",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.021s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_loads_schema",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.561,
+      "stdout": "",
+      "stderr": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_objective_evaluator_batch",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.571,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_search_auto_refine",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 6.553,
+      "stdout": "",
+      "stderr": "......................\n----------------------------------------------------------------------\nRan 22 tests in 5.994s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_slicing",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.586,
+      "stdout": "",
+      "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_spencer_solver",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.549,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.005s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_surcharge_slice_forces",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.571,
+      "stdout": "",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_unittest_runner_workers",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.622,
+      "stdout": "",
+      "stderr": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.008s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_verification_runner_relative_error",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.597,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "target": "tests.unit.test_verification_runner_workers",
+      "passed": true,
+      "returncode": 0,
+      "seconds": 0.583,
+      "stdout": "",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.002s\n\nOK\n"
+    }
+  ]
+}

@@ -23,6 +23,7 @@ class SpencerSolverTests(unittest.TestCase):
         self.assertTrue(result.converged)
         self.assertLessEqual(abs(result.fos - case.expected_fos), case.fos_tolerance)
         self.assertIn("spencer", result.metadata)
+        self.assertEqual(result.metadata["spencer"].get("solve_path"), "two_dimensional")
 
     def test_case3_spencer_matches_expected_fos(self) -> None:
         case = self._prescribed_spencer_case("Case 3 (Spencer Prescribed Benchmark)")
@@ -30,6 +31,18 @@ class SpencerSolverTests(unittest.TestCase):
         self.assertTrue(result.converged)
         self.assertLessEqual(abs(result.fos - case.expected_fos), case.fos_tolerance)
         self.assertIn("spencer", result.metadata)
+        self.assertEqual(result.metadata["spencer"].get("solve_path"), "two_dimensional")
+
+    def test_case7_spencer_uses_lambda_zero_fallback_path(self) -> None:
+        case = self._prescribed_spencer_case("Case 7 (Spencer Ponded Water Hu=Auto Benchmark)")
+        result = run_analysis(case.project)
+        self.assertTrue(result.converged)
+        self.assertLessEqual(abs(result.fos - case.expected_fos), case.fos_tolerance)
+        spencer_meta = result.metadata.get("spencer", {})
+        self.assertEqual(spencer_meta.get("solve_path"), "lambda_zero_fallback")
+        lambda_zero_meta = spencer_meta.get("lambda_zero", {})
+        self.assertTrue(lambda_zero_meta.get("attempted"))
+        self.assertTrue(lambda_zero_meta.get("accepted"))
 
 
 if __name__ == "__main__":
