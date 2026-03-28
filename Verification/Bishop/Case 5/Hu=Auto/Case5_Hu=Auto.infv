@@ -3,7 +3,7 @@
   <Metadata>
     <MetadataEntry>
       <MetadataName>SaveTime</MetadataName>
-      <MetadataValue>27/03/2026 3:51:21 pm</MetadataValue>
+      <MetadataValue>28/03/2026 4:12:49 pm</MetadataValue>
     </MetadataEntry>
   </Metadata>
   <InfoViewerPreferences>
@@ -19,12 +19,6 @@
       <Surface-Options>true</Surface-Options>
       <Seismic-Loading>true</Seismic-Loading>
       <Materials>true</Materials>
-      <Global-Minimums>true</Global-Minimums>
-      <Global-Minimum-Support-Data>true</Global-Minimum-Support-Data>
-      <Valid-and-Invalid-Surfaces>true</Valid-and-Invalid-Surfaces>
-      <Slice-Data>true</Slice-Data>
-      <Interslice-Data>true</Interslice-Data>
-      <Discharge-Sections>true</Discharge-Sections>
       <Entity-Information>true</Entity-Information>
     </SelectedSections>
     <CoverPageOptions>

@@ -248,12 +248,12 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 f_init=1.0,
             ),
             prescribed_surface=PrescribedCircleInput(
-                xc=27.7467380814499,
-                yc=45.4044062550562,
-                r=31.9273936519829,
+                xc=27.7816099623784,
+                yc=45.4165765413013,
+                r=31.9496411014504,
                 x_left=18.0011387032865,
                 y_left=15.0007591355243,
-                x_right=57.931283727996,
+                x_right=57.9854921577304,
                 y_right=35.0,
             ),
             loads=LoadsInput(
@@ -265,8 +265,8 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 )
             ),
         ),
-        expected_fos=1.116900,
-        fos_tolerance=0.005,
+        expected_fos=1.116190,
+        fos_tolerance=0.001,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -283,12 +283,12 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 f_init=1.0,
             ),
             prescribed_surface=PrescribedCircleInput(
-                xc=27.7989617093161,
-                yc=45.42435160635,
-                r=31.9643522782854,
-                x_left=17.9969901778581,
+                xc=27.435184386849,
+                yc=45.2985429525467,
+                r=31.7351010556423,
+                x_left=17.9951137322134,
                 y_left=15.0,
-                x_right=58.0157237820054,
+                x_right=57.4527900886098,
                 y_right=35.0,
             ),
             loads=LoadsInput(
@@ -300,8 +300,8 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 )
             ),
         ),
-        expected_fos=1.157570,
-        fos_tolerance=0.005,
+        expected_fos=1.157200,
+        fos_tolerance=0.001,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -369,7 +369,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=0.940158,
-        fos_tolerance=0.005,
+        fos_tolerance=0.001,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -404,7 +404,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=2.511620,
-        fos_tolerance=0.005,
+        fos_tolerance=0.001,
     ),
     GlobalSearchBenchmarkVerificationCase(
         case_type="global_search_benchmark",
@@ -865,12 +865,12 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 f_init=1.0,
             ),
             prescribed_surface=PrescribedCircleInput(
-                xc=27.7306356373665,
-                yc=45.3987904209922,
-                r=31.9171335903235,
-                x_left=18.0011387032864,
+                xc=27.6258499840977,
+                yc=45.3623063863069,
+                r=31.8505670075193,
+                x_left=18.0011387032865,
                 y_left=15.0007591355243,
-                x_right=57.906264452734,
+                x_right=57.7436391635308,
                 y_right=35.0,
             ),
             loads=LoadsInput(
@@ -882,8 +882,8 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 )
             ),
         ),
-        expected_fos=1.117220,
-        fos_tolerance=0.005,
+        expected_fos=1.116480,
+        fos_tolerance=0.001,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -901,12 +901,12 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 f_init=1.0,
             ),
             prescribed_surface=PrescribedCircleInput(
-                xc=27.7989617093161,
-                yc=45.42435160635,
-                r=31.9643522782854,
-                x_left=17.9969901778581,
+                xc=27.435184386849,
+                yc=45.2985429525467,
+                r=31.7351010556423,
+                x_left=17.9951137322134,
                 y_left=15.0,
-                x_right=58.0157237820054,
+                x_right=57.4527900886098,
                 y_right=35.0,
             ),
             loads=LoadsInput(
@@ -918,8 +918,8 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 )
             ),
         ),
-        expected_fos=1.157480,
-        fos_tolerance=0.005,
+        expected_fos=1.157020,
+        fos_tolerance=0.001,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -989,7 +989,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=1.049400,
-        fos_tolerance=0.005,
+        fos_tolerance=0.001,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -1025,7 +1025,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             ),
         ),
         expected_fos=2.505910,
-        fos_tolerance=0.005,
+        fos_tolerance=0.001,
     ),
     AutoRefineVerificationCase(
         case_type="auto_refine_parity",

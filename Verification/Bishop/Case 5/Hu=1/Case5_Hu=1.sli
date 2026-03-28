@@ -20,9 +20,9 @@ model description:
   corpeng_check: 0
   corpeng_val: 0
   apply_support_to_interslice: 0
-  check_piezo_surface_intersection: 0
+  check_piezo_surface_intersection: 1
   correctradius: 0
-  correctnormal: 1
+  correctnormal: 0
   check_min_lambda: 0
   check_max_lambda: 0
   min_lambda: -0.1
@@ -81,7 +81,7 @@ model description:
   design_selection: 0
   singlesource: 1
   use_yg_for_anchors: 0
-  consider_tension_shear_normal: 0
+  consider_tension_shear_normal: 1
   compute_at_origin: 0
   sort_glued_cells: 0
   weak_layer_handling: 0

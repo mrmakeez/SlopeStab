@@ -162,6 +162,67 @@ class GroundwaterSliceForceTests(unittest.TestCase):
             expected = ru * (slc.weight / slc.width) * slc.base_length
             self.assertAlmostEqual(slc.pore_force, expected, places=10)
 
+    def test_water_surfaces_intersection_slicing_creates_nonuniform_widths(self) -> None:
+        loads = LoadsInput(
+            groundwater=GroundwaterInput(
+                model="water_surfaces",
+                surface=self.water_surface,
+                hu=GroundwaterHuInput(mode="auto"),
+                gamma_w=9.81,
+            )
+        )
+        profile = UniformSlopeProfile(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0)
+        surface = CircularSlipSurface(
+            xc=27.435184386849,
+            yc=45.2985429525467,
+            r=31.7351010556423,
+        )
+        x_left = 17.9951137322134
+        x_right = 57.4527900886098
+        slices = generate_vertical_slices(
+            profile=profile,
+            surface=surface,
+            n_slices=30,
+            x_left=x_left,
+            x_right=x_right,
+            gamma=18.82,
+            loads=loads,
+        )
+        widths = [round(s.width, 6) for s in slices]
+        unique_widths = sorted(set(widths))
+        self.assertEqual(len(unique_widths), 2)
+        self.assertEqual(widths.count(unique_widths[0]), 2)
+        self.assertEqual(widths.count(unique_widths[1]), 28)
+
+    def test_intersection_slicing_falls_back_to_uniform_when_intervals_exceed_slices(self) -> None:
+        loads = LoadsInput(
+            groundwater=GroundwaterInput(
+                model="water_surfaces",
+                surface=self.water_surface,
+                hu=GroundwaterHuInput(mode="auto"),
+                gamma_w=9.81,
+            )
+        )
+        profile = UniformSlopeProfile(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0)
+        surface = CircularSlipSurface(
+            xc=27.435184386849,
+            yc=45.2985429525467,
+            r=31.7351010556423,
+        )
+        x_left = 17.9951137322134
+        x_right = 57.4527900886098
+        slices = generate_vertical_slices(
+            profile=profile,
+            surface=surface,
+            n_slices=1,
+            x_left=x_left,
+            x_right=x_right,
+            gamma=18.82,
+            loads=loads,
+        )
+        self.assertEqual(len(slices), 1)
+        self.assertAlmostEqual(slices[0].width, x_right - x_left, places=12)
+
 
 if __name__ == "__main__":
     unittest.main()

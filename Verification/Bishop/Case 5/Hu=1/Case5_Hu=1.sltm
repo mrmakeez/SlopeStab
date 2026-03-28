@@ -6,7 +6,7 @@ tools data start:
 tools data end:
 
 project summary start:
-  project_title: "SLIDE - An Interactive Slope Stability Program"
+  project_title: ""
   analysis: ""
   author: "Rocscience Inc."
   date_created: "12/12/2016"

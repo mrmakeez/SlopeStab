@@ -33,7 +33,7 @@ class SpencerSolverTests(unittest.TestCase):
         self.assertIn("spencer", result.metadata)
         self.assertEqual(result.metadata["spencer"].get("solve_path"), "two_dimensional")
 
-    def test_case7_spencer_uses_lambda_zero_fallback_path(self) -> None:
+    def test_case7_spencer_uses_lambda_zero_fallback_path_with_intersection_slicing(self) -> None:
         case = self._prescribed_spencer_case("Case 7 (Spencer Ponded Water Hu=Auto Benchmark)")
         result = run_analysis(case.project)
         self.assertTrue(result.converged)

@@ -4,6 +4,7 @@ import math
 from bisect import bisect_right
 
 import numpy as np
+from scipy.optimize import brentq, minimize_scalar
 
 from slope_stab.exceptions import GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
@@ -15,6 +16,18 @@ _NEG_HEIGHT_TOL = 1e-9
 _VERTICAL_TOL = 1e-12
 _WATER_SURFACE_X_TOL = 1e-9
 _PONDED_NUMERIC_SAMPLES = 129
+_ROOT_SOLVER_MAXITER = 200
+
+
+def _slice_edge_tolerances(
+    x_left: float,
+    x_right: float,
+    profile: UniformSlopeProfile,
+) -> tuple[float, float]:
+    span = max(1.0, x_right - x_left)
+    x_tol = 1e-9 * span
+    y_tol = 1e-9 * max(1.0, abs(profile.y_toe) + profile.h)
+    return float(x_tol), float(y_tol)
 
 
 def _integration_nodes(x_edges: np.ndarray, profile: UniformSlopeProfile) -> np.ndarray:
@@ -91,6 +104,245 @@ def _water_surface_y_and_slope(
     slope = (y1 - y0) / (x1 - x0)
     y = y0 + slope * (x - x0)
     return y, slope
+
+
+def _surface_water_intersections(
+    *,
+    surface: CircularSlipSurface,
+    surface_points: tuple[tuple[float, float], ...],
+    x_left: float,
+    x_right: float,
+    x_tol: float,
+    y_tol: float,
+) -> list[float]:
+    roots: list[float] = []
+    xtol_solver = max(1e-12, x_tol * 0.1)
+
+    for idx in range(len(surface_points) - 1):
+        x0, y0 = surface_points[idx]
+        x1, y1 = surface_points[idx + 1]
+        if abs(x1 - x0) <= _VERTICAL_TOL:
+            raise GeometryError("Groundwater surface contains a vertical segment, which is not supported.")
+
+        seg_left = max(x_left, min(x0, x1))
+        seg_right = min(x_right, max(x0, x1))
+        if seg_right - seg_left <= x_tol:
+            continue
+
+        slope = (y1 - y0) / (x1 - x0)
+        intercept = y0 - slope * x0
+
+        def f(x: float) -> float:
+            return float(surface.y_base(float(x)) - (slope * float(x) + intercept))
+
+        fa = f(seg_left)
+        fb = f(seg_right)
+        if not math.isfinite(fa) or not math.isfinite(fb):
+            continue
+
+        if abs(fa) <= y_tol:
+            roots.append(float(seg_left))
+        if abs(fb) <= y_tol:
+            roots.append(float(seg_right))
+
+        if fa * fb < 0.0:
+            try:
+                root = brentq(
+                    f,
+                    float(seg_left),
+                    float(seg_right),
+                    xtol=xtol_solver,
+                    rtol=1e-12,
+                    maxiter=_ROOT_SOLVER_MAXITER,
+                )
+            except (ValueError, RuntimeError):
+                root = None
+            if root is not None and math.isfinite(root):
+                roots.append(float(root))
+            continue
+
+        # Tangency path: deterministic bounded minimization of |f(x)| on segment.
+        try:
+            minimum = minimize_scalar(
+                lambda x: abs(f(float(x))),
+                bounds=(float(seg_left), float(seg_right)),
+                method="bounded",
+                options={"xatol": xtol_solver, "maxiter": _ROOT_SOLVER_MAXITER},
+            )
+        except (ValueError, RuntimeError):
+            minimum = None
+
+        if minimum is not None and minimum.success and math.isfinite(minimum.x):
+            x_tan = float(minimum.x)
+            if abs(f(x_tan)) <= y_tol:
+                roots.append(x_tan)
+
+    return roots
+
+
+def _merge_close_points(
+    values: list[float],
+    merge_tol: float,
+) -> list[float]:
+    if not values:
+        return []
+    ordered = sorted(float(v) for v in values if math.isfinite(v))
+    if not ordered:
+        return []
+
+    merged: list[float] = []
+    cluster: list[float] = [ordered[0]]
+    for value in ordered[1:]:
+        if abs(value - cluster[-1]) <= merge_tol:
+            cluster.append(value)
+            continue
+        merged.append(float(np.mean(cluster)))
+        cluster = [value]
+    merged.append(float(np.mean(cluster)))
+    return merged
+
+
+def _collapse_small_intervals(
+    points: list[float],
+    x_tol: float,
+) -> list[float]:
+    collapsed = list(points)
+    while len(collapsed) > 2:
+        widths = np.diff(np.asarray(collapsed, dtype=float))
+        bad = [i for i, width in enumerate(widths) if width <= x_tol]
+        if not bad:
+            break
+        idx = bad[0]
+        if idx == 0:
+            del collapsed[1]
+            continue
+        if idx + 1 == len(collapsed) - 1:
+            del collapsed[idx]
+            continue
+        left_width = collapsed[idx] - collapsed[idx - 1]
+        right_width = collapsed[idx + 2] - collapsed[idx + 1]
+        if left_width <= right_width:
+            del collapsed[idx]
+        else:
+            del collapsed[idx + 1]
+    return collapsed
+
+
+def _allocate_interval_slice_counts(
+    points: list[float],
+    n_slices: int,
+    x_tol: float,
+) -> np.ndarray | None:
+    n_intervals = len(points) - 1
+    if n_intervals <= 0 or n_intervals > n_slices:
+        return None
+
+    lengths = np.diff(np.asarray(points, dtype=float))
+    if np.any(lengths <= x_tol):
+        return None
+
+    total_length = float(np.sum(lengths))
+    if total_length <= _VERTICAL_TOL:
+        return None
+    # Full-proportion deterministic allocation with min-one enforcement.
+    # This path is retained because it best matches observed Slide2 boundary signatures.
+    ideal_counts = n_slices * (lengths / total_length)
+    floor_counts = np.floor(ideal_counts).astype(int)
+    frac = ideal_counts - floor_counts
+
+    counts = np.maximum(floor_counts, 1)
+    delta = int(n_slices - np.sum(counts))
+
+    if delta > 0:
+        # Add in order: descending fractional remainder, descending width, ascending index.
+        add_order = np.lexsort((np.arange(n_intervals), -lengths, -frac))
+        for idx in add_order[:delta]:
+            counts[int(idx)] += 1
+    elif delta < 0:
+        # Remove in order: ascending fractional remainder, ascending width, descending index.
+        remove_order = np.lexsort((-np.arange(n_intervals), lengths, frac))
+        to_remove = -delta
+        for idx in remove_order:
+            i = int(idx)
+            while to_remove > 0 and counts[i] > 1:
+                counts[i] -= 1
+                to_remove -= 1
+            if to_remove == 0:
+                break
+        if to_remove > 0:
+            return None
+
+    if int(np.sum(counts)) != n_slices or np.any(counts < 1):
+        return None
+    return counts
+
+
+def _build_edges_from_counts(
+    points: list[float],
+    counts: np.ndarray,
+    n_slices: int,
+) -> np.ndarray | None:
+    if len(points) != len(counts) + 1:
+        return None
+
+    edges: list[float] = [float(points[0])]
+    for idx, count in enumerate(counts):
+        segment_edges = np.linspace(float(points[idx]), float(points[idx + 1]), int(count) + 1, dtype=float)
+        edges.extend(float(v) for v in segment_edges[1:])
+
+    x_edges = np.asarray(edges, dtype=float)
+    if x_edges.size != n_slices + 1:
+        return None
+    x_edges[0] = float(points[0])
+    x_edges[-1] = float(points[-1])
+    if np.any(np.diff(x_edges) <= 0.0):
+        return None
+    return x_edges
+
+
+def _resolve_slice_edges(
+    *,
+    profile: UniformSlopeProfile,
+    surface: CircularSlipSurface,
+    groundwater: GroundwaterInput | None,
+    x_left: float,
+    x_right: float,
+    n_slices: int,
+) -> np.ndarray:
+    uniform_edges = np.linspace(x_left, x_right, n_slices + 1, dtype=float)
+    if groundwater is None or groundwater.model != "water_surfaces":
+        return uniform_edges
+
+    x_tol, y_tol = _slice_edge_tolerances(x_left=x_left, x_right=x_right, profile=profile)
+    raw_roots = _surface_water_intersections(
+        surface=surface,
+        surface_points=groundwater.surface,
+        x_left=x_left,
+        x_right=x_right,
+        x_tol=x_tol,
+        y_tol=y_tol,
+    )
+    merged_roots = _merge_close_points(raw_roots, merge_tol=10.0 * x_tol)
+    internal_roots = [x for x in merged_roots if (x_left + x_tol) < x < (x_right - x_tol)]
+    if not internal_roots:
+        return uniform_edges
+
+    points = [float(x_left), *internal_roots, float(x_right)]
+    points = _merge_close_points(points, merge_tol=10.0 * x_tol)
+    if len(points) < 2:
+        return uniform_edges
+    points[0] = float(x_left)
+    points[-1] = float(x_right)
+    points = _collapse_small_intervals(points, x_tol=x_tol)
+    if len(points) < 2:
+        return uniform_edges
+
+    counts = _allocate_interval_slice_counts(points=points, n_slices=n_slices, x_tol=x_tol)
+    if counts is None:
+        return uniform_edges
+
+    resolved = _build_edges_from_counts(points=points, counts=counts, n_slices=n_slices)
+    return uniform_edges if resolved is None else resolved
 
 
 def _ground_y_and_slope(
@@ -311,8 +563,15 @@ def generate_vertical_slices(
     if x_right <= x_left:
         raise GeometryError("x_right must be greater than x_left.")
 
-    dx = (x_right - x_left) / n_slices
-    x_edges = np.linspace(x_left, x_right, n_slices + 1, dtype=float)
+    groundwater = loads.groundwater if loads is not None else None
+    x_edges = _resolve_slice_edges(
+        profile=profile,
+        surface=surface,
+        groundwater=groundwater,
+        x_left=x_left,
+        x_right=x_right,
+        n_slices=n_slices,
+    )
 
     x_nodes = _integration_nodes(x_edges, profile)
     y_top_nodes = profile.y_ground_array(x_nodes)
@@ -348,13 +607,18 @@ def generate_vertical_slices(
         bad_idx = int(np.flatnonzero(slice_areas <= 0.0)[0])
         raise GeometryError(f"Slice {bad_idx + 1} has non-positive area: {float(slice_areas[bad_idx])}.")
 
-    alpha = np.arctan2(y_base_edges[1:] - y_base_edges[:-1], dx)
+    widths = x_edges[1:] - x_edges[:-1]
+    if np.any(widths <= 0.0):
+        bad_idx = int(np.flatnonzero(widths <= 0.0)[0])
+        raise GeometryError(f"Slice {bad_idx + 1} has non-positive width: {float(widths[bad_idx])}.")
+
+    alpha = np.arctan2(y_base_edges[1:] - y_base_edges[:-1], widths)
     cos_alpha = np.cos(alpha)
     if np.any(np.abs(cos_alpha) < _VERTICAL_TOL):
         bad_idx = int(np.flatnonzero(np.abs(cos_alpha) < _VERTICAL_TOL)[0])
         raise GeometryError(f"Slice {bad_idx + 1} base angle is near vertical.")
 
-    base_length = dx / cos_alpha
+    base_length = widths / cos_alpha
     if np.any(base_length <= 0.0):
         bad_idx = int(np.flatnonzero(base_length <= 0.0)[0])
         raise GeometryError(f"Slice {bad_idx + 1} has invalid base length: {float(base_length[bad_idx])}.")
@@ -362,7 +626,6 @@ def generate_vertical_slices(
     weights = gamma * slice_areas
 
     surcharge = loads.uniform_surcharge if loads is not None else None
-    groundwater = loads.groundwater if loads is not None else None
     slices: list[SliceGeometry] = []
     for i in range(n_slices):
         x_mid = float(0.5 * (x_edges[i] + x_edges[i + 1]))
@@ -406,7 +669,7 @@ def generate_vertical_slices(
             x_right=float(x_edges[i + 1]),
             y_base_left=float(y_base_edges[i]),
             y_base_right=float(y_base_edges[i + 1]),
-            width=float(dx),
+            width=float(widths[i]),
             base_length=float(base_length[i]),
             weight=float(weights[i]),
         )
@@ -420,7 +683,7 @@ def generate_vertical_slices(
                 y_top_right=float(y_top_edges[i + 1]),
                 y_base_left=float(y_base_edges[i]),
                 y_base_right=float(y_base_edges[i + 1]),
-                width=dx,
+                width=float(widths[i]),
                 area=float(slice_areas[i]),
                 weight=float(weights[i]),
                 alpha_rad=float(alpha[i]),

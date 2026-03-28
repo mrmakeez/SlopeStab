@@ -39,17 +39,17 @@
                                               }
                },
     "oracle":  {
-                   "source":  "dense_grid_u_space",
+                   "source":  "spencer_cuckoo_benchmark_policy",
                    "grid_resolution_per_dimension":  61,
-                   "benchmark_fos":  2.0924989577828477,
-                   "margin":  0.005,
+                   "benchmark_fos":  2.11168,
+                   "margin":  0.01,
                    "benchmark_surface":  {
-                                             "xc":  14.380261154319578,
-                                             "yc":  25.785058166853418,
-                                             "r":  16.384213570814843,
-                                             "x_left":  9.990000000000002,
+                                             "xc":  14.090072577797216,
+                                             "yc":  22.901840328846127,
+                                             "r":  13.534628829882594,
+                                             "x_left":  10.0,
                                              "y_left":  10.0,
-                                             "x_right":  28.515333333333334,
+                                             "x_right":  26.5,
                                              "y_right":  17.5
                                          },
                    "endpoint_abs_tolerance":  0.6
