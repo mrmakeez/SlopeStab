@@ -1,0 +1,201 @@
+{
+  "fixtures": [
+    "tests/fixtures/case2_cuckoo_global.json",
+    "tests/fixtures/case3_cuckoo_global.json",
+    "tests/fixtures/case4_cuckoo_global.json",
+    "tests/fixtures/case2_cuckoo_global_spencer.json",
+    "tests/fixtures/case3_cuckoo_global_spencer.json",
+    "tests/fixtures/case4_cuckoo_global_spencer.json",
+    "tests/fixtures/case2_cuckoo_oracle.json",
+    "tests/fixtures/case3_cuckoo_oracle.json",
+    "tests/fixtures/case2_cuckoo_oracle_spencer.json",
+    "tests/fixtures/case3_cuckoo_oracle_spencer.json"
+  ],
+  "profiles_evaluated": 1,
+  "results": [
+    {
+      "profile": {
+        "population_size": 40,
+        "max_iterations": 300,
+        "max_evaluations": 7000,
+        "discovery_rate": 0.25,
+        "min_improvement": 0.0001,
+        "stall_iterations": 25,
+        "levy_beta": 1.5,
+        "alpha_max": 0.5,
+        "alpha_min": 0.05,
+        "seed": 0,
+        "post_polish": true,
+        "name": "baseline_40_300_7000"
+      },
+      "profile_label": "baseline_40_300_7000",
+      "fixtures": [
+        "tests/fixtures/case2_cuckoo_global.json",
+        "tests/fixtures/case3_cuckoo_global.json",
+        "tests/fixtures/case4_cuckoo_global.json",
+        "tests/fixtures/case2_cuckoo_global_spencer.json",
+        "tests/fixtures/case3_cuckoo_global_spencer.json",
+        "tests/fixtures/case4_cuckoo_global_spencer.json",
+        "tests/fixtures/case2_cuckoo_oracle.json",
+        "tests/fixtures/case3_cuckoo_oracle.json",
+        "tests/fixtures/case2_cuckoo_oracle_spencer.json",
+        "tests/fixtures/case3_cuckoo_oracle_spencer.json"
+      ],
+      "warmup_runs": 0,
+      "measured_runs": 1,
+      "all_passed": true,
+      "median_aggregate_elapsed_seconds": 94.05923979998624,
+      "median_aggregate_total_evaluations": 34093,
+      "worst_slack": 0.004751694568019271,
+      "measured": [
+        {
+          "run_index": 1,
+          "aggregate_elapsed_seconds": 94.05923979998624,
+          "aggregate_total_evaluations": 34093,
+          "fixtures": [
+            {
+              "fixture": "tests/fixtures/case2_cuckoo_global.json",
+              "analysis_method": "bishop_simplified",
+              "gate_type": "benchmark",
+              "threshold": 2.1129599999999997,
+              "fos": 2.0922946404116813,
+              "slack": 0.020665359588318388,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 1.6287226999993436,
+              "total_evaluations": 3454,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case3_cuckoo_global.json",
+              "analysis_method": "bishop_simplified",
+              "gate_type": "benchmark",
+              "threshold": 0.996442,
+              "fos": 0.9855735911261961,
+              "slack": 0.010868408873803914,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 2.8054725999973016,
+              "total_evaluations": 3614,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case4_cuckoo_global.json",
+              "analysis_method": "bishop_simplified",
+              "gate_type": "benchmark",
+              "threshold": 1.24467,
+              "fos": 1.2377962023177824,
+              "slack": 0.0068737976822175195,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 2.526284499996109,
+              "total_evaluations": 4314,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case2_cuckoo_global_spencer.json",
+              "analysis_method": "spencer",
+              "gate_type": "benchmark",
+              "threshold": 2.10717,
+              "fos": 2.088148376441631,
+              "slack": 0.019021623558368894,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 20.865851599999587,
+              "total_evaluations": 2997,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case3_cuckoo_global_spencer.json",
+              "analysis_method": "spencer",
+              "gate_type": "benchmark",
+              "threshold": 0.995334,
+              "fos": 0.9845592655341403,
+              "slack": 0.010774734465859748,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 14.05570369999623,
+              "total_evaluations": 4034,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case4_cuckoo_global_spencer.json",
+              "analysis_method": "spencer",
+              "gate_type": "benchmark",
+              "threshold": 1.24141,
+              "fos": 1.2329626025414115,
+              "slack": 0.008447397458588357,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 13.80220659999759,
+              "total_evaluations": 1581,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case2_cuckoo_oracle.json",
+              "analysis_method": "bishop_simplified",
+              "gate_type": "oracle",
+              "threshold": 2.0974989577828476,
+              "fos": 2.0922946404116813,
+              "slack": 0.005204317371166223,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 1.5841016999911517,
+              "total_evaluations": 3454,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case3_cuckoo_oracle.json",
+              "analysis_method": "bishop_simplified",
+              "gate_type": "oracle",
+              "threshold": 0.9915071467580945,
+              "fos": 0.9855735911261961,
+              "slack": 0.005933555631898346,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 2.747325500007719,
+              "total_evaluations": 3614,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case2_cuckoo_oracle_spencer.json",
+              "analysis_method": "spencer",
+              "gate_type": "oracle",
+              "threshold": 2.0929000710096504,
+              "fos": 2.088148376441631,
+              "slack": 0.004751694568019271,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 20.280672799999593,
+              "total_evaluations": 2997,
+              "termination_reason": "stall_tolerance_reached"
+            },
+            {
+              "fixture": "tests/fixtures/case3_cuckoo_oracle_spencer.json",
+              "analysis_method": "spencer",
+              "gate_type": "oracle",
+              "threshold": 0.9904122834550322,
+              "fos": 0.9845592655341403,
+              "slack": 0.005853017920891879,
+              "fos_pass": true,
+              "endpoint_pass": true,
+              "passed": true,
+              "elapsed_seconds": 13.762898100001621,
+              "total_evaluations": 4034,
+              "termination_reason": "stall_tolerance_reached"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
