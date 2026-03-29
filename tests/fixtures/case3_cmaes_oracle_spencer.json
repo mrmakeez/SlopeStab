@@ -43,7 +43,7 @@
     "oracle":  {
                    "source":  "dense_grid_u_space",
                    "grid_resolution_per_dimension":  61,
-                   "benchmark_fos":  0.9865071467580945,
+                   "benchmark_fos":  0.9854122834550322,
                    "margin":  0.005,
                    "benchmark_surface":  {
                                              "xc":  30.289496622646638,

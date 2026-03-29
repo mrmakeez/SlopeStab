@@ -162,9 +162,9 @@ class SearchInputParsingTests(unittest.TestCase):
 
         cfg = project.search.cuckoo_global_circular
         self.assertEqual(cfg.population_size, 40)
-        self.assertEqual(cfg.max_iterations, 200)
-        self.assertEqual(cfg.max_evaluations, 4000)
-        self.assertAlmostEqual(cfg.discovery_rate, 0.20)
+        self.assertEqual(cfg.max_iterations, 300)
+        self.assertEqual(cfg.max_evaluations, 7000)
+        self.assertAlmostEqual(cfg.discovery_rate, 0.25)
         self.assertAlmostEqual(cfg.levy_beta, 1.5)
         self.assertAlmostEqual(cfg.alpha_max, 0.5)
         self.assertAlmostEqual(cfg.alpha_min, 0.05)

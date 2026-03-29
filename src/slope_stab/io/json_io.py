@@ -371,9 +371,9 @@ def _parse_cuckoo_global_search(
     limits = _parse_search_limits(cuckoo_data.get("search_limits"), geometry, key_prefix)
 
     population_size = _as_int(cuckoo_data.get("population_size", 40), f"{key_prefix}.population_size")
-    max_iterations = _as_int(cuckoo_data.get("max_iterations", 200), f"{key_prefix}.max_iterations")
-    max_evaluations = _as_int(cuckoo_data.get("max_evaluations", 4000), f"{key_prefix}.max_evaluations")
-    discovery_rate = _as_float(cuckoo_data.get("discovery_rate", 0.20), f"{key_prefix}.discovery_rate")
+    max_iterations = _as_int(cuckoo_data.get("max_iterations", 300), f"{key_prefix}.max_iterations")
+    max_evaluations = _as_int(cuckoo_data.get("max_evaluations", 7000), f"{key_prefix}.max_evaluations")
+    discovery_rate = _as_float(cuckoo_data.get("discovery_rate", 0.25), f"{key_prefix}.discovery_rate")
     levy_beta = _as_float(cuckoo_data.get("levy_beta", 1.5), f"{key_prefix}.levy_beta")
     alpha_max = _as_float(cuckoo_data.get("alpha_max", 0.5), f"{key_prefix}.alpha_max")
     alpha_min = _as_float(cuckoo_data.get("alpha_min", 0.05), f"{key_prefix}.alpha_min")

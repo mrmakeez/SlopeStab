@@ -111,9 +111,9 @@ In all panels, entry and exit are shown on the ground line (no elevated exit end
 ## Typical Defaults
 
 - `population_size = 40`
-- `max_iterations = 200`
-- `max_evaluations = 4000`
-- `discovery_rate = 0.20`
+- `max_iterations = 300`
+- `max_evaluations = 7000`
+- `discovery_rate = 0.25`
 - `levy_beta = 1.5`
 - `alpha_max = 0.5`
 - `alpha_min = 0.05`

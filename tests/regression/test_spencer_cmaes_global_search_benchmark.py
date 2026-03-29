@@ -13,7 +13,8 @@ from tests.regression.global_search_benchmark_helpers import assert_global_searc
 
 
 BENCHMARK_FOS = {
-    "case2_cmaes_global_spencer.json": 2.11168,
+    # Slide2 Case2_Search (spencer) global minimum.
+    "case2_cmaes_global_spencer.json": 2.09717,
     "case3_cmaes_global_spencer.json": 0.985334,
     "case4_cmaes_global_spencer.json": 1.23141,
 }

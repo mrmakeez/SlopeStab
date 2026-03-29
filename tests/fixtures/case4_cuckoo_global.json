@@ -21,15 +21,15 @@
   "search": {
     "method": "cuckoo_global_circular",
     "cuckoo_global_circular": {
-      "population_size": 50,
-      "max_iterations": 250,
+      "population_size": 40,
+      "max_iterations": 300,
       "max_evaluations": 7000,
-      "discovery_rate": 0.2,
+      "discovery_rate": 0.25,
       "levy_beta": 1.5,
       "alpha_max": 0.5,
       "alpha_min": 0.05,
       "min_improvement": 0.0001,
-      "stall_iterations": 30,
+      "stall_iterations": 25,
       "seed": 0,
       "post_polish": true,
       "search_limits": {

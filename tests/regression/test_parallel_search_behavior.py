@@ -106,8 +106,9 @@ class ParallelSearchBehaviorTests(unittest.TestCase):
         parallel_surface = parallel.metadata["prescribed_surface"]
         for key in ("x_left", "y_left", "x_right", "y_right", "xc", "yc", "r"):
             self.assertLessEqual(abs(float(serial_surface[key]) - float(parallel_surface[key])), 0.01)
-        self.assertLessEqual(serial.fos, 2.11283 + 0.01)
-        self.assertLessEqual(parallel.fos, 2.11283 + 0.01)
+        # Slide2 Case2_Search (bishop simplified) global minimum + benchmark margin.
+        self.assertLessEqual(serial.fos, 2.10296 + 0.01)
+        self.assertLessEqual(parallel.fos, 2.10296 + 0.01)
         self.assertEqual(serial.metadata["search"]["parallel"]["decision_reason"], "forced_serial_mode")
         self.assertEqual(parallel.metadata["search"]["parallel"]["decision_reason"], "forced_parallel_mode")
 

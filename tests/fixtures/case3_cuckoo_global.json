@@ -22,9 +22,9 @@
     "method": "cuckoo_global_circular",
     "cuckoo_global_circular": {
       "population_size": 40,
-      "max_iterations": 200,
-      "max_evaluations": 5000,
-      "discovery_rate": 0.2,
+      "max_iterations": 300,
+      "max_evaluations": 7000,
+      "discovery_rate": 0.25,
       "levy_beta": 1.5,
       "alpha_max": 0.5,
       "alpha_min": 0.05,

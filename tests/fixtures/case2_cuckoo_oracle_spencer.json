@@ -22,9 +22,9 @@
                    "method":  "cuckoo_global_circular",
                    "cuckoo_global_circular":  {
                                                   "population_size":  40,
-                                                  "max_iterations":  200,
-                                                  "max_evaluations":  4000,
-                                                  "discovery_rate":  0.2,
+                                                  "max_iterations":  300,
+                                                  "max_evaluations":  7000,
+                                                  "discovery_rate":  0.25,
                                                   "levy_beta":  1.5,
                                                   "alpha_max":  0.5,
                                                   "alpha_min":  0.05,
@@ -39,17 +39,17 @@
                                               }
                },
     "oracle":  {
-                   "source":  "spencer_cuckoo_benchmark_policy",
+                   "source":  "dense_grid_u_space",
                    "grid_resolution_per_dimension":  61,
-                   "benchmark_fos":  2.11168,
-                   "margin":  0.01,
+                   "benchmark_fos":  2.0879000710096505,
+                   "margin":  0.005,
                    "benchmark_surface":  {
-                                             "xc":  14.090072577797216,
-                                             "yc":  22.901840328846127,
-                                             "r":  13.534628829882594,
-                                             "x_left":  10.0,
+                                             "xc":  14.380261154319578,
+                                             "yc":  25.785058166853418,
+                                             "r":  16.384213570814843,
+                                             "x_left":  9.990000000000002,
                                              "y_left":  10.0,
-                                             "x_right":  26.5,
+                                             "x_right":  28.515333333333334,
                                              "y_right":  17.5
                                          },
                    "endpoint_abs_tolerance":  0.6

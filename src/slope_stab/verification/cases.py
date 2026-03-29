@@ -434,7 +434,8 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 ),
             ),
         ),
-        benchmark_fos=2.11283,
+        # Slide2 Case2_Search (bishop simplified) global minimum.
+        benchmark_fos=2.10296,
         margin=0.01,
     ),
     GlobalSearchBenchmarkVerificationCase(
@@ -519,9 +520,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
                     population_size=40,
-                    max_iterations=200,
-                    max_evaluations=4000,
-                    discovery_rate=0.20,
+                    max_iterations=300,
+                    max_evaluations=7000,
+                    discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
                     alpha_min=0.05,
@@ -533,7 +534,8 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 ),
             ),
         ),
-        benchmark_fos=2.11283,
+        # Slide2 Case2_Search (bishop simplified) global minimum.
+        benchmark_fos=2.10296,
         margin=0.01,
     ),
     GlobalSearchBenchmarkVerificationCase(
@@ -556,9 +558,9 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
                     population_size=40,
-                    max_iterations=200,
-                    max_evaluations=5000,
-                    discovery_rate=0.20,
+                    max_iterations=300,
+                    max_evaluations=7000,
+                    discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
                     alpha_min=0.05,
@@ -592,15 +594,15 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             search=SearchInput(
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
-                    population_size=50,
-                    max_iterations=250,
+                    population_size=40,
+                    max_iterations=300,
                     max_evaluations=7000,
-                    discovery_rate=0.20,
+                    discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
                     alpha_min=0.05,
                     min_improvement=1e-4,
-                    stall_iterations=30,
+                    stall_iterations=25,
                     seed=0,
                     post_polish=True,
                     search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
@@ -646,7 +648,8 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 ),
             ),
         ),
-        benchmark_fos=2.11283,
+        # Slide2 Case2_Search (bishop simplified) global minimum.
+        benchmark_fos=2.10296,
         margin=0.01,
     ),
     GlobalSearchBenchmarkVerificationCase(
@@ -1128,7 +1131,8 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 ),
             ),
         ),
-        benchmark_fos=2.11168,
+        # Slide2 Case2_Search (spencer) global minimum.
+        benchmark_fos=2.09717,
         margin=0.01,
     ),
     GlobalSearchBenchmarkVerificationCase(
@@ -1216,9 +1220,9 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
                     population_size=40,
-                    max_iterations=200,
-                    max_evaluations=4000,
-                    discovery_rate=0.20,
+                    max_iterations=300,
+                    max_evaluations=7000,
+                    discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
                     alpha_min=0.05,
@@ -1230,7 +1234,8 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 ),
             ),
         ),
-        benchmark_fos=2.11168,
+        # Slide2 Case2_Search (spencer) global minimum.
+        benchmark_fos=2.09717,
         margin=0.01,
     ),
     GlobalSearchBenchmarkVerificationCase(
@@ -1254,9 +1259,9 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
                     population_size=40,
-                    max_iterations=200,
-                    max_evaluations=5000,
-                    discovery_rate=0.20,
+                    max_iterations=300,
+                    max_evaluations=7000,
+                    discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
                     alpha_min=0.05,
@@ -1291,15 +1296,15 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
             search=SearchInput(
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
-                    population_size=50,
-                    max_iterations=250,
+                    population_size=40,
+                    max_iterations=300,
                     max_evaluations=7000,
-                    discovery_rate=0.20,
+                    discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
                     alpha_min=0.05,
                     min_improvement=1e-4,
-                    stall_iterations=30,
+                    stall_iterations=25,
                     seed=0,
                     post_polish=True,
                     search_limits=SearchLimitsInput(x_min=10.0, x_max=95.0),
@@ -1346,7 +1351,8 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 ),
             ),
         ),
-        benchmark_fos=2.11168,
+        # Slide2 Case2_Search (spencer) global minimum.
+        benchmark_fos=2.09717,
         margin=0.01,
     ),
     GlobalSearchBenchmarkVerificationCase(
