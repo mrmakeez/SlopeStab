@@ -17,6 +17,20 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 2. `python -m slope_stab.cli verify` (default auto-parallel case scheduling)
 3. `python -m slope_stab.cli test` (default auto-parallel unittest scheduling)
 
+## Canonical Gate Baseline Capture
+
+Use a single run-id bundle for verification/test evidence to avoid mismatched snapshots:
+
+1. `python scripts/benchmarks/capture_gate_baseline.py`
+2. Read the latest pointer: `tmp/gate_baselines/latest.json`
+3. Open the corresponding run manifest: `tmp/gate_baselines/<run_id>/manifest.json`
+
+Each run bundle stores paired `verify` and `test` stdout/stderr files, parsed JSON payload files, checksums, and an `overall_passed` status in one manifest.
+
+To force and enforce process-parallel execution in both stages:
+
+- `python scripts/benchmarks/capture_gate_baseline.py --verify-workers 4 --test-workers 4 --require-process-parallel`
+
 ## Documentation
 
 - Auto-refine algorithm explainer (beginner-friendly, with step-by-step SVG diagrams and formulas): `docs/auto-refine-explainer.md`
