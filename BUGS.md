@@ -49,7 +49,7 @@ This file tracks verified, reproducible bugs found in this workspace.
 ## BUG-003
 - ID: `BUG-003`
 - Severity: `Medium`
-- Status: `Open`
+- Status: `Fixed (2026-03-31)`
 - Summary: Auto-mode process startup fallback in `run_analysis` does not cover failures raised during context entry (`__enter__`), producing inconsistent startup-failure behavior.
 - Evidence:
   - [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:540) (`try` only wraps `ParallelSurfaceExecutor(...)` construction).
@@ -86,11 +86,15 @@ This file tracks verified, reproducible bugs found in this workspace.
 - Suggested Fix Direction:
   - Treat constructor and context-entry startup as one startup-failure boundary for `auto` mode.
   - Keep policy alignment: do not convert runtime worker failures (timeout, invalid payload, evaluation exceptions) into silent serial fallback.
+- Fix Evidence:
+  - [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:561) now enters the executor context through `ExitStack.enter_context(...)` with startup fallback handling covering context-entry failures.
+  - [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:567) preserves forced-parallel startup error contract for constructor and context-entry paths.
+  - [test_auto_parallel_policy.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/unit/test_auto_parallel_policy.py:213) adds forced-parallel context-entry failure coverage, with companion tests for auto fallback and runtime non-fallback behavior.
 
 ## BUG-004
 - ID: `BUG-004`
 - Severity: `Medium`
-- Status: `Open`
+- Status: `Fixed (2026-03-31)`
 - Summary: CLI stdout write path can fail noisily when downstream pipe closes, instead of terminating cleanly.
 - Evidence:
   - [cli.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py:33) (`_cmd_analyze` unguarded `print(text)`).
@@ -108,6 +112,10 @@ This file tracks verified, reproducible bugs found in this workspace.
 - Suggested Fix Direction:
   - Centralize safe stdout emission in CLI commands and handle closed-pipe conditions across platforms.
   - Cover both `BrokenPipeError` and flush/closed-stream `OSError` manifestations.
+- Fix Evidence:
+  - [cli.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py:38) introduces shared `_emit_stdout_text(...)` handling for closed-pipe write/flush failures.
+  - [cli.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py:111) and [cli.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py:150) apply closed-stdout exit code `0` behavior to `verify` and `test`.
+  - [test_cli_analyze_parallel.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_cli_analyze_parallel.py:49) adds subprocess regression coverage for closed-stdout analyze behavior (clean exit and no flush-noise stderr).
 
 ## BUG-005
 - ID: `BUG-005`

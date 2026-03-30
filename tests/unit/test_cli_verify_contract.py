@@ -23,7 +23,7 @@ def _fake_result() -> AnalysisResult:
     )
 
 
-def _fake_run_result() -> VerificationRunResult:
+def _fake_run_result(*, passed: bool = True) -> VerificationRunResult:
     outcome = VerificationOutcome(
         name="Fake Case",
         case_type="prescribed_benchmark",
@@ -31,7 +31,7 @@ def _fake_run_result() -> VerificationRunResult:
         result=_fake_result(),
         hard_checks={},
         diagnostics={},
-        passed=True,
+        passed=passed,
     )
     execution = VerificationExecution(
         requested_mode="serial",
@@ -57,12 +57,29 @@ class CliVerifyContractTests(unittest.TestCase):
 
         with (
             patch("slope_stab.cli.run_verification_suite_with_execution", return_value=_fake_run_result()) as mock_run,
-            patch("builtins.print"),
+            patch("slope_stab.cli._emit_stdout_text", return_value=True),
         ):
             code = _cmd_verify(args)
 
         self.assertEqual(code, 0)
         mock_run.assert_called_once_with(requested_mode="serial", requested_workers=1)
+
+    def test_cmd_verify_returns_zero_when_stdout_closed(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["verify", "--serial"])
+
+        with (
+            patch(
+                "slope_stab.cli.run_verification_suite_with_execution",
+                return_value=_fake_run_result(passed=False),
+            ) as mock_run,
+            patch("slope_stab.cli._emit_stdout_text", return_value=False) as mock_emit,
+        ):
+            code = _cmd_verify(args)
+
+        self.assertEqual(code, 0)
+        mock_run.assert_called_once_with(requested_mode="serial", requested_workers=1)
+        mock_emit.assert_called_once()
 
     def test_cmd_verify_workers_negative_raises(self) -> None:
         parser = build_parser()

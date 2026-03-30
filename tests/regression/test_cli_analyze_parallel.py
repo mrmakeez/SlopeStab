@@ -46,6 +46,32 @@ class CliAnalyzeParallelRegressionTests(unittest.TestCase):
         self.assertEqual(parallel_meta["requested_workers"], 1)
         self.assertEqual(parallel_meta["decision_reason"], "forced_serial_mode")
 
+    def test_cli_analyze_closed_stdout_pipe_exits_cleanly(self) -> None:
+        root = pathlib.Path(__file__).resolve().parents[2]
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(root / "src")
+        input_path = root / "tests" / "fixtures" / "case1.json"
+
+        proc = subprocess.Popen(
+            [sys.executable, "-m", "slope_stab.cli", "analyze", "--input", str(input_path), "--compact"],
+            cwd=root,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        self.assertIsNotNone(proc.stdout)
+        self.assertIsNotNone(proc.stderr)
+
+        proc.stdout.close()
+        stderr_text = proc.stderr.read()
+        proc.stderr.close()
+        returncode = proc.wait()
+
+        self.assertEqual(returncode, 0, msg=stderr_text)
+        self.assertNotIn("Exception ignored while flushing sys.stdout", stderr_text)
+        self.assertNotIn("BrokenPipeError", stderr_text)
+
 
 if __name__ == "__main__":
     unittest.main()

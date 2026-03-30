@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict
+import errno
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -19,6 +21,37 @@ from slope_stab.verification.runner import (
     run_verification_suite_with_execution,
 )
 
+_DEVNULL_STDOUT = None
+
+
+def _is_closed_stdout_error(exc: OSError) -> bool:
+    if isinstance(exc, BrokenPipeError):
+        return True
+    if exc.errno in {errno.EPIPE, errno.EINVAL, errno.EBADF}:
+        return True
+    return getattr(exc, "winerror", None) in {109, 232}
+
+
+def _redirect_stdout_to_devnull() -> None:
+    global _DEVNULL_STDOUT
+    # Avoid interpreter-shutdown flush noise after downstream stdout is closed.
+    if _DEVNULL_STDOUT is None or _DEVNULL_STDOUT.closed:
+        _DEVNULL_STDOUT = open(os.devnull, "w", encoding="utf-8")
+    sys.stdout = _DEVNULL_STDOUT
+
+
+def _emit_stdout_text(text: str) -> bool:
+    try:
+        sys.stdout.write(text)
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+    except OSError as exc:
+        if _is_closed_stdout_error(exc):
+            _redirect_stdout_to_devnull()
+            return False
+        raise
+    return True
+
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     project = load_project_input(args.input)
@@ -30,7 +63,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     result = run_analysis(project, forced_parallel_mode=forced_mode, forced_parallel_workers=forced_workers)
     text = dump_result_json(result, path=args.output, pretty=not args.compact)
     if args.output is None:
-        print(text)
+        _emit_stdout_text(text)
     return 0
 
 
@@ -80,7 +113,8 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(text + "\n")
-    print(text)
+    if not _emit_stdout_text(text):
+        return 0
     return 0 if all_passed else 2
 
 
@@ -118,7 +152,8 @@ def _cmd_test(args: argparse.Namespace) -> int:
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(text + "\n")
-    print(text)
+    if not _emit_stdout_text(text):
+        return 0
     return 0 if run_result.all_passed else 1
 
 

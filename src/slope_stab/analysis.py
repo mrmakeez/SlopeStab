@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import ExitStack
 from dataclasses import asdict
 from typing import Any, Callable
 
@@ -557,15 +558,31 @@ def run_analysis(
                     1,
                 )
             else:
-                with executor_cm as executor:
-                    batch_evaluate_surfaces = executor.evaluate_surfaces
-                    result, winning_surface, search_payload = runner(
-                        project,
-                        profile,
-                        evaluate_surface,
-                        batch_evaluate_surfaces,
-                        requested_parallel.min_batch_size,
-                    )
+                with ExitStack() as executor_stack:
+                    try:
+                        executor = executor_stack.enter_context(executor_cm)
+                    except (OSError, PermissionError) as exc:
+                        if initial_resolution.requested_mode == "parallel":
+                            raise ParallelExecutionError(
+                                f"Process backend startup failed for forced parallel mode: {exc}"
+                            ) from exc
+                        decision = _resolution_for_process_startup_failure(initial_resolution)
+                        result, winning_surface, search_payload = runner(
+                            project,
+                            profile,
+                            evaluate_surface,
+                            None,
+                            1,
+                        )
+                    else:
+                        batch_evaluate_surfaces = executor.evaluate_surfaces
+                        result, winning_surface, search_payload = runner(
+                            project,
+                            profile,
+                            evaluate_surface,
+                            batch_evaluate_surfaces,
+                            requested_parallel.min_batch_size,
+                        )
         else:
             result, winning_surface, search_payload = runner(
                 project,

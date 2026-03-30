@@ -99,6 +99,34 @@ class AutoParallelResolutionTests(unittest.TestCase):
                 )
             return evaluations
 
+    class _EnterFailureExecutor:
+        backend = "process"
+
+        def __init__(self, *, context, workers, timeout_seconds=None):
+            _ = (context, workers, timeout_seconds)
+
+        def __enter__(self):
+            raise PermissionError("enter denied")
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    class _RuntimeFailureExecutor:
+        backend = "process"
+
+        def __init__(self, *, context, workers, timeout_seconds=None):
+            _ = (context, workers, timeout_seconds)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def evaluate_surfaces(self, surfaces, driving_moment_tol):
+            _ = (surfaces, driving_moment_tol)
+            raise PermissionError("runtime denied")
+
     def test_prescribed_analysis_emits_serial_reason(self) -> None:
         project = parse_project_input(_load_fixture_payload("case1.json"))
         result = run_analysis(project)
@@ -160,6 +188,41 @@ class AutoParallelResolutionTests(unittest.TestCase):
         project = parse_project_input(payload)
         with patch("slope_stab.analysis.ParallelSurfaceExecutor", side_effect=PermissionError("denied")):
             with self.assertRaises(ParallelExecutionError):
+                run_analysis(project)
+
+    def test_process_enter_failure_defaults_to_serial_for_auto_mode(self) -> None:
+        payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="auto", workers=0)
+        project = parse_project_input(payload)
+        with (
+            patch("slope_stab.analysis.effective_cpu_count", return_value=4),
+            patch("slope_stab.analysis.process_policy_allows_parallel", return_value=True),
+            patch("slope_stab.analysis.ParallelSurfaceExecutor", self._EnterFailureExecutor),
+        ):
+            result = run_analysis(project)
+        parallel_meta = result.metadata["search"]["parallel"]
+        self.assertEqual(parallel_meta["resolved_mode"], "serial")
+        self.assertEqual(parallel_meta["decision_reason"], REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL)
+        self.assertEqual(parallel_meta["backend"], "serial")
+
+    def test_process_enter_failure_raises_for_forced_parallel_mode(self) -> None:
+        payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="parallel", workers=2)
+        project = parse_project_input(payload)
+        with patch("slope_stab.analysis.ParallelSurfaceExecutor", self._EnterFailureExecutor):
+            with self.assertRaisesRegex(
+                ParallelExecutionError,
+                "Process backend startup failed for forced parallel mode:",
+            ):
+                run_analysis(project)
+
+    def test_runtime_batch_failure_does_not_fallback_in_auto_mode(self) -> None:
+        payload = _set_parallel(_load_fixture_payload("case3_auto_refine.json"), mode="auto", workers=0, min_batch_size=1)
+        project = parse_project_input(payload)
+        with (
+            patch("slope_stab.analysis.effective_cpu_count", return_value=4),
+            patch("slope_stab.analysis.process_policy_allows_parallel", return_value=True),
+            patch("slope_stab.analysis.ParallelSurfaceExecutor", self._RuntimeFailureExecutor),
+        ):
+            with self.assertRaisesRegex(PermissionError, "runtime denied"):
                 run_analysis(project)
 
     def test_parallel_metadata_contract_and_reason_enum(self) -> None:
