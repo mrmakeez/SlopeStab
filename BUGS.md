@@ -5,7 +5,7 @@ This file tracks verified, reproducible bugs found in this workspace.
 ## BUG-001
 - ID: `BUG-001`
 - Severity: `High`
-- Status: `Open`
+- Status: `Fixed (2026-03-30)`
 - Summary: JSON numeric parsing accepts booleans as numeric values (`True -> 1`, `False -> 0.0`) in fields that should require numeric input.
 - Evidence:
   - [json_io.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/io/json_io.py:36) (`_as_float` delegates directly to `float(v)`).
@@ -28,7 +28,7 @@ This file tracks verified, reproducible bugs found in this workspace.
 ## BUG-002
 - ID: `BUG-002`
 - Severity: `High`
-- Status: `Open`
+- Status: `Fixed (2026-03-30)`
 - Summary: Non-finite numeric values (for example `"nan"`) are accepted by `_as_float`, allowing invalid runtime numeric state.
 - Evidence:
   - [json_io.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/io/json_io.py:36) (`_as_float` accepts `float('nan')`).

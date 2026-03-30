@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from slope_stab.exceptions import InputValidationError
@@ -34,18 +35,29 @@ def _require_key(data: dict, key: str) -> object:
 
 
 def _as_float(v: object, key: str) -> float:
+    if isinstance(v, bool):
+        raise InputValidationError(f"Key '{key}' must be numeric.")
     try:
-        return float(v)
-    except (TypeError, ValueError) as exc:
+        fv = float(v)
+    except (TypeError, ValueError, OverflowError) as exc:
         raise InputValidationError(f"Key '{key}' must be numeric.") from exc
+    if not math.isfinite(fv):
+        raise InputValidationError(f"Key '{key}' must be finite numeric.")
+    return fv
 
 
 def _as_int(v: object, key: str) -> int:
+    if isinstance(v, bool):
+        raise InputValidationError(f"Key '{key}' must be an integer.")
     try:
         iv = int(v)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError, OverflowError) as exc:
         raise InputValidationError(f"Key '{key}' must be an integer.") from exc
-    if float(v) != iv:
+    try:
+        fv = float(v)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise InputValidationError(f"Key '{key}' must be an integer.") from exc
+    if not math.isfinite(fv) or fv != iv:
         raise InputValidationError(f"Key '{key}' must be an integer.")
     return iv
 
