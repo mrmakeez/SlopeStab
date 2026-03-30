@@ -31,6 +31,35 @@ To force and enforce process-parallel execution in both stages:
 
 - `python scripts/benchmarks/capture_gate_baseline.py --verify-workers 4 --test-workers 4 --require-process-parallel`
 
+## Guarded Gate Runner (Timeout-Safe)
+
+For agent and CI-like local runs where orchestration timeouts have caused false failures, use:
+
+- `python scripts/benchmarks/run_guarded_gate.py`
+
+Default behavior:
+
+- Runs process-pool preflight first.
+- Runs `cli verify` then `cli test` sequentially (never in parallel).
+- Uses standardized stage timeouts (`verify=20 min`, `test=45 min`).
+- Retries a timed-out stage once with a larger timeout.
+- Persists stage JSON/stdout/stderr artifacts under `tmp/gate_guarded/<run_id>/`.
+
+You can tune timeout policy for constrained environments:
+
+- `python scripts/benchmarks/run_guarded_gate.py --verify-timeout-ms 1500000 --test-timeout-ms 3000000`
+
+## Rolling p95 Wall-Time Observability
+
+To track drift in gate wall times from baseline capture artifacts:
+
+1. Run baseline captures periodically:
+   - `python scripts/benchmarks/capture_gate_baseline.py`
+2. Summarize rolling p95 over the latest N runs:
+   - `python scripts/benchmarks/summarize_gate_p95.py --input-root tmp/gate_baselines --window 20`
+
+If rolling p95 drifts upward materially, raise orchestration timeout budgets first and investigate runtime hot spots before changing solver behavior.
+
 ## Documentation
 
 - Auto-refine algorithm explainer (beginner-friendly, with step-by-step SVG diagrams and formulas): `docs/auto-refine-explainer.md`

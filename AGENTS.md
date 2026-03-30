@@ -65,6 +65,19 @@ Not supported in baseline:
   - test command template:
     `.venv/bin/python -c 'import multiprocessing as mp; mp.set_start_method("fork", force=True); from slope_stab.cli import main; raise SystemExit(main(["test"]))'`
 - Before running long verification commands where process-parallel behavior is relevant (for example `python -m slope_stab.cli verify` or `python -m slope_stab.cli test`), the agent must run a quick environment-appropriate process-pool preflight check first; if preflight indicates restriction, prompt for outside-sandbox/full-access **before** starting the long run.
+- Agent orchestration timeout policy for long gate commands:
+  - `cli verify`: use `timeout_ms = 1_200_000` (20 minutes) minimum.
+  - `cli test`: use `timeout_ms = 2_700_000` (45 minutes) minimum.
+  - Never execute `cli verify` and `cli test` in the same parallel tool call; run sequentially with independent timeouts.
+  - If a stage times out, rerun that stage once with a larger timeout budget before treating it as a real failure.
+  - When invoking CLI stages directly, pass `--output` and preserve stage JSON artifacts for post-timeout diagnostics.
+- Preferred guarded gate command for agents:
+  - `python scripts/benchmarks/run_guarded_gate.py`
+  - This enforces preflight-first execution, sequential stage order, standardized timeouts, timeout retry-once behavior, and stage runtime artifacts under `tmp/gate_guarded/`.
+- Runtime observability policy:
+  - Periodically capture baseline runs with `python scripts/benchmarks/capture_gate_baseline.py`.
+  - Track rolling p95 wall times with `python scripts/benchmarks/summarize_gate_p95.py --input-root tmp/gate_baselines --window 20`.
+  - If p95 drifts upward, update timeout budgets and investigate runtime regressions before changing solver logic.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right
