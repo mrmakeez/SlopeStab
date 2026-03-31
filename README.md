@@ -70,6 +70,19 @@ If rolling p95 drifts upward materially, raise orchestration timeout budgets fir
 - Uniform surcharge v1 explainer: `docs/surcharge-explainer.md`
 - Groundwater v1 explainer (Water Surfaces + Ru Coefficient): `docs/groundwater-explainer.md`
 
+## GitHub Plugin Workflow (Codex)
+
+When using Codex with the GitHub plugin enabled, repository publishing and review operations should follow a connector-first hybrid model:
+
+- Keep local `git` as source-of-truth for edits, staging, commits, and pushes.
+- Prefer the GitHub app connector for PR/issue metadata, PR creation, labels, reactions, and review context.
+- Use plugin specialist workflows when applicable:
+  - `GitHub:yeet` for publish flow (branch/stage/commit/push/draft PR).
+  - `GitHub:gh-address-comments` for addressing actionable PR review feedback.
+  - `GitHub:gh-fix-ci` for failing checks and CI debugging workflows.
+- Use `gh` CLI as fallback when connector coverage is insufficient (auth status/login, current-branch PR discovery, cross-repo/fork PR edge cases, GitHub Actions logs).
+- Default to draft PRs unless the user explicitly requests a ready-for-review PR.
+
 ## Analysis Methods
 
 - `analysis.method = bishop_simplified` for Bishop simplified LEM solving.

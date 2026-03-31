@@ -78,6 +78,13 @@ Not supported in baseline:
   - Periodically capture baseline runs with `python scripts/benchmarks/capture_gate_baseline.py`.
   - Track rolling p95 wall times with `python scripts/benchmarks/summarize_gate_p95.py --input-root tmp/gate_baselines --window 20`.
   - If p95 drifts upward, update timeout budgets and investigate runtime regressions before changing solver logic.
+- GitHub publishing/review methodology (plugin-enabled):
+  - Prefer the GitHub app connector for repository/PR/issue metadata, PR creation, labels, and review context.
+  - For full local publish flow (branch/stage/commit/push/open PR), use the `GitHub:yeet` workflow; keep local `git` as source-of-truth for workspace changes.
+  - For actionable review feedback loops, use `GitHub:gh-address-comments`.
+  - For failing GitHub Actions checks and CI triage, use `GitHub:gh-fix-ci` (with `gh` for Actions log inspection when needed).
+  - Use `gh` CLI as fallback for connector gaps (auth checks, current-branch PR discovery, cross-repo/fork PR edge cases, and Actions logs).
+  - Default to draft PR creation unless explicitly asked to open a ready-for-review PR.
 - Keep units consistent: metric (kN, m, kPa).
 - Keep coordinate/sign conventions consistent:
   - x positive right
