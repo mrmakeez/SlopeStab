@@ -9,6 +9,7 @@ from slope_stab.models import AnalysisResult, CmaesGlobalSearchInput, Prescribed
 from slope_stab.search.auto_refine import _run_toe_crest_refinement
 from slope_stab.search.common import (
     BETA_MAX_RAD,
+    PhaseEvaluationCounts,
     SurfaceBatchEvaluator,
     SurfaceEvaluator,
     X_SEP_MIN,
@@ -61,6 +62,9 @@ class CmaesGlobalSearchResult:
     total_evaluations: int
     valid_evaluations: int
     infeasible_evaluations: int
+    post_refinement_total_evaluations: int
+    post_refinement_valid_evaluations: int
+    post_refinement_infeasible_evaluations: int
     termination_reason: str
 
 
@@ -302,6 +306,7 @@ def _toe_locked_sweep(
     y_left: float,
     right_values: list[float],
     beta_values: list[float],
+    post_refinement_counts: PhaseEvaluationCounts | None = None,
 ) -> tuple[PrescribedCircleInput, AnalysisResult, float, float]:
     improved_x = right_values[0] if right_values else x_left
     improved_beta = beta_values[0] if beta_values else _TANGENT_EPS_RAD
@@ -324,6 +329,8 @@ def _toe_locked_sweep(
             driving_moment_tol=1e-6,
             batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
         )
+        if post_refinement_counts is not None:
+            post_refinement_counts.record_batch(evaluations)
         for (beta, _), evaluation in zip(candidate_specs, evaluations):
             if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                 continue
@@ -345,6 +352,7 @@ def _run_toe_locked_grid_refinement(
     search_limits_x_max: float,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
+    post_refinement_counts: PhaseEvaluationCounts | None = None,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     if not (search_limits_x_min <= profile.x_toe <= search_limits_x_max):
         return best_surface, best_result
@@ -373,6 +381,7 @@ def _run_toe_locked_grid_refinement(
         y_left=y_left,
         right_values=coarse_right,
         beta_values=coarse_beta,
+        post_refinement_counts=post_refinement_counts,
     )
 
     right_step = (right_max - right_min) / (_COARSE_TOE_LOCKED_SAMPLES - 1)
@@ -396,6 +405,7 @@ def _run_toe_locked_grid_refinement(
         y_left=y_left,
         right_values=local_right,
         beta_values=local_beta,
+        post_refinement_counts=post_refinement_counts,
     )
 
     return best_surface, best_result
@@ -407,6 +417,7 @@ def _run_polish_stage(
     diagnostics: list[CmaesStageDiagnostics],
     batch_evaluate_surfaces: SurfaceBatchEvaluator | None,
     min_batch_size: int,
+    post_refinement_counts: PhaseEvaluationCounts,
 ) -> str:
     if not config.post_polish:
         return "post_polish_disabled"
@@ -425,6 +436,11 @@ def _run_polish_stage(
 
     def objective(x: list[float]) -> float:
         evaluation = evaluator.evaluate_vector((float(x[0]), float(x[1]), float(x[2])))
+        post_refinement_counts.total += 1
+        if evaluation.valid:
+            post_refinement_counts.valid += 1
+        else:
+            post_refinement_counts.infeasible += 1
         return evaluation.score
 
     result = minimize(
@@ -465,6 +481,7 @@ def _run_polish_stage(
             min_batch_size=min_batch_size,
             best_surface=evaluator.best_surface,
             best_result=evaluator.best_result,
+            post_refinement_counts=post_refinement_counts,
         )
         best_surface, best_result = _run_toe_locked_grid_refinement(
             profile=evaluator.profile,
@@ -475,6 +492,7 @@ def _run_polish_stage(
             search_limits_x_max=config.search_limits.x_max,
             best_surface=best_surface,
             best_result=best_result,
+            post_refinement_counts=post_refinement_counts,
         )
         evaluator.best_surface = best_surface
         evaluator.best_result = best_result
@@ -513,6 +531,7 @@ def run_cmaes_global_search(
         min_batch_size=min_batch_size,
     )
     diagnostics: list[CmaesStageDiagnostics] = []
+    post_refinement_counts = PhaseEvaluationCounts()
 
     elites, direct_reason = _run_direct_prescan(evaluator, config, diagnostics)
     if evaluator.best_surface is None or evaluator.best_result is None:
@@ -525,6 +544,7 @@ def run_cmaes_global_search(
         diagnostics,
         batch_evaluate_surfaces=batch_evaluate_surfaces,
         min_batch_size=min_batch_size,
+        post_refinement_counts=post_refinement_counts,
     )
 
     if evaluator.best_surface is None or evaluator.best_result is None:
@@ -547,5 +567,8 @@ def run_cmaes_global_search(
         total_evaluations=evaluator.total_evaluations,
         valid_evaluations=evaluator.valid_evaluations,
         infeasible_evaluations=evaluator.infeasible_evaluations,
+        post_refinement_total_evaluations=post_refinement_counts.total,
+        post_refinement_valid_evaluations=post_refinement_counts.valid,
+        post_refinement_infeasible_evaluations=post_refinement_counts.infeasible,
         termination_reason=termination_reason,
     )

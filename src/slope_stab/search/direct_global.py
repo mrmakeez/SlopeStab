@@ -7,7 +7,7 @@ from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, DirectGlobalSearchInput, PrescribedCircleInput
 from slope_stab.search.auto_refine import _run_toe_crest_refinement, _run_toe_locked_beta_refinement
-from slope_stab.search.common import SurfaceBatchEvaluator, SurfaceEvaluator, X_SEP_MIN, repair_vector_clip
+from slope_stab.search.common import PhaseEvaluationCounts, SurfaceBatchEvaluator, SurfaceEvaluator, X_SEP_MIN, repair_vector_clip
 from slope_stab.search.direct_partition import (
     DirectRectangle,
     seeded_centers_3x3x3,
@@ -39,6 +39,9 @@ class DirectGlobalSearchResult:
     total_evaluations: int
     valid_evaluations: int
     infeasible_evaluations: int
+    post_refinement_total_evaluations: int
+    post_refinement_valid_evaluations: int
+    post_refinement_infeasible_evaluations: int
     termination_reason: str
 
 
@@ -173,6 +176,7 @@ def run_direct_global_search(
 
     # Deterministic post-polish to match established circular-search behavior
     # near toe/crest basins after global exploration.
+    post_refinement_counts = PhaseEvaluationCounts()
     refine_config = default_post_polish_refine_config(config.search_limits)
     best_surface, best_result = _run_toe_crest_refinement(
         profile=profile,
@@ -182,6 +186,7 @@ def run_direct_global_search(
         min_batch_size=min_batch_size,
         best_surface=evaluator.best_surface,
         best_result=evaluator.best_result,
+        post_refinement_counts=post_refinement_counts,
     )
     best_surface, best_result = _run_toe_locked_beta_refinement(
         profile=profile,
@@ -191,6 +196,7 @@ def run_direct_global_search(
         min_batch_size=min_batch_size,
         best_surface=best_surface,
         best_result=best_result,
+        post_refinement_counts=post_refinement_counts,
     )
 
     return DirectGlobalSearchResult(
@@ -200,5 +206,8 @@ def run_direct_global_search(
         total_evaluations=evaluator.total_evaluations,
         valid_evaluations=evaluator.valid_evaluations,
         infeasible_evaluations=evaluator.infeasible_evaluations,
+        post_refinement_total_evaluations=post_refinement_counts.total,
+        post_refinement_valid_evaluations=post_refinement_counts.valid,
+        post_refinement_infeasible_evaluations=post_refinement_counts.infeasible,
         termination_reason=termination_reason,
     )

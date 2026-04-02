@@ -28,6 +28,21 @@ class CandidateEvaluation:
     reason: str
 
 
+@dataclass
+class PhaseEvaluationCounts:
+    total: int = 0
+    valid: int = 0
+    infeasible: int = 0
+
+    def record_batch(self, evaluations: list[CandidateEvaluation]) -> None:
+        self.total += len(evaluations)
+        for evaluation in evaluations:
+            if evaluation.valid:
+                self.valid += 1
+            else:
+                self.infeasible += 1
+
+
 def clip01(value: float) -> float:
     return min(1.0, max(0.0, value))
 

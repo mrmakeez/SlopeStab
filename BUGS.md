@@ -120,7 +120,7 @@ This file tracks verified, reproducible bugs found in this workspace.
 ## BUG-005
 - ID: `BUG-005`
 - Severity: `High`
-- Status: `Open`
+- Status: `Fixed (2026-03-31)`
 - Summary: Search evaluation accounting excludes deterministic refinement/post-polish stages, so reported counters (`total_evaluations` and `generated_surfaces`) can significantly under-report actual solver calls.
 - Evidence:
   - [direct_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/direct_global.py:57) uses `CachedObjectiveEvaluator` for the global stage but then calls refinement with raw `evaluate_surface`.
@@ -180,11 +180,17 @@ This file tracks verified, reproducible bugs found in this workspace.
 - Suggested Fix Direction:
   - Route refinement/polish evaluations through shared budget/accounting primitives, or explicitly introduce separate counters for post-search refinement and publish both.
   - Keep deterministic ordered-merge behavior intact while enforcing clear budget semantics.
+- Fix Evidence:
+  - [common.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/common.py:32) adds `PhaseEvaluationCounts` and deterministic `record_batch(...)`.
+  - [auto_refine.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/auto_refine.py:45) publishes `post_refinement_*_surfaces` counters and records refinement batches.
+  - [direct_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/direct_global.py:42), [cuckoo_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/cuckoo_global.py:51), and [cmaes_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/cmaes_global.py:65) add explicit `post_refinement_*_evaluations` fields.
+  - [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:321), [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:366), [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:418), and [analysis.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/analysis.py:472) publish both core-stage and post-refinement counters.
+  - [global_search_benchmark_helpers.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/global_search_benchmark_helpers.py:32), [test_case3_auto_refine.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_case3_auto_refine.py:44), [test_case4_auto_refine.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_case4_auto_refine.py:44), and [test_global_search_refinement_counters.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_global_search_refinement_counters.py:23) enforce field presence, partition equations, and zero-valued publication when post-polish is disabled.
 
 ## BUG-006
 - ID: `BUG-006`
 - Severity: `High`
-- Status: `Open`
+- Status: `Fixed (2026-03-31)`
 - Summary: `material.phi_deg` is accepted without physical-range validation, allowing invalid/fragile inputs that fail late or produce absurd converged outputs.
 - Evidence:
   - [json_io.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/io/json_io.py:532) reads `phi_deg` via `_as_float` with no bounded validation.
@@ -210,3 +216,51 @@ for phi in (90.0,95.0,-5.0): \
 - Suggested Fix Direction:
   - Add strict parser validation for finite `phi_deg` in a physically meaningful range (for example `0 <= phi_deg < 90`).
   - Add focused tests for boundary values (`-epsilon`, `90`, `nan`, `inf`) to keep failures early and deterministic.
+- Fix Evidence:
+  - [json_io.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/io/json_io.py:558) now enforces `material.phi_deg` in `[0, 90)` with explicit `InputValidationError`.
+  - [test_json_io_numeric_validation.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/unit/test_json_io_numeric_validation.py:133) adds lower-bound acceptance and upper/lower rejection coverage for `phi_deg`.
+
+## BUG-007
+- ID: `BUG-007`
+- Severity: `High`
+- Status: `Fixed (2026-04-02)`
+- Summary: `cmaes_global_circular` post-refinement counters can report zero even when Nelder-Mead post-polish objective evaluations occurred.
+- Evidence:
+  - [cmaes_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/cmaes_global.py:437) executes post-polish objective evaluations through `evaluator.evaluate_vector(...)`.
+  - [cmaes_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/cmaes_global.py:565) publishes `post_refinement_*` from `post_refinement_counts`, which previously tracked only toe/crest batch refinement paths.
+- Repro:
+  ```powershell
+  $env:PYTHONPATH='src'
+  @'
+  import json, pathlib
+  from slope_stab.io.json_io import parse_project_input
+  from slope_stab.analysis import run_analysis
+
+  payload = json.loads(pathlib.Path('tests/fixtures/case2_cmaes_global.json').read_text())
+  cfg = payload['search']['cmaes_global_circular']
+  cfg['max_evaluations'] = 120
+  cfg['direct_prescan_evaluations'] = 30
+  cfg['cmaes_population_size'] = 8
+  cfg['cmaes_max_iterations'] = 10
+  cfg['cmaes_restarts'] = 0
+  cfg['polish_max_evaluations'] = 40
+  cfg['post_polish'] = True
+  cfg['search_limits'] = {'x_min': 20.0, 'x_max': 35.0}
+
+  out = run_analysis(parse_project_input(payload), forced_parallel_mode='serial', forced_parallel_workers=1)
+  meta = out.metadata['search']
+  print(meta['post_refinement_total_evaluations'])
+  print([d for d in meta['iteration_diagnostics'] if d.get('stage') == 'polish'][0]['extra']['nfev'])
+  '@ | python -
+  ```
+  Observed before fix in this workspace:
+  - `post_refinement_total_evaluations = 0`
+  - `polish.nfev > 0`
+- Expected vs Actual:
+  - Expected: post-polish objective evaluations contribute to published `post_refinement_*` counters.
+  - Actual: objective evaluations were omitted from post-refinement accounting.
+- Suggested Fix Direction:
+  - Increment `post_refinement_counts` for each Nelder-Mead objective evaluation (`total` + `valid/infeasible` partition) in `_run_polish_stage`.
+- Fix Evidence:
+  - [cmaes_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/cmaes_global.py:437) now increments `post_refinement_counts` for every objective call.
+  - [test_global_search_refinement_counters.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_global_search_refinement_counters.py:61) adds regression coverage asserting `post_refinement_total_evaluations > 0` when `post_polish=True` and `polish.nfev > 0`.

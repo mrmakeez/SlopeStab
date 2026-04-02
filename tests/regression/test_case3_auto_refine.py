@@ -41,8 +41,18 @@ class Case3AutoRefineParityTests(unittest.TestCase):
         search_meta = result.metadata["search"]
         self.assertIn("valid_surfaces", search_meta)
         self.assertIn("invalid_surfaces", search_meta)
+        self.assertIn("post_refinement_generated_surfaces", search_meta)
+        self.assertIn("post_refinement_valid_surfaces", search_meta)
+        self.assertIn("post_refinement_invalid_surfaces", search_meta)
         self.assertGreater(search_meta["valid_surfaces"], 0)
         self.assertGreaterEqual(search_meta["invalid_surfaces"], 0)
+        self.assertGreaterEqual(search_meta["post_refinement_generated_surfaces"], 0)
+        self.assertGreaterEqual(search_meta["post_refinement_valid_surfaces"], 0)
+        self.assertGreaterEqual(search_meta["post_refinement_invalid_surfaces"], 0)
+        self.assertEqual(
+            search_meta["post_refinement_generated_surfaces"],
+            search_meta["post_refinement_valid_surfaces"] + search_meta["post_refinement_invalid_surfaces"],
+        )
         self.assertTrue(search_meta["iteration_diagnostics"])
 
 

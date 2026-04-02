@@ -318,6 +318,9 @@ def _run_auto_refine_mode(
         "generated_surfaces": auto_result.generated_surfaces,
         "valid_surfaces": auto_result.valid_surfaces,
         "invalid_surfaces": auto_result.invalid_surfaces,
+        "post_refinement_generated_surfaces": auto_result.post_refinement_generated_surfaces,
+        "post_refinement_valid_surfaces": auto_result.post_refinement_valid_surfaces,
+        "post_refinement_invalid_surfaces": auto_result.post_refinement_invalid_surfaces,
         "iteration_diagnostics": [asdict(item) for item in auto_result.iteration_diagnostics],
     }
 
@@ -360,6 +363,9 @@ def _run_direct_global_mode(
         "total_evaluations": direct_result.total_evaluations,
         "valid_evaluations": direct_result.valid_evaluations,
         "infeasible_evaluations": direct_result.infeasible_evaluations,
+        "post_refinement_total_evaluations": direct_result.post_refinement_total_evaluations,
+        "post_refinement_valid_evaluations": direct_result.post_refinement_valid_evaluations,
+        "post_refinement_infeasible_evaluations": direct_result.post_refinement_infeasible_evaluations,
         "termination_reason": direct_result.termination_reason,
         "iteration_diagnostics": [asdict(item) for item in direct_result.iteration_diagnostics],
     }
@@ -409,6 +415,9 @@ def _run_cuckoo_global_mode(
         "total_evaluations": cuckoo_result.total_evaluations,
         "valid_evaluations": cuckoo_result.valid_evaluations,
         "infeasible_evaluations": cuckoo_result.infeasible_evaluations,
+        "post_refinement_total_evaluations": cuckoo_result.post_refinement_total_evaluations,
+        "post_refinement_valid_evaluations": cuckoo_result.post_refinement_valid_evaluations,
+        "post_refinement_infeasible_evaluations": cuckoo_result.post_refinement_infeasible_evaluations,
         "termination_reason": cuckoo_result.termination_reason,
         "iteration_diagnostics": [asdict(item) for item in cuckoo_result.iteration_diagnostics],
     }
@@ -460,6 +469,9 @@ def _run_cmaes_global_mode(
         "total_evaluations": cmaes_result.total_evaluations,
         "valid_evaluations": cmaes_result.valid_evaluations,
         "infeasible_evaluations": cmaes_result.infeasible_evaluations,
+        "post_refinement_total_evaluations": cmaes_result.post_refinement_total_evaluations,
+        "post_refinement_valid_evaluations": cmaes_result.post_refinement_valid_evaluations,
+        "post_refinement_infeasible_evaluations": cmaes_result.post_refinement_infeasible_evaluations,
         "termination_reason": cmaes_result.termination_reason,
         "iteration_diagnostics": [asdict(item) for item in cmaes_result.iteration_diagnostics],
     }

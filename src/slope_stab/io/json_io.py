@@ -554,6 +554,8 @@ def parse_project_input(payload: dict) -> ProjectInput:
         raise InputValidationError("geometry.h and geometry.l must be greater than zero.")
     if material.gamma <= 0:
         raise InputValidationError("material.gamma must be greater than zero.")
+    if material.phi_deg < 0 or material.phi_deg >= 90:
+        raise InputValidationError("material.phi_deg must be in [0, 90).")
     if analysis.method not in {"bishop_simplified", "spencer"}:
         raise InputValidationError("Only analysis.method='bishop_simplified' or 'spencer' is supported.")
     if analysis.n_slices <= 0 or analysis.max_iter <= 0:

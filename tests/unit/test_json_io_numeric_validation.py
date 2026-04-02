@@ -130,6 +130,44 @@ class JsonIoNumericValidationTests(unittest.TestCase):
             parse_project_input(payload)
         self.assertEqual(str(ctx.exception), "Key 'analysis.n_slices' must be an integer.")
 
+    def test_accepts_phi_deg_at_lower_bound(self) -> None:
+        payload = _base_payload()
+        payload["material"]["phi_deg"] = 0.0
+
+        project = parse_project_input(payload)
+        self.assertAlmostEqual(project.material.phi_deg, 0.0)
+
+    def test_accepts_phi_deg_just_below_upper_bound(self) -> None:
+        payload = _base_payload()
+        payload["material"]["phi_deg"] = 89.999
+
+        project = parse_project_input(payload)
+        self.assertAlmostEqual(project.material.phi_deg, 89.999)
+
+    def test_rejects_negative_phi_deg(self) -> None:
+        payload = _base_payload()
+        payload["material"]["phi_deg"] = -1.0
+
+        with self.assertRaises(InputValidationError) as ctx:
+            parse_project_input(payload)
+        self.assertEqual(str(ctx.exception), "material.phi_deg must be in [0, 90).")
+
+    def test_rejects_phi_deg_at_upper_bound(self) -> None:
+        payload = _base_payload()
+        payload["material"]["phi_deg"] = 90.0
+
+        with self.assertRaises(InputValidationError) as ctx:
+            parse_project_input(payload)
+        self.assertEqual(str(ctx.exception), "material.phi_deg must be in [0, 90).")
+
+    def test_rejects_phi_deg_above_upper_bound(self) -> None:
+        payload = _base_payload()
+        payload["material"]["phi_deg"] = 95.0
+
+        with self.assertRaises(InputValidationError) as ctx:
+            parse_project_input(payload)
+        self.assertEqual(str(ctx.exception), "material.phi_deg must be in [0, 90).")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,6 +9,7 @@ from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, CuckooGlobalSearchInput, PrescribedCircleInput
 from slope_stab.search.auto_refine import _run_toe_crest_refinement, _run_toe_locked_beta_refinement
 from slope_stab.search.common import (
+    PhaseEvaluationCounts,
     TIE_TOL,
     SurfaceBatchEvaluator,
     SurfaceEvaluator,
@@ -47,6 +48,9 @@ class CuckooGlobalSearchResult:
     total_evaluations: int
     valid_evaluations: int
     infeasible_evaluations: int
+    post_refinement_total_evaluations: int
+    post_refinement_valid_evaluations: int
+    post_refinement_infeasible_evaluations: int
     termination_reason: str
 
 
@@ -231,6 +235,7 @@ def run_cuckoo_global_search(
 
     best_surface = evaluator.best_surface
     best_result = evaluator.best_result
+    post_refinement_counts = PhaseEvaluationCounts()
     if config.post_polish:
         refine_config = default_post_polish_refine_config(config.search_limits)
         best_surface, best_result = _run_toe_crest_refinement(
@@ -241,6 +246,7 @@ def run_cuckoo_global_search(
             min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
+            post_refinement_counts=post_refinement_counts,
         )
         best_surface, best_result = _run_toe_locked_beta_refinement(
             profile=profile,
@@ -250,6 +256,7 @@ def run_cuckoo_global_search(
             min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
+            post_refinement_counts=post_refinement_counts,
         )
 
     return CuckooGlobalSearchResult(
@@ -259,5 +266,8 @@ def run_cuckoo_global_search(
         total_evaluations=evaluator.total_evaluations,
         valid_evaluations=evaluator.valid_evaluations,
         infeasible_evaluations=evaluator.infeasible_evaluations,
+        post_refinement_total_evaluations=post_refinement_counts.total,
+        post_refinement_valid_evaluations=post_refinement_counts.valid,
+        post_refinement_infeasible_evaluations=post_refinement_counts.infeasible,
         termination_reason=termination_reason,
     )

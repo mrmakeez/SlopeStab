@@ -8,6 +8,7 @@ from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.models import AnalysisResult, AutoRefineSearchInput, PrescribedCircleInput
 from slope_stab.search.common import (
+    PhaseEvaluationCounts,
     SurfaceBatchEvaluator,
     TIE_TOL,
     circle_from_endpoints_and_tangent,
@@ -41,6 +42,9 @@ class AutoRefineSearchResult:
     generated_surfaces: int
     valid_surfaces: int
     invalid_surfaces: int
+    post_refinement_generated_surfaces: int
+    post_refinement_valid_surfaces: int
+    post_refinement_invalid_surfaces: int
 
 
 SurfaceEvaluator = Callable[[PrescribedCircleInput], AnalysisResult]
@@ -161,6 +165,7 @@ def run_auto_refine_search(
 
     total_generated = 0
     total_valid = 0
+    post_refinement_counts = PhaseEvaluationCounts()
 
     for iteration in range(1, config.iterations + 1):
         polyline = _build_ground_polyline(profile, current_x_min, current_x_max)
@@ -274,6 +279,7 @@ def run_auto_refine_search(
             min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
+            post_refinement_counts=post_refinement_counts,
         )
         best_surface, best_result = _run_toe_locked_beta_refinement(
             profile=profile,
@@ -283,6 +289,7 @@ def run_auto_refine_search(
             min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
+            post_refinement_counts=post_refinement_counts,
         )
         best_surface, best_result = _run_toe_locked_local_xright_beta_polish(
             profile=profile,
@@ -292,6 +299,7 @@ def run_auto_refine_search(
             min_batch_size=min_batch_size,
             best_surface=best_surface,
             best_result=best_result,
+            post_refinement_counts=post_refinement_counts,
         )
 
     if best_result is None or best_surface is None:
@@ -304,6 +312,9 @@ def run_auto_refine_search(
         generated_surfaces=total_generated,
         valid_surfaces=total_valid,
         invalid_surfaces=total_generated - total_valid,
+        post_refinement_generated_surfaces=post_refinement_counts.total,
+        post_refinement_valid_surfaces=post_refinement_counts.valid,
+        post_refinement_invalid_surfaces=post_refinement_counts.infeasible,
     )
 
 
@@ -321,6 +332,7 @@ def _run_toe_crest_refinement(
     min_batch_size: int,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
+    post_refinement_counts: PhaseEvaluationCounts | None = None,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     left_min = max(config.search_limits.x_min, profile.x_toe)
     left_max = min(config.search_limits.x_max, profile.x_toe + 0.2 * profile.h)
@@ -358,6 +370,8 @@ def _run_toe_crest_refinement(
                 driving_moment_tol=1e-6,
                 batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
             )
+            if post_refinement_counts is not None:
+                post_refinement_counts.record_batch(evaluations)
             for evaluation in evaluations:
                 if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                     continue
@@ -384,6 +398,7 @@ def _run_toe_locked_beta_refinement(
     min_batch_size: int,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
+    post_refinement_counts: PhaseEvaluationCounts | None = None,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     # Preserve the current right endpoint and re-sweep beta with toe-anchored entry.
     if not (config.search_limits.x_min <= profile.x_toe <= config.search_limits.x_max):
@@ -397,6 +412,7 @@ def _run_toe_locked_beta_refinement(
         best_surface=best_surface,
         best_result=best_result,
         x_right_values=[best_surface.x_right],
+        post_refinement_counts=post_refinement_counts,
     )
 
 
@@ -408,6 +424,7 @@ def _run_toe_locked_local_xright_beta_polish(
     min_batch_size: int,
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
+    post_refinement_counts: PhaseEvaluationCounts | None = None,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     # Deterministic local sweep around incumbent toe-anchored right endpoint.
     if not (config.search_limits.x_min <= profile.x_toe <= config.search_limits.x_max):
@@ -445,6 +462,7 @@ def _run_toe_locked_local_xright_beta_polish(
         best_surface=best_surface,
         best_result=best_result,
         x_right_values=x_right_values,
+        post_refinement_counts=post_refinement_counts,
     )
     # Accept only meaningful improvements to avoid platform-dependent drift in
     # near-flat objective regions while preserving deterministic tie-break rules.
@@ -461,6 +479,7 @@ def _run_toe_locked_refinement_for_xright_values(
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
     x_right_values: list[float],
+    post_refinement_counts: PhaseEvaluationCounts | None = None,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     x_left = profile.x_toe
     y_left = profile.y_ground(x_left)
@@ -485,6 +504,8 @@ def _run_toe_locked_refinement_for_xright_values(
             driving_moment_tol=1e-6,
             batch_evaluate_surfaces=batch_evaluate_surfaces if use_batch else None,
         )
+        if post_refinement_counts is not None:
+            post_refinement_counts.record_batch(evaluations)
         for evaluation in evaluations:
             if not evaluation.valid or evaluation.surface is None or evaluation.result is None:
                 continue

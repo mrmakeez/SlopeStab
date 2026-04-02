@@ -29,10 +29,20 @@ def assert_global_search_result_shape(
     testcase.assertIn("total_evaluations", search_meta)
     testcase.assertIn("valid_evaluations", search_meta)
     testcase.assertIn("infeasible_evaluations", search_meta)
+    testcase.assertIn("post_refinement_total_evaluations", search_meta)
+    testcase.assertIn("post_refinement_valid_evaluations", search_meta)
+    testcase.assertIn("post_refinement_infeasible_evaluations", search_meta)
     testcase.assertIn("termination_reason", search_meta)
     testcase.assertIn("iteration_diagnostics", search_meta)
     testcase.assertGreater(search_meta["total_evaluations"], 0)
     testcase.assertGreaterEqual(search_meta["valid_evaluations"], 1)
     testcase.assertGreaterEqual(search_meta["infeasible_evaluations"], 0)
+    testcase.assertGreaterEqual(search_meta["post_refinement_total_evaluations"], 0)
+    testcase.assertGreaterEqual(search_meta["post_refinement_valid_evaluations"], 0)
+    testcase.assertGreaterEqual(search_meta["post_refinement_infeasible_evaluations"], 0)
+    testcase.assertEqual(
+        search_meta["post_refinement_total_evaluations"],
+        search_meta["post_refinement_valid_evaluations"] + search_meta["post_refinement_infeasible_evaluations"],
+    )
     testcase.assertIsInstance(search_meta["iteration_diagnostics"], list)
     testcase.assertTrue(search_meta["iteration_diagnostics"])
