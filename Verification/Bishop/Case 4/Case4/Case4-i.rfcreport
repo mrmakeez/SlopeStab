@@ -46,7 +46,7 @@
             <rowType>DataRow</rowType>
             <data>
               <data_string>Compute Time:</data_string>
-              <data_string>00h:00m:18.975s</data_string>
+              <data_string>00h:00m:11.230s</data_string>
             </data>
           </row>
           <row>
@@ -413,7 +413,7 @@
                 <rowType>DataImageRow</rowType>
                 <data>
                   <data_string>Color </data_string>
-                  <data_string> $$$IMG$$$C:\Users\james\AppData\Local\Temp\RocscienceTempSlideInterpret_9\030221157_files\{6E8D24E5-8E6C-411c-8397-0427B40A22E7}.png$$$IMG$$$</data_string>
+                  <data_string> $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlideInterpret_9\102619314_files\{07878898-5C6B-4990-9226-4165FA2A1AE4}.png$$$IMG$$$</data_string>
                 </data>
               </row>
               <row>
@@ -2577,7 +2577,7 @@
         <borderStyle>None</borderStyle>
         <childSections>
           <rfc_section>
-            <Title>Group 1 $$$IMG$$$C:\Users\james\AppData\Local\Temp\RocscienceTempSlideInterpret_9\030221157_files\{88ADD5E6-DB47-477b-88ED-5777C5E4DAB5}.png$$$IMG$$$</Title>
+            <Title>Group 1 $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlideInterpret_9\102619314_files\{430630D2-33D5-4763-8F96-FAEAD22EBBB0}.png$$$IMG$$$</Title>
             <sectionLevel>UnderlinedSection</sectionLevel>
             <hasImage>true</hasImage>
             <maximizeSize>false</maximizeSize>
