@@ -9,7 +9,15 @@ ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
 from slope_stab.exceptions import InputValidationError
+from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.io.json_io import parse_project_input
+from slope_stab.models import AutoRefineSearchInput, SearchLimitsInput
+from slope_stab.search.auto_refine import (
+    _build_ground_polyline,
+    _division_boundaries_and_midpoints,
+    _generate_pre_polish_pair_candidates,
+    _generate_slide2_betas,
+)
 
 
 def _base_payload() -> dict:
@@ -410,6 +418,67 @@ class SearchInputParsingTests(unittest.TestCase):
 
 
 class AutoRefineSearchTests(unittest.TestCase):
+    def test_slide2_beta_schedule_is_linear_and_hits_upper_bound(self) -> None:
+        theta_chord = math.radians(26.565051177078)
+        count = 10
+        betas = _generate_slide2_betas(theta_chord, count)
+
+        self.assertEqual(len(betas), count)
+        beta_max = 0.5 * math.pi - theta_chord
+        for m, beta in enumerate(betas, start=1):
+            self.assertAlmostEqual(beta, (m / count) * beta_max, places=12)
+        self.assertAlmostEqual(betas[-1], beta_max, places=12)
+
+    def test_pre_polish_pair_candidates_use_fixed_midpoint_endpoints(self) -> None:
+        profile = UniformSlopeProfile(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0)
+        config = AutoRefineSearchInput(
+            divisions_along_slope=20,
+            circles_per_division=10,
+            iterations=10,
+            divisions_to_use_next_iteration_pct=50.0,
+            search_limits=SearchLimitsInput(x_min=0.0, x_max=35.0),
+        )
+        polyline = _build_ground_polyline(profile, config.search_limits.x_min, config.search_limits.x_max)
+        _, midpoints = _division_boundaries_and_midpoints(polyline, config.divisions_along_slope)
+        i = 5
+        j = 8
+        p_left = midpoints[i]
+        p_right = midpoints[j]
+
+        candidates = _generate_pre_polish_pair_candidates(
+            p_left=p_left,
+            p_right=p_right,
+            circles_per_division=config.circles_per_division,
+        )
+        self.assertEqual(len(candidates), config.circles_per_division)
+
+        for candidate in candidates:
+            if candidate is None:
+                continue
+            self.assertAlmostEqual(candidate.x_left, p_left[0], places=12)
+            self.assertAlmostEqual(candidate.y_left, p_left[1], places=12)
+            self.assertAlmostEqual(candidate.x_right, p_right[0], places=12)
+            self.assertAlmostEqual(candidate.y_right, p_right[1], places=12)
+
+        theta_chord = math.atan2(p_right[1] - p_left[1], p_right[0] - p_left[0])
+        beta_max = 0.5 * math.pi - theta_chord
+        chord = math.hypot(p_right[0] - p_left[0], p_right[1] - p_left[1])
+        inferred_betas: list[float] = []
+        for candidate in candidates:
+            if candidate is None:
+                continue
+            ratio = chord / (2.0 * candidate.r)
+            inferred_betas.append(math.asin(max(-1.0, min(1.0, ratio))))
+
+        self.assertGreaterEqual(len(inferred_betas), 2)
+        self.assertLessEqual(inferred_betas[-1], beta_max + 1e-12)
+        for idx in range(1, len(inferred_betas)):
+            self.assertAlmostEqual(
+                inferred_betas[idx] - inferred_betas[idx - 1],
+                inferred_betas[1] - inferred_betas[0],
+                places=12,
+            )
+
     def test_generated_surfaces_per_iteration_matches_formula(self) -> None:
         payload = _base_payload()
         payload["search"] = {

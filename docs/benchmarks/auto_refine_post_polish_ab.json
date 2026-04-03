@@ -1,0 +1,129 @@
+{
+  "captured_at_utc": "2026-04-03T03:02:32.577900+00:00",
+  "cases": [
+    "Case2_Search",
+    "Case4"
+  ],
+  "methods": [
+    "bishop_simplified",
+    "spencer"
+  ],
+  "with_post_polish": {
+    "rows": [
+      {
+        "label": "with_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case2_Search",
+        "method": "bishop_simplified",
+        "seconds": 4.798425100001623,
+        "after_post_polish": {
+          "fos_abs_delta": 0.004652577471507158,
+          "x_right_abs_delta": 0.22299999999999898,
+          "radius_rel_delta": 0.01903288323525991
+        }
+      },
+      {
+        "label": "with_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case2_Search",
+        "method": "spencer",
+        "seconds": 77.44042869999976,
+        "after_post_polish": {
+          "fos_abs_delta": 0.0043271764279482205,
+          "x_right_abs_delta": 0.20199999999999818,
+          "radius_rel_delta": 0.019777048522094345
+        }
+      },
+      {
+        "label": "with_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case4",
+        "method": "bishop_simplified",
+        "seconds": 47.69835909999529,
+        "after_post_polish": {
+          "fos_abs_delta": 0.00047527581423345566,
+          "x_right_abs_delta": 0.2781703689298709,
+          "radius_rel_delta": 0.03459645518047401
+        }
+      },
+      {
+        "label": "with_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case4",
+        "method": "spencer",
+        "seconds": 324.1783863000019,
+        "after_post_polish": {
+          "fos_abs_delta": 0.0003870156622596266,
+          "x_right_abs_delta": 0.16332967174038515,
+          "radius_rel_delta": 0.042277175880398914
+        }
+      }
+    ],
+    "summary": {
+      "total_seconds": 454.11559919999854,
+      "mean_seconds": 113.52889979999964,
+      "mean_fos_abs_delta": 0.002460511343987115,
+      "mean_x_right_abs_delta": 0.2166250101675633,
+      "mean_radius_rel_delta": 0.028920890704556793
+    }
+  },
+  "no_post_polish": {
+    "rows": [
+      {
+        "label": "no_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case2_Search",
+        "method": "bishop_simplified",
+        "seconds": 4.485797000001185,
+        "after_post_polish": {
+          "fos_abs_delta": 0.0031033417133552454,
+          "x_right_abs_delta": 0.4921607795315204,
+          "radius_rel_delta": 0.01042163453755227
+        }
+      },
+      {
+        "label": "no_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case2_Search",
+        "method": "spencer",
+        "seconds": 62.977511199998844,
+        "after_post_polish": {
+          "fos_abs_delta": 0.0035168640109550786,
+          "x_right_abs_delta": 0.5131607795315212,
+          "radius_rel_delta": 0.011159511320391832
+        }
+      },
+      {
+        "label": "no_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case4",
+        "method": "bishop_simplified",
+        "seconds": 42.84955700000137,
+        "after_post_polish": {
+          "fos_abs_delta": 0.009959072268400648,
+          "x_right_abs_delta": 0.576829631070126,
+          "radius_rel_delta": 0.05469216616090083
+        }
+      },
+      {
+        "label": "no_post_polish",
+        "stage": "after_post_polish",
+        "case_id": "Case4",
+        "method": "spencer",
+        "seconds": 228.98274149999634,
+        "after_post_polish": {
+          "fos_abs_delta": 0.0023635144239155803,
+          "x_right_abs_delta": 0.06832967174038629,
+          "radius_rel_delta": 0.008377400306102015
+        }
+      }
+    ],
+    "summary": {
+      "total_seconds": 339.29560669999773,
+      "mean_seconds": 84.82390167499943,
+      "mean_fos_abs_delta": 0.004735698104156638,
+      "mean_x_right_abs_delta": 0.41262021546838845,
+      "mean_radius_rel_delta": 0.021162678081236737
+    }
+  }
+}

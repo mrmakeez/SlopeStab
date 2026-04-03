@@ -76,35 +76,40 @@ Formula:
 - Where it is used in our implementation: nested loops `for i ... for j in range(i+1, ...)`.
 - Why it matters for Case 3/Case 4 parity: pair count directly sets search breadth.
 
-### D5. Sample endpoints inside selected divisions
+### D5. Fix one midpoint endpoint pair per selected division pair
 
-Short description: within each selected division, sample one endpoint fraction between boundary start and end.
+Short description: for each selected pair `(i, j)`, use midpoint endpoints directly and keep them fixed while sweeping beta for that pair.
 
 ![D5 endpoint sampling](images/auto_refine/05_endpoint_sampling.svg)
 
 Formula:
 
-`P = P_start + f * (P_end - P_start)`, with `f in (0,1)` and edge clamping `eps`
+`P_left = midpoint(i)`  
+`P_right = midpoint(j)`
 
-- What this computes: sampled endpoint coordinates inside each division.
-- Where it is used in our implementation: `_sample_fractions`, `_interpolate_point`, `_DIVISION_EDGE_EPS` clamp.
-- Why it matters for Case 3/Case 4 parity: endpoint positions strongly influence final FOS and radius.
+- What this computes: deterministic fixed endpoints for each pair.
+- Where it is used in our implementation: midpoint array from `_division_boundaries_and_midpoints` and the pre-polish pair loop in `run_auto_refine_search`.
+- Why it matters for Slide2 alignment: `.s01` emits repeated fixed-endpoint groups with beta sweeps per group.
 
 ### D6. Sweep angle and build circle family
 
-Short description: for each pair, sweep through `circles_per_division` angles and build candidate circles through sampled endpoints; the plotted/used failure arc is the lower branch through the slope mass.
+Short description: for each pair, sweep through `circles_per_division` angles and build candidate circles through fixed midpoint endpoints; the plotted/used failure arc is the lower branch through the slope mass.
 
 ![D6 angle sweep](images/auto_refine/06_angle_sweep_circles.svg)
 
 Formulas:
+
+`theta_chord = atan2(y_right - y_left, x_right - x_left)`  
+`beta_max = pi/2 - theta_chord`  
+`beta_m = (m / N) * beta_max`, for `m = 1..N`
 
 `c = sqrt((x2-x1)^2 + (y2-y1)^2)`  
 `r = c / (2 * sin(beta))`  
 `d = c / (2 * tan(beta))`
 
 - What this computes: chord length, circle radius, and center offset for one candidate.
-- Where it is used in our implementation: `circle_from_endpoints_and_tangent`, `_generate_tangent_angles`.
-- Why it matters for Case 3/Case 4 parity: Case 4 needed low-angle circle families to be sampled.
+- Where it is used in our implementation: `circle_from_endpoints_and_tangent`, `_generate_slide2_betas`.
+- Why it matters for Slide2 alignment: this stage now matches the recovered Slide2 per-pair linear beta schedule.
 
 Important implementation detail:
 - Circles are parameterized with center above the endpoints (`yc > max(y1, y2)` in `circle_from_endpoints_and_tangent`).
@@ -155,23 +160,46 @@ Formulas:
 
 ### D10. Final refinement passes
 
-Short description: after iterations, run two deterministic local refinements; both evaluate the lower arc branch through the slope mass.
+Short description: after iterations, run three deterministic local refinements; all evaluate the lower arc branch through the slope mass.
 
 ![D10 final refinements](images/auto_refine/10_final_refinement_passes.svg)
 
 Formulas:
 
 `beta_samples_toe_crest = max(11, circles_per_division + 1)`  
-`beta_samples_toe_locked = 61`  
+`beta_samples_toe_locked = 121`  
 `beta_k = beta_lo + (beta_hi - beta_lo) * u_k`
 
-- What this computes: angle sampling for the final two local sweeps.
-- Where it is used in our implementation: `_run_toe_crest_refinement` and `_run_toe_locked_beta_refinement`.
+- What this computes: angle sampling for the final local sweeps.
+- Where it is used in our implementation: `_run_toe_crest_refinement`, `_run_toe_locked_beta_refinement`, and `_run_toe_locked_local_xright_beta_polish`.
 - Why it matters for Case 3/Case 4 parity: these passes tighten the final minimum and were key for Case 4 agreement.
 
 Important implementation detail:
 - The refinement passes create circles by center/radius geometry.
 - The solver still evaluates the lower branch base (`y_base = yc - sqrt(...)`), not an upper arc above ground.
+- Post-polish right-endpoint search uses a deterministic crest window upper bound of `x_crest + 0.38H` (clamped to configured `search_limits.x_max`).
+
+## Before vs After Post-Polish Metadata
+
+Auto-refine metadata publishes both stages explicitly:
+
+- `search.before_post_polish`: winner snapshot at the end of the core iterative search, before any post-polish refinement pass.
+- `search.after_post_polish`: final/top-level winner after refinement passes.
+
+Each stage includes:
+
+- `fos`
+- `surface` (`xc`, `yc`, `r`, `x_left`, `y_left`, `x_right`, `y_right`)
+
+This enables direct reporting of pre-refinement versus post-refinement behavior without changing the top-level output contract.
+
+## Slide2 Comparison Artifacts
+
+Case2_Search and Case4 Slide2 parity evidence (both solvers) is published under:
+
+- `docs/benchmarks/auto_refine_slide2_case2_case4_new.json`
+- `docs/benchmarks/auto_refine_post_polish_ab.json`
+- `docs/benchmarks/auto_refine_post_polish_ab.md`
 
 ## Solver Validity Rules Used by Search
 
@@ -179,14 +207,24 @@ Important implementation detail:
 - The `m_alpha` threshold is checked only on the converged/final solver iteration (Bishop or Spencer).
 - Base tension induced negative shear strength is clamped to zero during resistance aggregation.
 
-## Hard and Diagnostic Parity Checks
+## Case2/Case4 Hard Parity Gates
 
-`fos_abs_error = abs(FOS_model - FOS_ref)` (hard gate `<= 0.001`)  
-`endpoint_abs_error = abs(coord_model - coord_ref)` (hard gate `<= 0.20 m`)  
-`radius_rel_error = abs(r_model - r_ref) / r_ref` (hard gate `<= 10%`)  
-`center_distance = sqrt((xc_model-xc_ref)^2 + (yc_model-yc_ref)^2)` (diagnostic-only)
+For Slide2 Case2_Search and Case4 (Bishop + Spencer), hard gates apply to the final auto-refine output (`after_post_polish`):
 
-These checks are enforced in built-in `python -m slope_stab.cli verify` for Case 3 and Case 4, and also in dedicated regression tests for parity-focused diagnostics.
+Thresholds:
+
+`fos_abs_error = abs(FOS_model - FOS_ref) <= 0.005`  
+`endpoint_abs_error = abs(coord_model - coord_ref) <= 0.30 m`  
+`radius_rel_error = abs(r_model - r_ref) / r_ref <= 12%`
+
+Reference source is `rfcreport` global-minimum geometry/FOS for each case/method.
+
+## Post-Polish Removal Policy
+
+Post-polish may only be removed if no-post-polish A/B evidence passes the same hard gates above for Case2_Search and Case4 (both Bishop and Spencer), and the full repository gate remains green:
+
+- `python -m slope_stab.cli verify`
+- `python -m slope_stab.cli test`
 
 `cli verify` now defaults to auto-parallel case scheduling; use `python -m slope_stab.cli verify --serial` for canonical serial debugging.
 

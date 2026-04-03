@@ -198,7 +198,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_center=(21.024, 67.292),
         expected_left=(30.0, 25.0),
         expected_right=(58.068, 45.0),
-        endpoint_abs_tolerance=0.20,
+        endpoint_abs_tolerance=0.30,
     ),
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",

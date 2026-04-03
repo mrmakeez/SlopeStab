@@ -1,0 +1,390 @@
+{
+  "implementation_label": "current",
+  "captured_at_utc": "2026-04-03T01:33:24.645582+00:00",
+  "rows": [
+    {
+      "case_id": "Case2_Search",
+      "method": "bishop_simplified",
+      "source_files": {
+        "rfcreport": "Verification/Bishop/Case 2/Case2_Search/Case2_Search-i.rfcreport",
+        "s01": "Verification/Bishop/Case 2/Case2_Search/{9A4A67C1-D070-4ede-B3E6-99981501482B}.s01"
+      },
+      "analysis_input": {
+        "geometry": {
+          "h": 7.5,
+          "l": 15.0,
+          "x_toe": 10.0,
+          "y_toe": 10.0
+        },
+        "search_limits": {
+          "x_min": 0.0,
+          "x_max": 35.0
+        },
+        "n_slices": 7,
+        "tolerance": 0.001,
+        "max_iter": 50,
+        "material": {
+          "gamma": 20.0,
+          "c": 20.0,
+          "phi_deg": 20.0
+        },
+        "auto_refine_circular": {
+          "divisions_along_slope": 20,
+          "circles_per_division": 10,
+          "iterations": 10,
+          "divisions_to_use_next_iteration_pct": 50.0
+        }
+      },
+      "effective_search_limits": {
+        "x_min": 0.0,
+        "x_max": 35.0
+      },
+      "slide_reference": {
+        "fos": 2.10296,
+        "surface": {
+          "xc": 14.641,
+          "yc": 24.34,
+          "r": 15.074,
+          "x_left": 9.996,
+          "y_left": 10.0,
+          "x_right": 28.073,
+          "y_right": 17.5
+        }
+      },
+      "observed": {
+        "before_post_polish": {
+          "fos": 2.106063341713355,
+          "surface": {
+            "xc": 15.019725930646686,
+            "yc": 24.464730544431504,
+            "r": 15.231095719019063,
+            "x_left": 10.100077640500377,
+            "y_left": 10.050038820250188,
+            "x_right": 28.56516077953152,
+            "y_right": 17.5
+          }
+        },
+        "after_post_polish": {
+          "fos": 2.098307422528493,
+          "surface": {
+            "xc": 14.305137124620305,
+            "yc": 24.74527364340367,
+            "r": 15.360901681888308,
+            "x_left": 10.0,
+            "y_left": 10.0,
+            "x_right": 27.85,
+            "y_right": 17.5
+          }
+        }
+      },
+      "deltas": {
+        "before_post_polish": {
+          "fos_abs_delta": 0.0031033417133552454,
+          "x_left_abs_delta": 0.10407764050037649,
+          "y_left_abs_delta": 0.050038820250188465,
+          "x_right_abs_delta": 0.4921607795315204,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.01042163453755227,
+          "center_distance": 0.39873680449436555
+        },
+        "after_post_polish": {
+          "fos_abs_delta": 0.004652577471507158,
+          "x_left_abs_delta": 0.0039999999999995595,
+          "y_left_abs_delta": 0.0,
+          "x_right_abs_delta": 0.22299999999999898,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.01903288323525991,
+          "center_distance": 0.5263559604450225
+        }
+      }
+    },
+    {
+      "case_id": "Case2_Search",
+      "method": "spencer",
+      "source_files": {
+        "rfcreport": "Verification/Bishop/Case 2/Case2_Search/Case2_Search-i.rfcreport",
+        "s01": "Verification/Bishop/Case 2/Case2_Search/{9A4A67C1-D070-4ede-B3E6-99981501482B}.s01"
+      },
+      "analysis_input": {
+        "geometry": {
+          "h": 7.5,
+          "l": 15.0,
+          "x_toe": 10.0,
+          "y_toe": 10.0
+        },
+        "search_limits": {
+          "x_min": 0.0,
+          "x_max": 35.0
+        },
+        "n_slices": 7,
+        "tolerance": 0.001,
+        "max_iter": 50,
+        "material": {
+          "gamma": 20.0,
+          "c": 20.0,
+          "phi_deg": 20.0
+        },
+        "auto_refine_circular": {
+          "divisions_along_slope": 20,
+          "circles_per_division": 10,
+          "iterations": 10,
+          "divisions_to_use_next_iteration_pct": 50.0
+        }
+      },
+      "effective_search_limits": {
+        "x_min": 0.0,
+        "x_max": 35.0
+      },
+      "slide_reference": {
+        "fos": 2.09717,
+        "surface": {
+          "xc": 14.628,
+          "yc": 24.333,
+          "r": 15.063,
+          "x_left": 9.996,
+          "y_left": 10.0,
+          "x_right": 28.052,
+          "y_right": 17.5
+        }
+      },
+      "observed": {
+        "before_post_polish": {
+          "fos": 2.1006868640109553,
+          "surface": {
+            "xc": 15.019725930646686,
+            "yc": 24.464730544431504,
+            "r": 15.231095719019063,
+            "x_left": 10.100077640500377,
+            "y_left": 10.050038820250188,
+            "x_right": 28.56516077953152,
+            "y_right": 17.5
+          }
+        },
+        "after_post_polish": {
+          "fos": 2.092842823572052,
+          "surface": {
+            "xc": 14.305137124620305,
+            "yc": 24.74527364340367,
+            "r": 15.360901681888308,
+            "x_left": 10.0,
+            "y_left": 10.0,
+            "x_right": 27.85,
+            "y_right": 17.5
+          }
+        }
+      },
+      "deltas": {
+        "before_post_polish": {
+          "fos_abs_delta": 0.0035168640109550786,
+          "x_left_abs_delta": 0.10407764050037649,
+          "y_left_abs_delta": 0.050038820250188465,
+          "x_right_abs_delta": 0.5131607795315212,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.011159511320391832,
+          "center_distance": 0.41328215673705665
+        },
+        "after_post_polish": {
+          "fos_abs_delta": 0.0043271764279482205,
+          "x_left_abs_delta": 0.0039999999999995595,
+          "y_left_abs_delta": 0.0,
+          "x_right_abs_delta": 0.20199999999999818,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.019777048522094345,
+          "center_distance": 0.5236506405455671
+        }
+      }
+    },
+    {
+      "case_id": "Case4",
+      "method": "bishop_simplified",
+      "source_files": {
+        "rfcreport": "Verification/Bishop/Case 4/Case4/Case4-i.rfcreport",
+        "s01": "Verification/Bishop/Case 4/Case4/{3A58A471-B82B-4b73-9E28-0A0D91A19FDE}.s01"
+      },
+      "analysis_input": {
+        "geometry": {
+          "h": 20.0,
+          "l": 25.0,
+          "x_toe": 30.0,
+          "y_toe": 25.0
+        },
+        "search_limits": {
+          "x_min": 10.0,
+          "x_max": 95.0
+        },
+        "n_slices": 25,
+        "tolerance": 0.0001,
+        "max_iter": 100,
+        "material": {
+          "gamma": 16.0,
+          "c": 9.0,
+          "phi_deg": 32.0
+        },
+        "auto_refine_circular": {
+          "divisions_along_slope": 30,
+          "circles_per_division": 15,
+          "iterations": 15,
+          "divisions_to_use_next_iteration_pct": 50.0
+        }
+      },
+      "effective_search_limits": {
+        "x_min": 10.0,
+        "x_max": 95.0
+      },
+      "slide_reference": {
+        "fos": 1.23469,
+        "surface": {
+          "xc": 21.048,
+          "yc": 67.275,
+          "r": 43.212,
+          "x_left": 30.001,
+          "y_left": 25.0,
+          "x_right": 58.077,
+          "y_right": 45.0
+        }
+      },
+      "observed": {
+        "before_post_polish": {
+          "fos": 1.2446490722684007,
+          "surface": {
+            "xc": 20.47337565443504,
+            "yc": 69.88706853781565,
+            "r": 45.57535788414485,
+            "x_left": 30.549352738620303,
+            "y_left": 25.439482190896243,
+            "x_right": 58.653829631070124,
+            "y_right": 45.0
+          }
+        },
+        "after_post_polish": {
+          "fos": 1.2342147241857666,
+          "surface": {
+            "xc": 21.68298289115995,
+            "yc": 65.87954030379856,
+            "r": 41.71701797874136,
+            "x_left": 30.0,
+            "y_left": 25.0,
+            "x_right": 57.79882963107013,
+            "y_right": 45.0
+          }
+        }
+      },
+      "deltas": {
+        "before_post_polish": {
+          "fos_abs_delta": 0.009959072268400648,
+          "x_left_abs_delta": 0.5483527386203022,
+          "y_left_abs_delta": 0.43948219089624274,
+          "x_right_abs_delta": 0.576829631070126,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.05469216616090083,
+          "center_distance": 2.6745270955371385
+        },
+        "after_post_polish": {
+          "fos_abs_delta": 0.00047527581423345566,
+          "x_left_abs_delta": 0.0010000000000012221,
+          "y_left_abs_delta": 0.0,
+          "x_right_abs_delta": 0.2781703689298709,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.03459645518047401,
+          "center_distance": 1.533137644110427
+        }
+      }
+    },
+    {
+      "case_id": "Case4",
+      "method": "spencer",
+      "source_files": {
+        "rfcreport": "Verification/Bishop/Case 4/Case4/Case4-i.rfcreport",
+        "s01": "Verification/Bishop/Case 4/Case4/{3A58A471-B82B-4b73-9E28-0A0D91A19FDE}.s01"
+      },
+      "analysis_input": {
+        "geometry": {
+          "h": 20.0,
+          "l": 25.0,
+          "x_toe": 30.0,
+          "y_toe": 25.0
+        },
+        "search_limits": {
+          "x_min": 10.0,
+          "x_max": 95.0
+        },
+        "n_slices": 25,
+        "tolerance": 0.0001,
+        "max_iter": 100,
+        "material": {
+          "gamma": 16.0,
+          "c": 9.0,
+          "phi_deg": 32.0
+        },
+        "auto_refine_circular": {
+          "divisions_along_slope": 30,
+          "circles_per_division": 15,
+          "iterations": 15,
+          "divisions_to_use_next_iteration_pct": 50.0
+        }
+      },
+      "effective_search_limits": {
+        "x_min": 10.0,
+        "x_max": 95.0
+      },
+      "slide_reference": {
+        "fos": 1.23141,
+        "surface": {
+          "xc": 22.581,
+          "yc": 64.313,
+          "r": 39.995,
+          "x_left": 30.02,
+          "y_left": 25.016,
+          "x_right": 57.604,
+          "y_right": 45.0
+        }
+      },
+      "observed": {
+        "before_post_polish": {
+          "fos": 1.2337735144239155,
+          "surface": {
+            "xc": 22.947509997237816,
+            "yc": 64.15980702830718,
+            "r": 39.65994587475745,
+            "x_left": 30.214042805309592,
+            "y_left": 25.17123424424767,
+            "x_right": 57.672329671740385,
+            "y_right": 45.0
+          }
+        },
+        "after_post_polish": {
+          "fos": 1.2310229843377403,
+          "surface": {
+            "xc": 21.667232911495073,
+            "yc": 65.84454946869508,
+            "r": 41.68587564933655,
+            "x_left": 30.0,
+            "y_left": 25.0,
+            "x_right": 57.767329671740384,
+            "y_right": 45.0
+          }
+        }
+      },
+      "deltas": {
+        "before_post_polish": {
+          "fos_abs_delta": 0.0023635144239155803,
+          "x_left_abs_delta": 0.19404280530959284,
+          "y_left_abs_delta": 0.15523424424767285,
+          "x_right_abs_delta": 0.06832967174038629,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.008377400306102015,
+          "center_distance": 0.39723754184535565
+        },
+        "after_post_polish": {
+          "fos_abs_delta": 0.0003870156622596266,
+          "x_left_abs_delta": 0.019999999999999574,
+          "y_left_abs_delta": 0.015999999999998238,
+          "x_right_abs_delta": 0.16332967174038515,
+          "y_right_abs_delta": 0.0,
+          "radius_rel_delta": 0.042277175880398914,
+          "center_distance": 1.783427617565383
+        }
+      }
+    }
+  ]
+}

@@ -18,8 +18,9 @@ from slope_stab.search.common import (
 
 
 TANGENT_EPS_RAD = math.radians(0.5)
-_DIVISION_EDGE_EPS = 1e-4
-_LOCAL_TOE_LOCKED_POLISH_MIN_IMPROVEMENT = 1e-4
+_LOCAL_TOE_LOCKED_POLISH_MIN_IMPROVEMENT = 0.0
+_DEFAULT_POST_POLISH_RIGHT_WINDOW_H_FRACTION = 0.2
+_AUTO_REFINE_POST_POLISH_RIGHT_WINDOW_H_FRACTION = 0.38
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,10 @@ class AutoRefineIterationDiagnostics:
 class AutoRefineSearchResult:
     winning_surface: PrescribedCircleInput
     winning_result: AnalysisResult
+    before_post_polish_surface: PrescribedCircleInput
+    before_post_polish_result: AnalysisResult
+    after_post_polish_surface: PrescribedCircleInput
+    after_post_polish_result: AnalysisResult
     iteration_diagnostics: list[AutoRefineIterationDiagnostics]
     generated_surfaces: int
     valid_surfaces: int
@@ -114,39 +119,28 @@ def _division_boundaries_and_midpoints(
     return boundaries, midpoints
 
 
-def _generate_tangent_angles(_theta_min: float, count: int) -> list[float]:
-    lo = TANGENT_EPS_RAD
-    hi = 0.5 * math.pi - TANGENT_EPS_RAD
-    if lo >= hi:
+def _generate_slide2_betas(theta_chord: float, count: int) -> list[float]:
+    if count <= 0:
         return []
-    if count <= 1:
-        return [0.5 * (lo + hi)]
-    return [lo + (hi - lo) * ((i / (count - 1)) ** 2) for i in range(count)]
+    beta_max = 0.5 * math.pi - theta_chord
+    if beta_max <= 0.0:
+        return []
+    return [(m / count) * beta_max for m in range(1, count + 1)]
 
 
-def _interpolate_point(a: tuple[float, float], b: tuple[float, float], fraction: float) -> tuple[float, float]:
-    x = a[0] + fraction * (b[0] - a[0])
-    y = a[1] + fraction * (b[1] - a[1])
-    return (x, y)
-
-
-def _van_der_corput(index: int, base: int) -> float:
-    value = 0.0
-    denominator = 1.0
-    i = index
-    while i > 0:
-        i, remainder = divmod(i, base)
-        denominator *= base
-        value += remainder / denominator
-    return value
-
-
-def _sample_fractions(index: int, total: int) -> tuple[float, float]:
-    if total <= 1:
-        return (0.5, 0.5)
-    left = _van_der_corput(index + 1, 2)
-    right = _van_der_corput(index + 1, 3)
-    return (left, right)
+def _generate_pre_polish_pair_candidates(
+    p_left: tuple[float, float],
+    p_right: tuple[float, float],
+    circles_per_division: int,
+) -> list[PrescribedCircleInput | None]:
+    if p_right[0] <= p_left[0]:
+        return []
+    theta_chord = math.atan2(
+        p_right[1] - p_left[1],
+        p_right[0] - p_left[0],
+    )
+    betas = _generate_slide2_betas(theta_chord, circles_per_division)
+    return [circle_from_endpoints_and_tangent(p_left, p_right, beta) for beta in betas]
 
 
 def run_auto_refine_search(
@@ -180,24 +174,11 @@ def run_auto_refine_search(
             for j in range(i + 1, config.divisions_along_slope):
                 p_left_mid = midpoints[i]
                 p_right_mid = midpoints[j]
-                left_start = boundaries[i]
-                left_end = boundaries[i + 1]
-                right_start = boundaries[j]
-                right_end = boundaries[j + 1]
-
-                theta_min = math.atan2(
-                    p_right_mid[1] - p_left_mid[1],
-                    p_right_mid[0] - p_left_mid[0],
+                candidate_surfaces = _generate_pre_polish_pair_candidates(
+                    p_left=p_left_mid,
+                    p_right=p_right_mid,
+                    circles_per_division=config.circles_per_division,
                 )
-                angles = _generate_tangent_angles(theta_min, config.circles_per_division)
-                candidate_surfaces: list[PrescribedCircleInput | None] = []
-                for angle_index, theta in enumerate(angles):
-                    frac_left, frac_right = _sample_fractions(angle_index, len(angles))
-                    frac_left = min(max(frac_left, _DIVISION_EDGE_EPS), 1.0 - _DIVISION_EDGE_EPS)
-                    frac_right = min(max(frac_right, _DIVISION_EDGE_EPS), 1.0 - _DIVISION_EDGE_EPS)
-                    p_left = _interpolate_point(left_start, left_end, frac_left)
-                    p_right = _interpolate_point(right_start, right_end, frac_right)
-                    candidate_surfaces.append(circle_from_endpoints_and_tangent(p_left, p_right, theta))
 
                 generated += len(candidate_surfaces)
                 use_batch = batch_evaluate_surfaces is not None and len(candidate_surfaces) >= max(1, min_batch_size)
@@ -270,44 +251,53 @@ def run_auto_refine_search(
         current_x_min = next_x_min
         current_x_max = next_x_max
 
-    if best_result is not None and best_surface is not None:
-        best_surface, best_result = _run_toe_crest_refinement(
-            profile=profile,
-            config=config,
-            evaluate_surface=evaluate_surface,
-            batch_evaluate_surfaces=batch_evaluate_surfaces,
-            min_batch_size=min_batch_size,
-            best_surface=best_surface,
-            best_result=best_result,
-            post_refinement_counts=post_refinement_counts,
-        )
-        best_surface, best_result = _run_toe_locked_beta_refinement(
-            profile=profile,
-            config=config,
-            evaluate_surface=evaluate_surface,
-            batch_evaluate_surfaces=batch_evaluate_surfaces,
-            min_batch_size=min_batch_size,
-            best_surface=best_surface,
-            best_result=best_result,
-            post_refinement_counts=post_refinement_counts,
-        )
-        best_surface, best_result = _run_toe_locked_local_xright_beta_polish(
-            profile=profile,
-            config=config,
-            evaluate_surface=evaluate_surface,
-            batch_evaluate_surfaces=batch_evaluate_surfaces,
-            min_batch_size=min_batch_size,
-            best_surface=best_surface,
-            best_result=best_result,
-            post_refinement_counts=post_refinement_counts,
-        )
-
     if best_result is None or best_surface is None:
         raise ConvergenceError("Auto-refine search did not produce any valid surfaces.")
+
+    # Snapshot winner at the end of the core iterative search, before any
+    # post-polish refinement passes are applied.
+    before_post_polish_surface = best_surface
+    before_post_polish_result = best_result
+
+    best_surface, best_result = _run_toe_crest_refinement(
+        profile=profile,
+        config=config,
+        evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
+        best_surface=best_surface,
+        best_result=best_result,
+        post_refinement_counts=post_refinement_counts,
+        right_window_h_fraction=_AUTO_REFINE_POST_POLISH_RIGHT_WINDOW_H_FRACTION,
+    )
+    best_surface, best_result = _run_toe_locked_beta_refinement(
+        profile=profile,
+        config=config,
+        evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
+        best_surface=best_surface,
+        best_result=best_result,
+        post_refinement_counts=post_refinement_counts,
+    )
+    best_surface, best_result = _run_toe_locked_local_xright_beta_polish(
+        profile=profile,
+        config=config,
+        evaluate_surface=evaluate_surface,
+        batch_evaluate_surfaces=batch_evaluate_surfaces,
+        min_batch_size=min_batch_size,
+        best_surface=best_surface,
+        best_result=best_result,
+        post_refinement_counts=post_refinement_counts,
+    )
 
     return AutoRefineSearchResult(
         winning_surface=best_surface,
         winning_result=best_result,
+        before_post_polish_surface=before_post_polish_surface,
+        before_post_polish_result=before_post_polish_result,
+        after_post_polish_surface=best_surface,
+        after_post_polish_result=best_result,
         iteration_diagnostics=diagnostics,
         generated_surfaces=total_generated,
         valid_surfaces=total_valid,
@@ -333,11 +323,15 @@ def _run_toe_crest_refinement(
     best_surface: PrescribedCircleInput,
     best_result: AnalysisResult,
     post_refinement_counts: PhaseEvaluationCounts | None = None,
+    right_window_h_fraction: float = _DEFAULT_POST_POLISH_RIGHT_WINDOW_H_FRACTION,
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     left_min = max(config.search_limits.x_min, profile.x_toe)
     left_max = min(config.search_limits.x_max, profile.x_toe + 0.2 * profile.h)
     right_min = max(config.search_limits.x_min, profile.crest_x)
-    right_max = min(config.search_limits.x_max, profile.crest_x + 0.2 * profile.h)
+    right_max = min(
+        config.search_limits.x_max,
+        profile.crest_x + right_window_h_fraction * profile.h,
+    )
 
     if left_max <= left_min or right_max <= right_min:
         return best_surface, best_result
@@ -431,7 +425,10 @@ def _run_toe_locked_local_xright_beta_polish(
         return best_surface, best_result
 
     right_min = max(config.search_limits.x_min, profile.crest_x)
-    right_max = min(config.search_limits.x_max, profile.crest_x + 0.2 * profile.h)
+    right_max = min(
+        config.search_limits.x_max,
+        profile.crest_x + _AUTO_REFINE_POST_POLISH_RIGHT_WINDOW_H_FRACTION * profile.h,
+    )
     if right_max <= right_min:
         return best_surface, best_result
 
@@ -441,7 +438,7 @@ def _run_toe_locked_local_xright_beta_polish(
 
     x_right_center = min(max(best_surface.x_right, right_min), right_max)
     half_window = 6.0 * coarse_step
-    local_step = 0.5 * coarse_step
+    local_step = 0.25 * coarse_step
     local_min = max(right_min, x_right_center - half_window)
     local_max = min(right_max, x_right_center + half_window)
     if local_max <= local_min:
@@ -450,7 +447,7 @@ def _run_toe_locked_local_xright_beta_polish(
         x_right_values = sorted(
             {
                 min(max(x_right_center + offset * local_step, local_min), local_max)
-                for offset in range(-12, 13)
+                for offset in range(-24, 25)
             }
         )
 
@@ -483,7 +480,7 @@ def _run_toe_locked_refinement_for_xright_values(
 ) -> tuple[PrescribedCircleInput, AnalysisResult]:
     x_left = profile.x_toe
     y_left = profile.y_ground(x_left)
-    beta_samples = 61
+    beta_samples = 121
     theta_lo = TANGENT_EPS_RAD
     theta_hi = 0.5 * math.pi - TANGENT_EPS_RAD
 

@@ -321,6 +321,14 @@ def _run_auto_refine_mode(
         "post_refinement_generated_surfaces": auto_result.post_refinement_generated_surfaces,
         "post_refinement_valid_surfaces": auto_result.post_refinement_valid_surfaces,
         "post_refinement_invalid_surfaces": auto_result.post_refinement_invalid_surfaces,
+        "before_post_polish": {
+            "fos": auto_result.before_post_polish_result.fos,
+            "surface": _surface_to_dict(auto_result.before_post_polish_surface),
+        },
+        "after_post_polish": {
+            "fos": auto_result.after_post_polish_result.fos,
+            "surface": _surface_to_dict(auto_result.after_post_polish_surface),
+        },
         "iteration_diagnostics": [asdict(item) for item in auto_result.iteration_diagnostics],
     }
 
