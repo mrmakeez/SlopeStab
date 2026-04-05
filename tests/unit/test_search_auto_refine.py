@@ -11,12 +11,19 @@ from slope_stab.analysis import run_analysis
 from slope_stab.exceptions import InputValidationError
 from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.io.json_io import parse_project_input
-from slope_stab.models import AutoRefineSearchInput, SearchLimitsInput
+from slope_stab.models import AutoRefineSearchInput, PrescribedCircleInput, SearchLimitsInput
 from slope_stab.search.auto_refine import (
     _build_ground_polyline,
+    _build_next_retained_path,
+    _clip_construction_circle_to_ground_intercepts,
+    _close_small_retained_index_gaps,
+    _division_boundaries_and_midpoints_for_retained_path,
     _division_boundaries_and_midpoints,
     _generate_pre_polish_pair_candidates,
     _generate_slide2_betas,
+    _pad_retained_index_runs,
+    _surface_has_reverse_curvature,
+    RetainedPathSegment,
 )
 
 
@@ -69,6 +76,24 @@ class SearchInputParsingTests(unittest.TestCase):
         limits = project.search.auto_refine_circular.search_limits
         self.assertAlmostEqual(limits.x_min, 20.0)
         self.assertAlmostEqual(limits.x_max, 70.0)
+
+    def test_parse_auto_refine_model_boundary_floor_y(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "auto_refine_circular": {
+                "divisions_along_slope": 6,
+                "circles_per_division": 3,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+                "model_boundary_floor_y": 22.5,
+            },
+        }
+
+        project = parse_project_input(payload)
+        self.assertIsNotNone(project.search)
+        assert project.search.auto_refine_circular is not None
+        self.assertAlmostEqual(project.search.auto_refine_circular.model_boundary_floor_y, 22.5)
 
     def test_parse_rejects_missing_mode(self) -> None:
         payload = _base_payload()
@@ -418,6 +443,54 @@ class SearchInputParsingTests(unittest.TestCase):
 
 
 class AutoRefineSearchTests(unittest.TestCase):
+    def test_retained_path_sampling_excludes_discarded_gaps(self) -> None:
+        retained_path = [
+            RetainedPathSegment(start=(0.0, 0.0), end=(2.0, 0.0)),
+            RetainedPathSegment(start=(8.0, 0.0), end=(10.0, 0.0)),
+        ]
+
+        boundaries, midpoints = _division_boundaries_and_midpoints_for_retained_path(retained_path, divisions=4)
+
+        self.assertEqual(boundaries, [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (9.0, 0.0), (10.0, 0.0)])
+        self.assertEqual(midpoints, [(0.5, 0.0), (1.5, 0.0), (8.5, 0.0), (9.5, 0.0)])
+
+    def test_build_next_retained_path_preserves_noncontiguous_kept_intervals(self) -> None:
+        retained_path = [RetainedPathSegment(start=(0.0, 0.0), end=(10.0, 0.0))]
+
+        next_path = _build_next_retained_path(
+            retained_path,
+            divisions=10,
+            retained_indices=[1, 2, 7],
+        )
+
+        self.assertEqual(
+            next_path,
+            [
+                RetainedPathSegment(start=(1.0, 0.0), end=(3.0, 0.0)),
+                RetainedPathSegment(start=(7.0, 0.0), end=(8.0, 0.0)),
+            ],
+        )
+
+    def test_close_small_retained_index_gaps_fills_isolated_holes_only(self) -> None:
+        self.assertEqual(
+            _close_small_retained_index_gaps([4, 6, 7, 8, 9, 10, 11, 12, 13, 15]),
+            list(range(4, 16)),
+        )
+        self.assertEqual(
+            _close_small_retained_index_gaps([2, 3, 4, 10, 11]),
+            [2, 3, 4, 10, 11],
+        )
+
+    def test_pad_retained_index_runs_expands_each_contiguous_run_by_one_neighbor(self) -> None:
+        self.assertEqual(
+            _pad_retained_index_runs([4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], divisions=20),
+            list(range(3, 17)),
+        )
+        self.assertEqual(
+            _pad_retained_index_runs([0, 1, 2, 8, 9], divisions=10),
+            [0, 1, 2, 3, 7, 8, 9],
+        )
+
     def test_slide2_beta_schedule_is_linear_and_hits_upper_bound(self) -> None:
         theta_chord = math.radians(26.565051177078)
         count = 10
@@ -429,7 +502,7 @@ class AutoRefineSearchTests(unittest.TestCase):
             self.assertAlmostEqual(beta, (m / count) * beta_max, places=12)
         self.assertAlmostEqual(betas[-1], beta_max, places=12)
 
-    def test_pre_polish_pair_candidates_use_fixed_midpoint_endpoints(self) -> None:
+    def test_pre_polish_pair_candidates_preserve_construction_radius_schedule(self) -> None:
         profile = UniformSlopeProfile(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0)
         config = AutoRefineSearchInput(
             divisions_along_slope=20,
@@ -446,19 +519,22 @@ class AutoRefineSearchTests(unittest.TestCase):
         p_right = midpoints[j]
 
         candidates = _generate_pre_polish_pair_candidates(
+            profile=profile,
+            search_x_min=config.search_limits.x_min,
+            search_x_max=config.search_limits.x_max,
             p_left=p_left,
             p_right=p_right,
             circles_per_division=config.circles_per_division,
         )
         self.assertEqual(len(candidates), config.circles_per_division)
 
+        self.assertTrue(any(candidate is not None for candidate in candidates))
         for candidate in candidates:
             if candidate is None:
                 continue
-            self.assertAlmostEqual(candidate.x_left, p_left[0], places=12)
-            self.assertAlmostEqual(candidate.y_left, p_left[1], places=12)
-            self.assertAlmostEqual(candidate.x_right, p_right[0], places=12)
-            self.assertAlmostEqual(candidate.y_right, p_right[1], places=12)
+            self.assertGreaterEqual(candidate.x_left, config.search_limits.x_min)
+            self.assertLessEqual(candidate.x_right, config.search_limits.x_max)
+            self.assertLess(candidate.x_left, candidate.x_right)
 
         theta_chord = math.atan2(p_right[1] - p_left[1], p_right[0] - p_left[0])
         beta_max = 0.5 * math.pi - theta_chord
@@ -478,6 +554,152 @@ class AutoRefineSearchTests(unittest.TestCase):
                 inferred_betas[1] - inferred_betas[0],
                 places=12,
             )
+
+    def test_clip_construction_circle_to_ground_intercepts_matches_slide2_simple_case(self) -> None:
+        profile = UniformSlopeProfile(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0)
+        construction_surface = PrescribedCircleInput(
+            xc=14.2649653082946,
+            yc=162.316692757048,
+            r=137.405400540889,
+            x_left=19.2015621187164,
+            y_left=25.0,
+            x_right=85.7984378812836,
+            y_right=45.0,
+        )
+
+        clipped = _clip_construction_circle_to_ground_intercepts(
+            profile=profile,
+            construction_surface=construction_surface,
+            search_x_min=10.0,
+            search_x_max=95.0,
+            construction_mid_x=0.5 * (construction_surface.x_left + construction_surface.x_right),
+        )
+
+        self.assertIsNotNone(clipped)
+        assert clipped is not None
+        self.assertAlmostEqual(clipped.x_left, 31.1983666156608, places=6)
+        self.assertAlmostEqual(clipped.y_left, 25.9586932925286, places=6)
+        self.assertAlmostEqual(clipped.x_right, 85.7984378812835, places=6)
+        self.assertAlmostEqual(clipped.y_right, 45.0, places=6)
+        self.assertAlmostEqual(clipped.r, construction_surface.r, places=9)
+
+    def test_clip_construction_circle_to_ground_intercepts_snaps_near_toe_boundary(self) -> None:
+        profile = UniformSlopeProfile(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0)
+        construction_surface = PrescribedCircleInput(
+            xc=29.8233038746688,
+            yc=57.3559704881194,
+            r=32.3561683051798,
+            x_left=29.9367179238856,
+            y_left=25.0,
+            x_right=59.7273452115870,
+            y_right=45.0,
+        )
+
+        clipped = _clip_construction_circle_to_ground_intercepts(
+            profile=profile,
+            construction_surface=construction_surface,
+            search_x_min=10.0,
+            search_x_max=95.0,
+            construction_mid_x=0.5 * (construction_surface.x_left + construction_surface.x_right),
+            model_boundary_floor_y=20.0,
+        )
+
+        self.assertIsNotNone(clipped)
+        assert clipped is not None
+        self.assertAlmostEqual(clipped.x_left, 30.0, places=6)
+        self.assertAlmostEqual(clipped.y_left, 25.0, places=6)
+        self.assertAlmostEqual(clipped.x_right, 59.7273452115870, delta=2e-6)
+        self.assertAlmostEqual(clipped.y_right, 45.0, places=6)
+
+    def test_pre_polish_pair_candidates_keep_terminal_beta_for_nonflat_pair(self) -> None:
+        profile = UniformSlopeProfile(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0)
+        p_left = (35.93826238111394, 29.75060990489115)
+        p_right = (50.3086880944303, 41.24695047554424)
+
+        candidates = _generate_pre_polish_pair_candidates(
+            profile=profile,
+            search_x_min=10.0,
+            search_x_max=95.0,
+            p_left=p_left,
+            p_right=p_right,
+            circles_per_division=5,
+            model_boundary_floor_y=20.0,
+        )
+
+        self.assertEqual(len(candidates), 5)
+        self.assertIsNotNone(candidates[-1])
+        assert candidates[-1] is not None
+        self.assertAlmostEqual(candidates[-1].xc, 38.52493900951089, places=6)
+        self.assertAlmostEqual(candidates[-1].yc, 41.24695047554424, places=6)
+        self.assertAlmostEqual(candidates[-1].r, 11.783749084919418, places=6)
+        self.assertAlmostEqual(candidates[-1].x_left, 35.93826238111394, places=6)
+        self.assertAlmostEqual(candidates[-1].x_right, 50.3086880944303, places=6)
+
+    def test_pre_polish_pair_candidates_reject_equal_elevation_clipped_surfaces(self) -> None:
+        profile = UniformSlopeProfile(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0)
+        p_left = (67.39531364385073, 45.0)
+        p_right = (85.79843788128358, 45.0)
+
+        candidates = _generate_pre_polish_pair_candidates(
+            profile=profile,
+            search_x_min=10.0,
+            search_x_max=95.0,
+            p_left=p_left,
+            p_right=p_right,
+            circles_per_division=5,
+            model_boundary_floor_y=20.0,
+        )
+
+        self.assertEqual(candidates, [None, None, None, None, None])
+
+    def test_surface_has_reverse_curvature_flags_endpoint_above_center(self) -> None:
+        surface = PrescribedCircleInput(
+            xc=10.0,
+            yc=20.0,
+            r=15.0,
+            x_left=0.0,
+            y_left=20.0002,
+            x_right=20.0,
+            y_right=19.0,
+        )
+
+        self.assertTrue(_surface_has_reverse_curvature(surface))
+
+    def test_surface_has_reverse_curvature_is_false_for_slide2_style_clipped_surface(self) -> None:
+        surface = PrescribedCircleInput(
+            xc=14.2649652578779,
+            yc=162.316692757048,
+            r=137.405400540889,
+            x_left=31.1983666156608,
+            y_left=25.9586932925286,
+            x_right=85.7984378812835,
+            y_right=45.0,
+        )
+
+        self.assertFalse(_surface_has_reverse_curvature(surface))
+
+    def test_clip_construction_circle_to_ground_intercepts_rejects_surface_below_model_floor(self) -> None:
+        profile = UniformSlopeProfile(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0)
+        construction_surface = PrescribedCircleInput(
+            xc=39.1485223077741,
+            yc=45.0,
+            r=28.2467913360766,
+            x_left=19.2015621187164,
+            y_left=25.0,
+            x_right=67.3953136438507,
+            y_right=45.0,
+        )
+
+        clipped = _clip_construction_circle_to_ground_intercepts(
+            profile=profile,
+            construction_surface=construction_surface,
+            search_x_min=10.0,
+            search_x_max=95.0,
+            construction_mid_x=0.5 * (construction_surface.x_left + construction_surface.x_right),
+            model_boundary_floor_y=20.0,
+        )
+
+        self.assertIsNone(clipped)
 
     def test_generated_surfaces_per_iteration_matches_formula(self) -> None:
         payload = _base_payload()
@@ -521,6 +743,40 @@ class AutoRefineSearchTests(unittest.TestCase):
         self.assertEqual(result1.metadata["prescribed_surface"], result2.metadata["prescribed_surface"])
         self.assertEqual(result1.metadata["search"]["iteration_diagnostics"], result2.metadata["search"]["iteration_diagnostics"])
         self.assertTrue(math.isfinite(result1.fos))
+
+    def test_iteration_diagnostics_expose_gap_closed_expanded_retained_indices(self) -> None:
+        payload = _base_payload()
+        payload["search"] = {
+            "method": "auto_refine_circular",
+            "auto_refine_circular": {
+                "divisions_along_slope": 20,
+                "circles_per_division": 10,
+                "iterations": 2,
+                "divisions_to_use_next_iteration_pct": 50.0,
+                "search_limits": {"x_min": 0.0, "x_max": 35.0},
+            },
+        }
+        payload["geometry"] = {"h": 7.5, "l": 15.0, "x_toe": 10.0, "y_toe": 10.0}
+        payload["material"] = {"gamma": 20.0, "c": 20.0, "phi_deg": 20.0}
+        payload["analysis"] = {
+            "method": "bishop_simplified",
+            "n_slices": 7,
+            "tolerance": 0.001,
+            "max_iter": 50,
+            "f_init": 1.0,
+        }
+        project = parse_project_input(payload)
+
+        result = run_analysis(project, forced_parallel_mode="serial", forced_parallel_workers=1)
+
+        diagnostics = result.metadata["search"]["iteration_diagnostics"]
+        self.assertEqual(len(diagnostics), 2)
+        retained = diagnostics[0]["retained_division_indices"]
+        expanded = diagnostics[0]["expanded_retained_division_indices"]
+        self.assertEqual(len(retained), 10)
+        self.assertTrue(set(retained).issubset(set(expanded)))
+        self.assertEqual(expanded, sorted(set(expanded)))
+        self.assertGreaterEqual(len(diagnostics[0]["next_active_path_segments"]), 2)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,1477 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XDocumentWithMetadata>
+  <Metadata>
+    <MetadataEntry>
+      <MetadataName>REPORT_ASSEMBLY_VERSION</MetadataName>
+      <MetadataValue>1.0.0.0</MetadataValue>
+    </MetadataEntry>
+  </Metadata>
+  <ReportCreator>
+    <ProjectTitle>Case2_Search_Iter_3</ProjectTitle>
+    <MainTitle>Slide2 Analysis Information</MainTitle>
+    <DateCreated>Date Created: 13/03/2026, 8:45:25 am</DateCreated>
+    <Author></Author>
+    <CompanyName></CompanyName>
+    <CoverImageFilePath>pack://application:,,,/ReportFlow;component/Logo/Slide2-Cover_square.png</CoverImageFilePath>
+    <CoverPageTitle>Slide2 - An Interactive Slope Stability Program</CoverPageTitle>
+    <SoftwareNameAndVersion>9.041</SoftwareNameAndVersion>
+    <UseHeaderSuffix>false</UseHeaderSuffix>
+    <sections>
+      <rfc_section>
+        <Title>Project Summary</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>File Name:</data_string>
+              <data_string>Case2_Search_Iter_3.slmd</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Slide2 Modeler Version:</data_string>
+              <data_string>9.041</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Compute Time:</data_string>
+              <data_string>00h:00m:00.543s</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Project Title:</data_string>
+              <data_string>Slide2 - An Interactive Slope Stability Program</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Date Created:</data_string>
+              <data_string>13/03/2026, 8:45:25 am</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>General Settings</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Units of Measurement:</data_string>
+              <data_string>Metric Units</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Time Units:</data_string>
+              <data_string>days</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Permeability Units:</data_string>
+              <data_string>meters/second</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Data Output:</data_string>
+              <data_string>Maximum</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Failure Direction:</data_string>
+              <data_string>Right to Left</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Analysis Options</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Slices Type:</data_string>
+              <data_string>Vertical</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataTitleRow</rowType>
+            <data>
+              <data_string>Analysis Methods Used</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string></data_string>
+              <data_string>Bishop simplified</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string></data_string>
+              <data_string>Spencer</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Number of slices:</data_string>
+              <data_string>7</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Tolerance:</data_string>
+              <data_string>0.001</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Maximum number of iterations:</data_string>
+              <data_string>50</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Check malpha &lt; 0.2:</data_string>
+              <data_string>Yes</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Create Interslice boundaries at intersections with water tables and piezos:</data_string>
+              <data_string>Yes</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Initial trial value of FS:</data_string>
+              <data_string>1</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Steffensen Iteration:</data_string>
+              <data_string>Yes</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Groundwater Analysis</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Groundwater Method:</data_string>
+              <data_string>Water Surfaces</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Pore Fluid Unit Weight [kN/m3]:</data_string>
+              <data_string>9.81</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Advanced Groundwater Method:</data_string>
+              <data_string>None</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Random Numbers</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Pseudo-random Seed:</data_string>
+              <data_string>10116</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Random Number Generation Method: </data_string>
+              <data_string>Park and Miller v.3</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Surface Options</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Surface Type: </data_string>
+              <data_string>Circular</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Search Method:</data_string>
+              <data_string>Auto Refine Search</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Divisions along slope:</data_string>
+              <data_string>20</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Circles per division:</data_string>
+              <data_string>10</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Number of iterations:</data_string>
+              <data_string>3</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Divisions to use in next iteration:</data_string>
+              <data_string>50%</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Composite Surfaces:</data_string>
+              <data_string>Disabled</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Elevation:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Depth:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Area:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Weight:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Seismic Loading</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Advanced seismic analysis:</data_string>
+              <data_string>No</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Staged pseudostatic analysis:</data_string>
+              <data_string>No</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Materials</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title></Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleHeaderRow</rowType>
+                <data>
+                  <data_string>Material 1</data_string>
+                  <data_string></data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataImageRow</rowType>
+                <data>
+                  <data_string>Color </data_string>
+                  <data_string> $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlideInterpret_9\202916743_files\{C5EC3259-4FD6-4771-BCAA-7228C922E358}.png$$$IMG$$$</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Strength Type </data_string>
+                  <data_string>Mohr-Coulomb</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Unit Weight </data_string>
+                  <data_string>20 kN/m3</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Cohesion </data_string>
+                  <data_string>20 kPa</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Phi </data_string>
+                  <data_string>20 °</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Water Surface </data_string>
+                  <data_string>None</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Ru Value </data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+      <rfc_section>
+        <Title>Global Minimums</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title>Method: bishop simplified</Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>FS</data_string>
+                  <data_string>2.106250</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Center:</data_string>
+                  <data_string>14.468, 24.384</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Radius:</data_string>
+                  <data_string>15.140</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Left Slip Surface Endpoint:</data_string>
+                  <data_string>9.744, 10.000</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Right Slip Surface Endpoint:</data_string>
+                  <data_string>27.952, 17.500</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Resisting Moment:</data_string>
+                  <data_string>12793.7 kN-m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Driving Moment:</data_string>
+                  <data_string>6074.15 kN-m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Total Slice Area:</data_string>
+                  <data_string>57.9061 m2</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Surface Horizontal Width:</data_string>
+                  <data_string>18.2081 m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Surface Average Height:</data_string>
+                  <data_string>3.18023 m</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Method: spencer</Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>FS</data_string>
+                  <data_string>2.100420</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Center:</data_string>
+                  <data_string>14.468, 24.384</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Radius:</data_string>
+                  <data_string>15.140</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Left Slip Surface Endpoint:</data_string>
+                  <data_string>9.744, 10.000</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Right Slip Surface Endpoint:</data_string>
+                  <data_string>27.952, 17.500</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Resisting Moment:</data_string>
+                  <data_string>12758.3 kN-m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Driving Moment:</data_string>
+                  <data_string>6074.15 kN-m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Resisting Horizontal Force:</data_string>
+                  <data_string>737.549 kN</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Driving Horizontal Force:</data_string>
+                  <data_string>351.143 kN</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Total Slice Area:</data_string>
+                  <data_string>57.9061 m2</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Surface Horizontal Width:</data_string>
+                  <data_string>18.2081 m</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Surface Average Height:</data_string>
+                  <data_string>3.18023 m</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+      <rfc_section>
+        <Title>Global Minimum Support Data</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>No Supports Present</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Valid and Invalid Surfaces</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title>Method: bishop simplified</Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Number of Valid Surfaces:</data_string>
+                  <data_string>3675</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Number of Invalid Surfaces:</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Method: spencer</Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Number of Valid Surfaces:</data_string>
+                  <data_string>3597</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Number of Invalid Surfaces:</data_string>
+                  <data_string>78</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Error Codes</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Error Code -108 reported for 55 surfaces</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Error Code -111 reported for 23 surfaces</data_string>
+                </data>
+              </row>
+            </dataRows>
+            <childSections>
+              <rfc_section>
+                <Title>Error Code Descriptions</Title>
+                <sectionLevel>UnderlinedSection</sectionLevel>
+                <hasImage>false</hasImage>
+                <maximizeSize>false</maximizeSize>
+                <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+                <postPageBreak>false</postPageBreak>
+                <ignoreIndent>false</ignoreIndent>
+                <fontSizeOffset>0</fontSizeOffset>
+                <borderStyle>None</borderStyle>
+                <dataRows>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>The following errors were encountered during the computation:</data_string>
+                    </data>
+                  </row>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>-108 = Total driving moment or total driving force &lt; 0.1. This is to limit the calculation of extremely high safety factors if the driving force is very small (0.1 is an arbitrary number).</data_string>
+                    </data>
+                  </row>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>-111 = Safety factor equation did not converge</data_string>
+                    </data>
+                  </row>
+                </dataRows>
+              </rfc_section>
+            </childSections>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+      <rfc_section>
+        <Title>Slice Data</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>true</maximizeSize>
+        <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>-2</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title>Global Minimum Query (bishop simplified) - Safety Factor: 2.10625</Title>
+            <sectionLevel>BoldTextSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>true</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>true</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>-2</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Slice  Number </data_string>
+                  <data_string>Width  [m]</data_string>
+                  <data_string>Weight  [kN]</data_string>
+                  <data_string>Angle  of Slice Base  [deg]</data_string>
+                  <data_string>Base  Material </data_string>
+                  <data_string>Base  Cohesion  [kPa]</data_string>
+                  <data_string>Base  Friction Angle  [deg]</data_string>
+                  <data_string>Shear  Stress  [kPa]</data_string>
+                  <data_string>Shear  Strength  [kPa]</data_string>
+                  <data_string>Base  Normal Stress  [kPa]</data_string>
+                  <data_string>Pore  Pressure  [kPa]</data_string>
+                  <data_string>Effective  Normal Stress  [kPa]</data_string>
+                  <data_string>Base  Vertical Stress  [kPa]</data_string>
+                  <data_string>Effective  Vertical Stress  [kPa]</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>1</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>43.2737</data_string>
+                  <data_string>-13.1204</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>12.8894</data_string>
+                  <data_string>27.1483</data_string>
+                  <data_string>19.6397</data_string>
+                  <data_string>0</data_string>
+                  <data_string>19.6397</data_string>
+                  <data_string>16.6354</data_string>
+                  <data_string>16.6354</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>2</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>130.071</data_string>
+                  <data_string>-3.1245</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>18.3093</data_string>
+                  <data_string>38.5639</data_string>
+                  <data_string>51.0039</data_string>
+                  <data_string>0</data_string>
+                  <data_string>51.0039</data_string>
+                  <data_string>50.0045</data_string>
+                  <data_string>50.0045</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>3</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>193.388</data_string>
+                  <data_string>6.77368</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>21.8938</data_string>
+                  <data_string>46.1138</data_string>
+                  <data_string>71.7472</data_string>
+                  <data_string>0</data_string>
+                  <data_string>71.7472</data_string>
+                  <data_string>74.3477</data_string>
+                  <data_string>74.3477</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>4</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>232.472</data_string>
+                  <data_string>16.8872</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>23.6968</data_string>
+                  <data_string>49.9113</data_string>
+                  <data_string>82.1809</data_string>
+                  <data_string>0</data_string>
+                  <data_string>82.1809</data_string>
+                  <data_string>89.3747</data_string>
+                  <data_string>89.3747</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>5</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>244.219</data_string>
+                  <data_string>27.6007</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>23.5895</data_string>
+                  <data_string>49.6853</data_string>
+                  <data_string>81.5596</data_string>
+                  <data_string>0</data_string>
+                  <data_string>81.5596</data_string>
+                  <data_string>93.8922</data_string>
+                  <data_string>93.8922</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>6</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>219.994</data_string>
+                  <data_string>39.5611</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>21.0993</data_string>
+                  <data_string>44.4405</data_string>
+                  <data_string>67.1497</data_string>
+                  <data_string>0</data_string>
+                  <data_string>67.1497</data_string>
+                  <data_string>84.5804</data_string>
+                  <data_string>84.5804</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>7</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>94.7051</data_string>
+                  <data_string>54.4567</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>12.7131</data_string>
+                  <data_string>26.777</data_string>
+                  <data_string>18.6196</data_string>
+                  <data_string>0</data_string>
+                  <data_string>18.6196</data_string>
+                  <data_string>36.4142</data_string>
+                  <data_string>36.4142</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Global Minimum Query (spencer) - Safety Factor: 2.10042</Title>
+            <sectionLevel>BoldTextSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>true</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>true</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>-2</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Slice  Number </data_string>
+                  <data_string>Width  [m]</data_string>
+                  <data_string>Weight  [kN]</data_string>
+                  <data_string>Angle  of Slice Base  [deg]</data_string>
+                  <data_string>Base  Material </data_string>
+                  <data_string>Base  Cohesion  [kPa]</data_string>
+                  <data_string>Base  Friction Angle  [deg]</data_string>
+                  <data_string>Shear  Stress  [kPa]</data_string>
+                  <data_string>Shear  Strength  [kPa]</data_string>
+                  <data_string>Base  Normal Stress  [kPa]</data_string>
+                  <data_string>Pore  Pressure  [kPa]</data_string>
+                  <data_string>Effective  Normal Stress  [kPa]</data_string>
+                  <data_string>Base  Vertical Stress  [kPa]</data_string>
+                  <data_string>Effective  Vertical Stress  [kPa]</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>1</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>43.2737</data_string>
+                  <data_string>-13.1204</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>14.1642</data_string>
+                  <data_string>29.7507</data_string>
+                  <data_string>26.7898</data_string>
+                  <data_string>0</data_string>
+                  <data_string>26.7898</data_string>
+                  <data_string>23.4884</data_string>
+                  <data_string>23.4884</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>2</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>130.071</data_string>
+                  <data_string>-3.1245</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>19.7068</data_string>
+                  <data_string>41.3925</data_string>
+                  <data_string>58.7754</data_string>
+                  <data_string>0</data_string>
+                  <data_string>58.7754</data_string>
+                  <data_string>57.6997</data_string>
+                  <data_string>57.6997</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>3</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>193.388</data_string>
+                  <data_string>6.77368</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>22.7328</data_string>
+                  <data_string>47.7485</data_string>
+                  <data_string>76.2386</data_string>
+                  <data_string>0</data_string>
+                  <data_string>76.2386</data_string>
+                  <data_string>78.9388</data_string>
+                  <data_string>78.9388</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>4</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>232.472</data_string>
+                  <data_string>16.8872</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>23.6956</data_string>
+                  <data_string>49.7708</data_string>
+                  <data_string>81.7946</data_string>
+                  <data_string>0</data_string>
+                  <data_string>81.7946</data_string>
+                  <data_string>88.9881</data_string>
+                  <data_string>88.9881</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>5</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>244.219</data_string>
+                  <data_string>27.6007</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>22.7342</data_string>
+                  <data_string>47.7514</data_string>
+                  <data_string>76.2465</data_string>
+                  <data_string>0</data_string>
+                  <data_string>76.2465</data_string>
+                  <data_string>88.132</data_string>
+                  <data_string>88.132</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>6</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>219.994</data_string>
+                  <data_string>39.5611</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>19.6854</data_string>
+                  <data_string>41.3476</data_string>
+                  <data_string>58.6523</data_string>
+                  <data_string>0</data_string>
+                  <data_string>58.6523</data_string>
+                  <data_string>74.9149</data_string>
+                  <data_string>74.9149</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>7</data_string>
+                  <data_string>2.60116</data_string>
+                  <data_string>94.7051</data_string>
+                  <data_string>54.4567</data_string>
+                  <data_string>Material 1</data_string>
+                  <data_string>20</data_string>
+                  <data_string>20</data_string>
+                  <data_string>12.2758</data_string>
+                  <data_string>25.7844</data_string>
+                  <data_string>15.8924</data_string>
+                  <data_string>0</data_string>
+                  <data_string>15.8924</data_string>
+                  <data_string>33.075</data_string>
+                  <data_string>33.075</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+      <rfc_section>
+        <Title>Interslice Data</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>true</maximizeSize>
+        <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>-2</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title>Global Minimum Query (bishop simplified) - Safety Factor: 2.10625</Title>
+            <sectionLevel>BoldTextSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>true</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>true</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>-2</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Slice  Number </data_string>
+                  <data_string>X  coordinate  [m]</data_string>
+                  <data_string>Y  coordinate - Bottom  [m]</data_string>
+                  <data_string>Interslice  Normal Force  [kN]</data_string>
+                  <data_string>Interslice  Shear Force  [kN]</data_string>
+                  <data_string>Interslice  Force Angle  [deg]</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>1</data_string>
+                  <data_string>9.74419</data_string>
+                  <data_string>10</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>2</data_string>
+                  <data_string>12.3453</data_string>
+                  <data_string>9.39371</data_string>
+                  <data_string>45.4242</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>3</data_string>
+                  <data_string>14.9465</data_string>
+                  <data_string>9.25172</data_string>
+                  <data_string>100.277</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>4</data_string>
+                  <data_string>17.5477</data_string>
+                  <data_string>9.56068</data_string>
+                  <data_string>135.042</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>5</data_string>
+                  <data_string>20.1488</data_string>
+                  <data_string>10.3503</data_string>
+                  <data_string>131.767</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>6</data_string>
+                  <data_string>22.75</data_string>
+                  <data_string>11.7102</data_string>
+                  <data_string>82.196</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>7</data_string>
+                  <data_string>25.3512</data_string>
+                  <data_string>13.8591</data_string>
+                  <data_string>-7.23579</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>8</data_string>
+                  <data_string>27.9523</data_string>
+                  <data_string>17.5</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+          <rfc_section>
+            <Title>Global Minimum Query (spencer) - Safety Factor: 2.10042</Title>
+            <sectionLevel>BoldTextSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>true</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>true</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>-2</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleRow</rowType>
+                <data>
+                  <data_string>Slice  Number </data_string>
+                  <data_string>X  coordinate  [m]</data_string>
+                  <data_string>Y  coordinate - Bottom  [m]</data_string>
+                  <data_string>Interslice  Normal Force  [kN]</data_string>
+                  <data_string>Interslice  Shear Force  [kN]</data_string>
+                  <data_string>Interslice  Force Angle  [deg]</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>1</data_string>
+                  <data_string>9.74419</data_string>
+                  <data_string>10</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>2</data_string>
+                  <data_string>12.3453</data_string>
+                  <data_string>9.39371</data_string>
+                  <data_string>53.0826</data_string>
+                  <data_string>17.8295</data_string>
+                  <data_string>18.5663</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>3</data_string>
+                  <data_string>14.9465</data_string>
+                  <data_string>9.25172</data_string>
+                  <data_string>112.685</data_string>
+                  <data_string>37.8487</data_string>
+                  <data_string>18.5662</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>4</data_string>
+                  <data_string>17.5477</data_string>
+                  <data_string>9.56068</data_string>
+                  <data_string>148.257</data_string>
+                  <data_string>49.7969</data_string>
+                  <data_string>18.5663</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>5</data_string>
+                  <data_string>20.1488</data_string>
+                  <data_string>10.3503</data_string>
+                  <data_string>145.299</data_string>
+                  <data_string>48.8032</data_string>
+                  <data_string>18.5662</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>6</data_string>
+                  <data_string>22.75</data_string>
+                  <data_string>11.7102</data_string>
+                  <data_string>100.742</data_string>
+                  <data_string>33.8376</data_string>
+                  <data_string>18.5664</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>7</data_string>
+                  <data_string>25.3512</data_string>
+                  <data_string>13.8591</data_string>
+                  <data_string>25.9061</data_string>
+                  <data_string>8.70141</data_string>
+                  <data_string>18.5663</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataNoHeaderRow</rowType>
+                <hasDataHeader>false</hasDataHeader>
+                <data>
+                  <data_string>8</data_string>
+                  <data_string>27.9523</data_string>
+                  <data_string>17.5</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+      <rfc_section>
+        <Title>Discharge Sections</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+      </rfc_section>
+      <rfc_section>
+        <Title>Entity Information</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title>Group 1 $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlideInterpret_9\202916743_files\{8EC16053-708E-4fa6-908B-0A2F7B08E884}.png$$$IMG$$$</Title>
+            <sectionLevel>UnderlinedSection</sectionLevel>
+            <hasImage>true</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <childSections>
+              <rfc_section>
+                <Title>Shared Entities</Title>
+                <sectionLevel>BoldTextSection</sectionLevel>
+                <hasImage>false</hasImage>
+                <maximizeSize>false</maximizeSize>
+                <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+                <postPageBreak>false</postPageBreak>
+                <ignoreIndent>false</ignoreIndent>
+                <fontSizeOffset>0</fontSizeOffset>
+                <borderStyle>All</borderStyle>
+                <dataRows>
+                  <row>
+                    <rowType>DataMultipleHeaderRow</rowType>
+                    <data>
+                      <data_string>Type</data_string>
+                      <data_string>Coordinates (x,y)</data_string>
+                    </data>
+                  </row>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>External Boundary</data_string>
+                      <data_string>0, 0
+35, 0
+35, 17.5
+25, 17.5
+10, 10
+0, 10
+</data_string>
+                    </data>
+                  </row>
+                </dataRows>
+              </rfc_section>
+            </childSections>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+    </sections>
+  </ReportCreator>
+</XDocumentWithMetadata>

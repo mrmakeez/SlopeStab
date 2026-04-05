@@ -299,8 +299,14 @@ def _parse_search_common(
     auto_data: dict,
     geometry: GeometryInput,
     key_prefix: str,
-) -> tuple[int, int, int, float, SearchLimitsInput]:
+) -> tuple[int, int, int, float, SearchLimitsInput, float | None]:
     limits = _parse_search_limits(auto_data.get("search_limits"), geometry, key_prefix)
+    floor_raw = auto_data.get("model_boundary_floor_y")
+    model_boundary_floor_y = (
+        None
+        if floor_raw is None
+        else _as_float(floor_raw, f"{key_prefix}.model_boundary_floor_y")
+    )
 
     divisions_along_slope = _as_int(_require_key(auto_data, "divisions_along_slope"), f"{key_prefix}.divisions_along_slope")
     circles_per_division = _as_int(_require_key(auto_data, "circles_per_division"), f"{key_prefix}.circles_per_division")
@@ -331,6 +337,7 @@ def _parse_search_common(
         iterations,
         divisions_to_use_next_iteration_pct,
         limits,
+        model_boundary_floor_y,
     )
 
 
@@ -609,6 +616,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
                 iterations,
                 divisions_to_use_next_iteration_pct,
                 limits,
+                model_boundary_floor_y,
             ) = _parse_search_common(auto_data, geometry, "search.auto_refine_circular")
 
             auto = AutoRefineSearchInput(
@@ -617,6 +625,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
                 iterations=iterations,
                 divisions_to_use_next_iteration_pct=divisions_to_use_next_iteration_pct,
                 search_limits=limits,
+                model_boundary_floor_y=model_boundary_floor_y,
             )
             search = SearchInput(method=method, auto_refine_circular=auto, parallel=parallel)
         elif method == "direct_global_circular":

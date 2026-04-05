@@ -314,6 +314,7 @@ def _run_auto_refine_mode(
                 "x_min": config.search_limits.x_min,
                 "x_max": config.search_limits.x_max,
             },
+            "model_boundary_floor_y": config.model_boundary_floor_y,
         },
         "generated_surfaces": auto_result.generated_surfaces,
         "valid_surfaces": auto_result.valid_surfaces,

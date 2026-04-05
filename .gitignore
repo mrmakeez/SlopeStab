@@ -9,5 +9,8 @@ coverage.xml
 
 .venv/
 venv/
+*.egg-info/
 tests/.tmp_cli/
 tmp/gate_baselines/
+tmp/plots/
+tmp/slide2_defined_surface_blocks/

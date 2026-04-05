@@ -97,7 +97,7 @@ def circle_from_endpoints_and_tangent(
     x2, y2 = p_right
     if x2 <= x1:
         return None
-    if beta <= 0.0 or beta >= 0.5 * math.pi:
+    if beta <= 0.0 or beta > 0.5 * math.pi + 1e-12:
         return None
 
     dx = x2 - x1
@@ -107,12 +107,12 @@ def circle_from_endpoints_and_tangent(
         return None
 
     sin_beta = math.sin(beta)
-    tan_beta = math.tan(beta)
-    if abs(sin_beta) <= 1e-12 or abs(tan_beta) <= 1e-12:
+    cos_beta = math.cos(beta)
+    if abs(sin_beta) <= 1e-12:
         return None
 
     radius = chord / (2.0 * sin_beta)
-    center_offset = chord / (2.0 * tan_beta)
+    center_offset = chord * cos_beta / (2.0 * sin_beta)
     if radius <= 0.0 or not math.isfinite(radius) or not math.isfinite(center_offset):
         return None
 
@@ -129,7 +129,7 @@ def circle_from_endpoints_and_tangent(
     yc = mid_y + center_offset * normal_y
     if not math.isfinite(xc) or not math.isfinite(yc):
         return None
-    if yc <= max(y1, y2) + 1e-9:
+    if yc < max(y1, y2) - 1e-9:
         return None
 
     return PrescribedCircleInput(

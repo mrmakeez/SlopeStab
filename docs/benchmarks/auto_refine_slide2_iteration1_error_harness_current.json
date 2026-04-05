@@ -1,0 +1,638 @@
+{
+  "round_digits": 6,
+  "small_driving_moment_proxy_threshold": 0.1,
+  "note": "Slide2 stores per-method status rows for each stored geometry. This harness parses those rows and compares them against our coarse outcome classes on the same generated geometries. The -108 comparison uses our driving-moment <= 0.1 proxy because the Slide2 page refers to small driving force or moment depending on method.",
+  "scenarios": [
+    {
+      "name": "Case2_Search_Iter_1",
+      "s01": "Verification/Bishop/Case 2/Case2_Search_Iter_1/{9A4A67C1-D070-4ede-B3E6-99981501482B}.s01",
+      "analysis_names": [
+        "bishop simplified",
+        "spencer"
+      ],
+      "theoretical_slot_count": 1900,
+      "generated_slot_count_from_ours": 1900,
+      "slide2_stored_geometry_count": 1562,
+      "slide2_unstored_slot_gap": 338,
+      "ours_unique_geometry_count": 1702,
+      "shared_geometry_count": 1562,
+      "ours_only_geometry_count": 140,
+      "slide2_per_method": {
+        "bishop simplified": {
+          "stored_status_counts": {
+            "valid": 1562
+          }
+        },
+        "spencer": {
+          "stored_status_counts": {
+            "error_-108": 17,
+            "error_-111": 11,
+            "valid": 1534
+          }
+        }
+      },
+      "ours_per_method": {
+        "bishop simplified": {
+          "all_generated_status_counts": {
+            "small_driving_moment_le_0p1": 24,
+            "valid": 1678
+          },
+          "all_generated_slide2_like_counts": {
+            "error_-108_like": 24,
+            "valid": 1678
+          },
+          "ours_only_status_counts": {
+            "small_driving_moment_le_0p1": 24,
+            "valid": 116
+          },
+          "shared_geometry_alignment": {
+            "counts": {
+              "valid -> valid": 1562
+            },
+            "mismatch_examples": []
+          }
+        },
+        "spencer": {
+          "all_generated_status_counts": {
+            "convergence_exception": 1083,
+            "valid": 619
+          },
+          "all_generated_slide2_like_counts": {
+            "error_-111_like": 1083,
+            "valid": 619
+          },
+          "ours_only_status_counts": {
+            "convergence_exception": 123,
+            "valid": 17
+          },
+          "shared_geometry_alignment": {
+            "counts": {
+              "error_-108 -> error_-111_like": 16,
+              "error_-108 -> valid": 1,
+              "error_-111 -> error_-111_like": 11,
+              "valid -> error_-111_like": 933,
+              "valid -> valid": 601
+            },
+            "mismatch_examples": [
+              {
+                "xc": 6.077801,
+                "yc": 13.58947,
+                "r": 6.28449,
+                "x_left": 0.919263,
+                "y_left": 10.0,
+                "x_right": 11.744505,
+                "y_right": 10.872252,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 28.632975,
+                "yc": 17.5,
+                "r": 5.447762,
+                "x_left": 23.255495,
+                "y_left": 16.627748,
+                "x_right": 34.080737,
+                "y_right": 17.5,
+                "slide2_status": "error_-111",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 13.076795,
+                "yc": 26.707479,
+                "r": 15.016257,
+                "x_left": 13.388932,
+                "y_left": 11.694466,
+                "x_right": 24.899922,
+                "y_right": 17.449961,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 13.546958,
+                "yc": 22.062706,
+                "r": 17.463321,
+                "x_left": 0.919263,
+                "y_left": 10.0,
+                "x_right": 30.403686,
+                "y_right": 17.5,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 14.65523,
+                "yc": 27.624675,
+                "r": 20.293126,
+                "x_left": 4.596314,
+                "y_left": 10.0,
+                "x_right": 32.242212,
+                "y_right": 17.5,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 24.04015,
+                "yc": 26.310551,
+                "r": 12.037426,
+                "x_left": 19.966641,
+                "y_left": 14.98332,
+                "x_right": 32.242212,
+                "y_right": 17.5,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 7.125084,
+                "yc": 16.032207,
+                "r": 8.654464,
+                "x_left": 0.919263,
+                "y_left": 10.0,
+                "x_right": 15.033359,
+                "y_right": 12.51668,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 8.452331,
+                "yc": 27.399041,
+                "r": 18.307224,
+                "x_left": 2.757788,
+                "y_left": 10.0,
+                "x_right": 23.255495,
+                "y_right": 16.627748,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 21.498589,
+                "yc": 18.874093,
+                "r": 10.831139,
+                "x_left": 13.388932,
+                "y_left": 11.694466,
+                "x_right": 32.242212,
+                "y_right": 17.5,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 7.724139,
+                "yc": 16.972227,
+                "r": 8.560175,
+                "x_left": 2.757788,
+                "y_left": 10.0,
+                "x_right": 15.033359,
+                "y_right": 12.51668,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Case4_Iter1",
+      "s01": "Verification/Bishop/Case 4/Case4_Iter1/{3A58A471-B82B-4b73-9E28-0A0D91A19FDE}.s01",
+      "analysis_names": [
+        "bishop simplified",
+        "spencer"
+      ],
+      "theoretical_slot_count": 6525,
+      "generated_slot_count_from_ours": 6525,
+      "slide2_stored_geometry_count": 4536,
+      "slide2_unstored_slot_gap": 1989,
+      "ours_unique_geometry_count": 4597,
+      "shared_geometry_count": 4536,
+      "ours_only_geometry_count": 61,
+      "slide2_per_method": {
+        "bishop simplified": {
+          "stored_status_counts": {
+            "valid": 4536
+          }
+        },
+        "spencer": {
+          "stored_status_counts": {
+            "error_-108": 73,
+            "error_-111": 527,
+            "valid": 3936
+          }
+        }
+      },
+      "ours_per_method": {
+        "bishop simplified": {
+          "all_generated_status_counts": {
+            "convergence_exception": 4,
+            "geometry_exception": 3,
+            "small_driving_moment_le_0p1": 13,
+            "valid": 4577
+          },
+          "all_generated_slide2_like_counts": {
+            "error_-108_like": 13,
+            "error_-111_like": 4,
+            "other_invalid": 3,
+            "valid": 4577
+          },
+          "ours_only_status_counts": {
+            "convergence_exception": 4,
+            "small_driving_moment_le_0p1": 13,
+            "valid": 44
+          },
+          "shared_geometry_alignment": {
+            "counts": {
+              "valid -> other_invalid": 3,
+              "valid -> valid": 4533
+            },
+            "mismatch_examples": [
+              {
+                "xc": 29.913108,
+                "yc": 62.029688,
+                "r": 37.029695,
+                "x_left": 30.0,
+                "y_left": 25.0,
+                "x_right": 62.794533,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "other_invalid",
+                "ours_raw_status": "geometry_exception"
+              },
+              {
+                "xc": 29.876339,
+                "yc": 93.211436,
+                "r": 68.211463,
+                "x_left": 30.0,
+                "y_left": 25.0,
+                "x_right": 78.130469,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "other_invalid",
+                "ours_raw_status": "geometry_exception"
+              },
+              {
+                "xc": 29.823304,
+                "yc": 57.35597,
+                "r": 32.356168,
+                "x_left": 30.0,
+                "y_left": 25.0,
+                "x_right": 59.727345,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "other_invalid",
+                "ours_raw_status": "geometry_exception"
+              }
+            ]
+          }
+        },
+        "spencer": {
+          "all_generated_status_counts": {
+            "convergence_exception": 2159,
+            "geometry_exception": 3,
+            "valid": 2435
+          },
+          "all_generated_slide2_like_counts": {
+            "error_-111_like": 2159,
+            "other_invalid": 3,
+            "valid": 2435
+          },
+          "ours_only_status_counts": {
+            "convergence_exception": 44,
+            "valid": 17
+          },
+          "shared_geometry_alignment": {
+            "counts": {
+              "error_-108 -> error_-111_like": 65,
+              "error_-108 -> valid": 8,
+              "error_-111 -> error_-111_like": 396,
+              "error_-111 -> valid": 131,
+              "valid -> error_-111_like": 1654,
+              "valid -> other_invalid": 3,
+              "valid -> valid": 2279
+            },
+            "mismatch_examples": [
+              {
+                "xc": 58.011563,
+                "yc": 57.353541,
+                "r": 16.486309,
+                "x_left": 51.506224,
+                "y_left": 42.204979,
+                "x_right": 68.928907,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 53.190364,
+                "yc": 45.248834,
+                "r": 3.478705,
+                "x_left": 51.506224,
+                "y_left": 42.204979,
+                "x_right": 56.660158,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 28.046896,
+                "yc": 61.709347,
+                "r": 31.269772,
+                "x_left": 39.530869,
+                "y_left": 32.624695,
+                "x_right": 53.901295,
+                "y_right": 44.121036,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 64.822621,
+                "yc": 191.73636,
+                "r": 148.01878,
+                "x_left": 53.901295,
+                "y_left": 44.121036,
+                "x_right": 84.264844,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 58.550897,
+                "yc": 51.075517,
+                "r": 23.447551,
+                "x_left": 41.92594,
+                "y_left": 34.540752,
+                "x_right": 81.197657,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 59.590349,
+                "yc": 59.443057,
+                "r": 19.039549,
+                "x_left": 51.506224,
+                "y_left": 42.204979,
+                "x_right": 71.996095,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 33.678057,
+                "yc": 147.139555,
+                "r": 118.351744,
+                "x_left": 34.740727,
+                "y_left": 28.792582,
+                "x_right": 93.466406,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 45.584017,
+                "yc": 254.481504,
+                "r": 214.221621,
+                "x_left": 49.111153,
+                "y_left": 40.288922,
+                "x_right": 90.399219,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 67.903296,
+                "yc": 220.910379,
+                "r": 177.342967,
+                "x_left": 53.901295,
+                "y_left": 44.121036,
+                "x_right": 90.399219,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 31.349025,
+                "yc": 47.761895,
+                "r": 17.2069,
+                "x_left": 39.530869,
+                "y_left": 32.624695,
+                "x_right": 44.321011,
+                "y_right": 36.456809,
+                "slide2_status": "error_-111",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Case4_Iter1_Simple",
+      "s01": "Verification/Bishop/Case 4/Case4_Iter1_Simple/{3A58A471-B82B-4b73-9E28-0A0D91A19FDE}.s01",
+      "analysis_names": [
+        "bishop simplified",
+        "spencer"
+      ],
+      "theoretical_slot_count": 50,
+      "generated_slot_count_from_ours": 50,
+      "slide2_stored_geometry_count": 38,
+      "slide2_unstored_slot_gap": 12,
+      "ours_unique_geometry_count": 40,
+      "shared_geometry_count": 38,
+      "ours_only_geometry_count": 2,
+      "slide2_per_method": {
+        "bishop simplified": {
+          "stored_status_counts": {
+            "valid": 38
+          }
+        },
+        "spencer": {
+          "stored_status_counts": {
+            "error_-111": 5,
+            "valid": 33
+          }
+        }
+      },
+      "ours_per_method": {
+        "bishop simplified": {
+          "all_generated_status_counts": {
+            "valid": 40
+          },
+          "all_generated_slide2_like_counts": {
+            "valid": 40
+          },
+          "ours_only_status_counts": {
+            "valid": 2
+          },
+          "shared_geometry_alignment": {
+            "counts": {
+              "valid -> valid": 38
+            },
+            "mismatch_examples": []
+          }
+        },
+        "spencer": {
+          "all_generated_status_counts": {
+            "convergence_exception": 24,
+            "valid": 16
+          },
+          "all_generated_slide2_like_counts": {
+            "error_-111_like": 24,
+            "valid": 16
+          },
+          "ours_only_status_counts": {
+            "convergence_exception": 2
+          },
+          "shared_geometry_alignment": {
+            "counts": {
+              "error_-111 -> error_-111_like": 4,
+              "error_-111 -> valid": 1,
+              "valid -> error_-111_like": 18,
+              "valid -> valid": 15
+            },
+            "mismatch_examples": [
+              {
+                "xc": 67.85512,
+                "yc": 45.0,
+                "r": 17.943318,
+                "x_left": 50.308688,
+                "y_left": 41.24695,
+                "x_right": 85.798438,
+                "y_right": 45.0,
+                "slide2_status": "error_-111",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 25.152129,
+                "yc": 35.893308,
+                "r": 12.412631,
+                "x_left": 19.201562,
+                "y_left": 25.0,
+                "x_right": 35.938262,
+                "y_right": 29.75061,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 31.594228,
+                "yc": 133.091453,
+                "r": 103.432106,
+                "x_left": 35.938262,
+                "y_left": 29.75061,
+                "x_right": 85.798438,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 55.734453,
+                "yc": 57.31683,
+                "r": 16.961131,
+                "x_left": 50.308688,
+                "y_left": 41.24695,
+                "x_right": 67.395314,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 66.499955,
+                "yc": 57.814774,
+                "r": 23.165705,
+                "x_left": 50.308688,
+                "y_left": 41.24695,
+                "x_right": 85.798438,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 57.857989,
+                "yc": 47.648943,
+                "r": 9.898356,
+                "x_left": 50.308688,
+                "y_left": 41.24695,
+                "x_right": 67.395314,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 38.524939,
+                "yc": 41.24695,
+                "r": 11.783749,
+                "x_left": 35.938262,
+                "y_left": 29.75061,
+                "x_right": 50.308688,
+                "y_right": 41.24695,
+                "slide2_status": "error_-111",
+                "ours_status": "valid",
+                "ours_raw_status": "valid",
+                "ours_fos": 1.6377509652964797,
+                "ours_driving_moment": 5114.381992893367
+              },
+              {
+                "xc": 45.560414,
+                "yc": 49.971778,
+                "r": 22.393781,
+                "x_left": 35.938262,
+                "y_left": 29.75061,
+                "x_right": 67.395314,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 26.160848,
+                "yc": 32.339528,
+                "r": 10.114363,
+                "x_left": 19.201562,
+                "y_left": 25.0,
+                "x_right": 35.938262,
+                "y_right": 29.75061,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              },
+              {
+                "xc": 56.176742,
+                "yc": 52.715224,
+                "r": 30.609958,
+                "x_left": 35.938262,
+                "y_left": 29.75061,
+                "x_right": 85.798438,
+                "y_right": 45.0,
+                "slide2_status": "valid",
+                "ours_status": "error_-111_like",
+                "ours_raw_status": "convergence_exception"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

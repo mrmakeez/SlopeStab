@@ -1,0 +1,519 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XDocumentWithMetadata>
+  <Metadata>
+    <MetadataEntry>
+      <MetadataName>REPORT_ASSEMBLY_VERSION</MetadataName>
+      <MetadataValue>1.0.0.0</MetadataValue>
+    </MetadataEntry>
+  </Metadata>
+  <ReportCreator>
+    <ProjectTitle>Case4_Iter1</ProjectTitle>
+    <MainTitle>Slide2 Analysis Information</MainTitle>
+    <DateCreated>Date Created: 13/03/2026, 8:34:42 am</DateCreated>
+    <Author></Author>
+    <CompanyName></CompanyName>
+    <CoverImageFilePath>pack://application:,,,/ReportFlow;component/Logo/Slide2-Cover_square.png</CoverImageFilePath>
+    <CoverPageTitle>Slide2 - An Interactive Slope Stability Program</CoverPageTitle>
+    <SoftwareNameAndVersion>9.041</SoftwareNameAndVersion>
+    <UseHeaderSuffix>false</UseHeaderSuffix>
+    <sections>
+      <rfc_section>
+        <Title>Project Summary</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>File Name:</data_string>
+              <data_string>Case4_Iter1.slmd</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Last saved with Slide2 version:</data_string>
+              <data_string>9.041</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Project Title:</data_string>
+              <data_string>Slide2 - An Interactive Slope Stability Program</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Date Created:</data_string>
+              <data_string>13/03/2026, 8:34:42 am</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>General Settings</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Units of Measurement:</data_string>
+              <data_string>Metric Units</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Time Units:</data_string>
+              <data_string>days</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Permeability Units:</data_string>
+              <data_string>meters/second</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Data Output:</data_string>
+              <data_string>Maximum</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Failure Direction:</data_string>
+              <data_string>Right to Left</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Analysis Options</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Slices Type:</data_string>
+              <data_string>Vertical</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataTitleRow</rowType>
+            <data>
+              <data_string>Analysis Methods Used</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string></data_string>
+              <data_string>Bishop simplified</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string></data_string>
+              <data_string>Spencer</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Number of slices:</data_string>
+              <data_string>25</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Tolerance:</data_string>
+              <data_string>0.0001</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Maximum number of iterations:</data_string>
+              <data_string>100</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Check malpha &lt; 0.2:</data_string>
+              <data_string>Yes</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Create Interslice boundaries at intersections with water tables and piezos:</data_string>
+              <data_string>Yes</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Initial trial value of FS:</data_string>
+              <data_string>1</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Steffensen Iteration:</data_string>
+              <data_string>Yes</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Groundwater Analysis</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Groundwater Method:</data_string>
+              <data_string>Water Surfaces</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Pore Fluid Unit Weight [kN/m3]:</data_string>
+              <data_string>9.81</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Advanced Groundwater Method:</data_string>
+              <data_string>None</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Random Numbers</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Pseudo-random Seed:</data_string>
+              <data_string>10116</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Random Number Generation Method: </data_string>
+              <data_string>Park and Miller v.3</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Surface Options</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Surface Type: </data_string>
+              <data_string>Circular</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Search Method:</data_string>
+              <data_string>Auto Refine Search</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Divisions along slope:</data_string>
+              <data_string>30</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Circles per division:</data_string>
+              <data_string>15</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Number of iterations:</data_string>
+              <data_string>1</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Divisions to use in next iteration:</data_string>
+              <data_string>50%</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Composite Surfaces:</data_string>
+              <data_string>Disabled</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Elevation:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Depth:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Area:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Minimum Weight:</data_string>
+              <data_string>Not Defined</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Seismic Loading</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <dataRows>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Advanced seismic analysis:</data_string>
+              <data_string>No</data_string>
+            </data>
+          </row>
+          <row>
+            <rowType>DataRow</rowType>
+            <data>
+              <data_string>Staged pseudostatic analysis:</data_string>
+              <data_string>No</data_string>
+            </data>
+          </row>
+        </dataRows>
+      </rfc_section>
+      <rfc_section>
+        <Title>Materials</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title></Title>
+            <sectionLevel>SubSection</sectionLevel>
+            <hasImage>false</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>true</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <dataRows>
+              <row>
+                <rowType>DataTitleHeaderRow</rowType>
+                <data>
+                  <data_string>Material 1</data_string>
+                  <data_string></data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataImageRow</rowType>
+                <data>
+                  <data_string>Color </data_string>
+                  <data_string> $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlide_9\013113653_files\{746E4D47-AD52-4f92-A328-2708EB69AFCD}.png$$$IMG$$$</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Strength Type </data_string>
+                  <data_string>Mohr-Coulomb</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Unit Weight </data_string>
+                  <data_string>16 kN/m3</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Cohesion </data_string>
+                  <data_string>9 kPa</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Phi </data_string>
+                  <data_string>32 °</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Water Surface </data_string>
+                  <data_string>None</data_string>
+                </data>
+              </row>
+              <row>
+                <rowType>DataRow</rowType>
+                <data>
+                  <data_string>Ru Value </data_string>
+                  <data_string>0</data_string>
+                </data>
+              </row>
+            </dataRows>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+      <rfc_section>
+        <Title>Entity Information</Title>
+        <sectionLevel>MainSection</sectionLevel>
+        <hasImage>false</hasImage>
+        <maximizeSize>false</maximizeSize>
+        <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+        <postPageBreak>false</postPageBreak>
+        <ignoreIndent>false</ignoreIndent>
+        <fontSizeOffset>0</fontSizeOffset>
+        <borderStyle>None</borderStyle>
+        <childSections>
+          <rfc_section>
+            <Title>Group 1 $$$IMG$$$C:\Users\JAMESM~1\AppData\Local\Temp\RocscienceTempSlide_9\013113653_files\{A95452BB-6DDE-4d50-8565-9123AAF0EB7A}.png$$$IMG$$$</Title>
+            <sectionLevel>UnderlinedSection</sectionLevel>
+            <hasImage>true</hasImage>
+            <maximizeSize>false</maximizeSize>
+            <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+            <postPageBreak>false</postPageBreak>
+            <ignoreIndent>false</ignoreIndent>
+            <fontSizeOffset>0</fontSizeOffset>
+            <borderStyle>None</borderStyle>
+            <childSections>
+              <rfc_section>
+                <Title>Shared Entities</Title>
+                <sectionLevel>BoldTextSection</sectionLevel>
+                <hasImage>false</hasImage>
+                <maximizeSize>false</maximizeSize>
+                <alternateRowBackgroundColor>false</alternateRowBackgroundColor>
+                <postPageBreak>false</postPageBreak>
+                <ignoreIndent>false</ignoreIndent>
+                <fontSizeOffset>0</fontSizeOffset>
+                <borderStyle>All</borderStyle>
+                <dataRows>
+                  <row>
+                    <rowType>DataMultipleHeaderRow</rowType>
+                    <data>
+                      <data_string>Type</data_string>
+                      <data_string>Coordinates (x,y)</data_string>
+                    </data>
+                  </row>
+                  <row>
+                    <rowType>DataRow</rowType>
+                    <data>
+                      <data_string>External Boundary</data_string>
+                      <data_string>95, 20
+95, 45
+55, 45
+30, 25
+10, 25
+10, 20
+</data_string>
+                    </data>
+                  </row>
+                </dataRows>
+              </rfc_section>
+            </childSections>
+          </rfc_section>
+        </childSections>
+      </rfc_section>
+    </sections>
+  </ReportCreator>
+</XDocumentWithMetadata>

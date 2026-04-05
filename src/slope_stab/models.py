@@ -95,6 +95,7 @@ class AutoRefineSearchInput:
     iterations: int
     divisions_to_use_next_iteration_pct: float
     search_limits: SearchLimitsInput
+    model_boundary_floor_y: float | None = None
 
 
 @dataclass(frozen=True)

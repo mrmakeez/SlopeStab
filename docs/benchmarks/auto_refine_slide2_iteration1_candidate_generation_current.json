@@ -1,0 +1,653 @@
+{
+  "round_digits": 6,
+  "reverse_curvature_note": "Counted as reverse curvature only when the stored endpoints or sampled lower-arc ordinates rise above the circle center. Slide2 auto-refine documentation says these surfaces are not possible for auto-refine because of the way the circles are generated.",
+  "scenarios": [
+    {
+      "name": "Case2_Search_Iter_1",
+      "s01": "Verification/Bishop/Case 2/Case2_Search_Iter_1/{9A4A67C1-D070-4ede-B3E6-99981501482B}.s01",
+      "slide2_count": 1562,
+      "ours_count": 1702,
+      "shared_count": 1562,
+      "slide2_only_count": 0,
+      "ours_only_count": 140,
+      "exact_parity": false,
+      "slide2_only_examples": [],
+      "ours_only_examples": [
+        {
+          "xc": -16.272772,
+          "yc": 107.660013,
+          "r": 99.161707,
+          "x_left": 24.899922,
+          "y_left": 17.449961,
+          "x_right": 25.009382,
+          "y_right": 17.5,
+          "pair": [
+            0,
+            14
+          ],
+          "beta_index": 1,
+          "left_construction_point": [
+            0.919263,
+            10.0
+          ],
+          "right_construction_point": [
+            24.899922,
+            17.449961
+          ],
+          "entry_exit_delta_y": 0.050039,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": -15.90615,
+          "yc": 102.100806,
+          "r": 93.972874,
+          "x_left": 24.899922,
+          "y_left": 17.449961,
+          "x_right": 25.003564,
+          "y_right": 17.5,
+          "pair": [
+            1,
+            14
+          ],
+          "beta_index": 1,
+          "left_construction_point": [
+            2.757788,
+            10.0
+          ],
+          "right_construction_point": [
+            24.899922,
+            17.449961
+          ],
+          "entry_exit_delta_y": 0.050039,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": -12.891248,
+          "yc": 88.812542,
+          "r": 80.729372,
+          "x_left": 23.168541,
+          "y_left": 16.584271,
+          "x_right": 23.255495,
+          "y_right": 16.627748,
+          "pair": [
+            2,
+            13
+          ],
+          "beta_index": 1,
+          "left_construction_point": [
+            4.596314,
+            10.0
+          ],
+          "right_construction_point": [
+            23.255495,
+            16.627748
+          ],
+          "entry_exit_delta_y": 0.043477,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": -4.394917,
+          "yc": 59.998623,
+          "r": 51.158048,
+          "x_left": 18.322214,
+          "y_left": 14.161107,
+          "x_right": 18.644817,
+          "y_right": 14.322409,
+          "pair": [
+            3,
+            10
+          ],
+          "beta_index": 1,
+          "left_construction_point": [
+            6.434839,
+            10.0
+          ],
+          "right_construction_point": [
+            18.322214,
+            14.161107
+          ],
+          "entry_exit_delta_y": 0.161302,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 1.342557,
+          "yc": 38.953954,
+          "r": 29.771926,
+          "x_left": 14.277895,
+          "y_left": 12.138947,
+          "x_right": 15.033359,
+          "y_right": 12.51668,
+          "pair": [
+            4,
+            8
+          ],
+          "beta_index": 1,
+          "left_construction_point": [
+            8.273365,
+            10.0
+          ],
+          "right_construction_point": [
+            15.033359,
+            12.51668
+          ],
+          "entry_exit_delta_y": 0.377732,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 3.581583,
+          "yc": 35.904949,
+          "r": 26.041397,
+          "x_left": 15.033359,
+          "y_left": 12.51668,
+          "x_right": 15.421132,
+          "y_right": 12.710566,
+          "pair": [
+            0,
+            8
+          ],
+          "beta_index": 2,
+          "left_construction_point": [
+            0.919263,
+            10.0
+          ],
+          "right_construction_point": [
+            15.033359,
+            12.51668
+          ],
+          "entry_exit_delta_y": 0.193887,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 4.413725,
+          "yc": 33.119387,
+          "r": 23.178615,
+          "x_left": 14.52411,
+          "y_left": 12.262055,
+          "x_right": 15.033359,
+          "y_right": 12.51668,
+          "pair": [
+            1,
+            8
+          ],
+          "beta_index": 2,
+          "left_construction_point": [
+            2.757788,
+            10.0
+          ],
+          "right_construction_point": [
+            15.033359,
+            12.51668
+          ],
+          "entry_exit_delta_y": 0.254624,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 5.460368,
+          "yc": 19.070735,
+          "r": 10.143957,
+          "x_left": 0.919263,
+          "y_left": 10.0,
+          "x_right": 10.100078,
+          "y_right": 10.050039,
+          "pair": [
+            0,
+            5
+          ],
+          "beta_index": 3,
+          "left_construction_point": [
+            0.919263,
+            10.0
+          ],
+          "right_construction_point": [
+            10.100078,
+            10.050039
+          ],
+          "entry_exit_delta_y": 0.050039,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 5.475076,
+          "yc": 16.372227,
+          "r": 7.833307,
+          "x_left": 0.919263,
+          "y_left": 10.0,
+          "x_right": 10.100078,
+          "y_right": 10.050039,
+          "pair": [
+            0,
+            5
+          ],
+          "beta_index": 4,
+          "left_construction_point": [
+            0.919263,
+            10.0
+          ],
+          "right_construction_point": [
+            10.100078,
+            10.050039
+          ],
+          "entry_exit_delta_y": 0.050039,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 5.484514,
+          "yc": 14.640514,
+          "r": 6.509677,
+          "x_left": 0.919263,
+          "y_left": 10.0,
+          "x_right": 10.100078,
+          "y_right": 10.050039,
+          "pair": [
+            0,
+            5
+          ],
+          "beta_index": 5,
+          "left_construction_point": [
+            0.919263,
+            10.0
+          ],
+          "right_construction_point": [
+            10.100078,
+            10.050039
+          ],
+          "entry_exit_delta_y": 0.050039,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        }
+      ],
+      "ours_only_beta_index_counts": {
+        "1": 10,
+        "2": 9,
+        "3": 11,
+        "4": 11,
+        "5": 10,
+        "6": 10,
+        "7": 10,
+        "8": 10,
+        "9": 10,
+        "10": 49
+      },
+      "ours_only_left_point_location_counts": {
+        "slope": 71,
+        "toe": 69
+      },
+      "ours_only_small_entry_exit_delta_count": 97,
+      "common_circle_mismatch_count": 0,
+      "slide2_reverse_curvature_count": 0,
+      "ours_reverse_curvature_count": 0,
+      "shared_reverse_curvature_count": 0,
+      "slide2_only_reverse_curvature_count": 0,
+      "ours_only_reverse_curvature_count": 0
+    },
+    {
+      "name": "Case4_Iter1",
+      "s01": "Verification/Bishop/Case 4/Case4_Iter1/{3A58A471-B82B-4b73-9E28-0A0D91A19FDE}.s01",
+      "slide2_count": 4536,
+      "ours_count": 4597,
+      "shared_count": 4536,
+      "slide2_only_count": 0,
+      "ours_only_count": 61,
+      "exact_parity": false,
+      "slide2_only_examples": [],
+      "ours_only_examples": [
+        {
+          "xc": -94.877193,
+          "yc": 225.57715,
+          "r": 234.634733,
+          "x_left": 51.506224,
+          "y_left": 42.204979,
+          "x_right": 51.889541,
+          "y_right": 42.511633,
+          "pair": [
+            5,
+            15
+          ],
+          "beta_index": 1,
+          "left_construction_point": [
+            26.869531,
+            25.0
+          ],
+          "right_construction_point": [
+            51.506224,
+            42.204979
+          ],
+          "entry_exit_delta_y": 0.306654,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": -7.792033,
+          "yc": 120.973948,
+          "r": 98.551696,
+          "x_left": 53.64398,
+          "y_left": 43.915184,
+          "x_right": 53.901295,
+          "y_right": 44.121036,
+          "pair": [
+            1,
+            16
+          ],
+          "beta_index": 3,
+          "left_construction_point": [
+            14.600781,
+            25.0
+          ],
+          "right_construction_point": [
+            53.901295,
+            44.121036
+          ],
+          "entry_exit_delta_y": 0.205852,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": -0.220111,
+          "yc": 101.766083,
+          "r": 78.82268,
+          "x_left": 48.928793,
+          "y_left": 40.143034,
+          "x_right": 49.111153,
+          "y_right": 40.288922,
+          "pair": [
+            2,
+            14
+          ],
+          "beta_index": 3,
+          "left_construction_point": [
+            17.667968,
+            25.0
+          ],
+          "right_construction_point": [
+            49.111153,
+            40.288922
+          ],
+          "entry_exit_delta_y": 0.145888,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 5.581419,
+          "yc": 74.67526,
+          "r": 54.044566,
+          "x_left": 39.154042,
+          "y_left": 32.323234,
+          "x_right": 39.530869,
+          "y_right": 32.624695,
+          "pair": [
+            5,
+            10
+          ],
+          "beta_index": 2,
+          "left_construction_point": [
+            26.869531,
+            25.0
+          ],
+          "right_construction_point": [
+            39.530869,
+            32.624695
+          ],
+          "entry_exit_delta_y": 0.301461,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 7.351794,
+          "yc": 82.558223,
+          "r": 59.093683,
+          "x_left": 44.213589,
+          "y_left": 36.370872,
+          "x_right": 44.321011,
+          "y_right": 36.456809,
+          "pair": [
+            3,
+            12
+          ],
+          "beta_index": 3,
+          "left_construction_point": [
+            20.735156,
+            25.0
+          ],
+          "right_construction_point": [
+            44.321011,
+            36.456809
+          ],
+          "entry_exit_delta_y": 0.085937,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 14.923656,
+          "yc": 63.350374,
+          "r": 39.364734,
+          "x_left": 39.498345,
+          "y_left": 32.598676,
+          "x_right": 39.530869,
+          "y_right": 32.624695,
+          "pair": [
+            4,
+            10
+          ],
+          "beta_index": 3,
+          "left_construction_point": [
+            23.802343,
+            25.0
+          ],
+          "right_construction_point": [
+            39.530869,
+            32.624695
+          ],
+          "entry_exit_delta_y": 0.026019,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 18.432893,
+          "yc": 54.322831,
+          "r": 30.123558,
+          "x_left": 37.135798,
+          "y_left": 30.708638,
+          "x_right": 37.365614,
+          "y_right": 30.892491,
+          "pair": [
+            0,
+            9
+          ],
+          "beta_index": 5,
+          "left_construction_point": [
+            11.533594,
+            25.0
+          ],
+          "right_construction_point": [
+            37.135798,
+            30.708638
+          ],
+          "entry_exit_delta_y": 0.183853,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 20.545401,
+          "yc": 41.401244,
+          "r": 18.713991,
+          "x_left": 32.125559,
+          "y_left": 26.700447,
+          "x_right": 32.345656,
+          "y_right": 26.876525,
+          "pair": [
+            0,
+            7
+          ],
+          "beta_index": 6,
+          "left_construction_point": [
+            11.533594,
+            25.0
+          ],
+          "right_construction_point": [
+            32.345656,
+            26.876525
+          ],
+          "entry_exit_delta_y": 0.176078,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 22.286078,
+          "yc": 44.534848,
+          "r": 20.073297,
+          "x_left": 34.740727,
+          "y_left": 28.792582,
+          "x_right": 34.91044,
+          "y_right": 28.928352,
+          "pair": [
+            2,
+            8
+          ],
+          "beta_index": 5,
+          "left_construction_point": [
+            17.667968,
+            25.0
+          ],
+          "right_construction_point": [
+            34.740727,
+            28.792582
+          ],
+          "entry_exit_delta_y": 0.13577,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 22.495346,
+          "yc": 44.142574,
+          "r": 19.635978,
+          "x_left": 34.740727,
+          "y_left": 28.792582,
+          "x_right": 34.782937,
+          "y_right": 28.82635,
+          "pair": [
+            5,
+            8
+          ],
+          "beta_index": 3,
+          "left_construction_point": [
+            26.869531,
+            25.0
+          ],
+          "right_construction_point": [
+            34.740727,
+            28.792582
+          ],
+          "entry_exit_delta_y": 0.033768,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        }
+      ],
+      "ours_only_beta_index_counts": {
+        "1": 1,
+        "2": 1,
+        "3": 5,
+        "4": 2,
+        "5": 3,
+        "6": 1,
+        "13": 1,
+        "14": 4,
+        "15": 43
+      },
+      "ours_only_left_point_location_counts": {
+        "slope": 32,
+        "toe": 29
+      },
+      "ours_only_small_entry_exit_delta_count": 11,
+      "common_circle_mismatch_count": 0,
+      "slide2_reverse_curvature_count": 0,
+      "ours_reverse_curvature_count": 0,
+      "shared_reverse_curvature_count": 0,
+      "slide2_only_reverse_curvature_count": 0,
+      "ours_only_reverse_curvature_count": 0
+    },
+    {
+      "name": "Case4_Iter1_Simple",
+      "s01": "Verification/Bishop/Case 4/Case4_Iter1_Simple/{3A58A471-B82B-4b73-9E28-0A0D91A19FDE}.s01",
+      "slide2_count": 38,
+      "ours_count": 40,
+      "shared_count": 38,
+      "slide2_only_count": 0,
+      "ours_only_count": 2,
+      "exact_parity": false,
+      "slide2_only_examples": [],
+      "ours_only_examples": [
+        {
+          "xc": 26.895696,
+          "yc": 29.75061,
+          "r": 9.042566,
+          "x_left": 19.201562,
+          "y_left": 25.0,
+          "x_right": 35.938262,
+          "y_right": 29.75061,
+          "pair": [
+            0,
+            1
+          ],
+          "beta_index": 5,
+          "left_construction_point": [
+            19.201562,
+            25.0
+          ],
+          "right_construction_point": [
+            35.938262,
+            29.75061
+          ],
+          "entry_exit_delta_y": 4.75061,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        },
+        {
+          "xc": 30.512313,
+          "yc": 41.24695,
+          "r": 19.796375,
+          "x_left": 19.201562,
+          "y_left": 25.0,
+          "x_right": 50.308688,
+          "y_right": 41.24695,
+          "pair": [
+            0,
+            2
+          ],
+          "beta_index": 5,
+          "left_construction_point": [
+            19.201562,
+            25.0
+          ],
+          "right_construction_point": [
+            50.308688,
+            41.24695
+          ],
+          "entry_exit_delta_y": 16.24695,
+          "reverse_curvature": false,
+          "left_point_location": "toe"
+        }
+      ],
+      "ours_only_beta_index_counts": {
+        "5": 2
+      },
+      "ours_only_left_point_location_counts": {
+        "toe": 2
+      },
+      "ours_only_small_entry_exit_delta_count": 0,
+      "common_circle_mismatch_count": 0,
+      "slide2_reverse_curvature_count": 0,
+      "ours_reverse_curvature_count": 0,
+      "shared_reverse_curvature_count": 0,
+      "slide2_only_reverse_curvature_count": 0,
+      "ours_only_reverse_curvature_count": 0
+    }
+  ]
+}

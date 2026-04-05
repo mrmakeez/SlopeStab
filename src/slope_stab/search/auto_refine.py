@@ -21,6 +21,19 @@ TANGENT_EPS_RAD = math.radians(0.5)
 _LOCAL_TOE_LOCKED_POLISH_MIN_IMPROVEMENT = 0.0
 _DEFAULT_POST_POLISH_RIGHT_WINDOW_H_FRACTION = 0.2
 _AUTO_REFINE_POST_POLISH_RIGHT_WINDOW_H_FRACTION = 0.38
+_RETAINED_PATH_TOL = 1e-9
+_GROUND_INTERSECTION_TOL = 1e-7
+_GROUND_DIFF_TOL = 1.5e-6
+_GROUND_BREAKPOINT_SNAP_TOL = 4e-4
+_ENTRY_EXIT_ELEV_TOL = 1e-6
+_MODEL_BOUNDARY_TOL = 1e-6
+_REVERSE_CURVATURE_TOL = 1e-6
+
+
+@dataclass(frozen=True)
+class RetainedPathSegment:
+    start: tuple[float, float]
+    end: tuple[float, float]
 
 
 @dataclass(frozen=True)
@@ -28,11 +41,15 @@ class AutoRefineIterationDiagnostics:
     iteration: int
     active_x_min: float
     active_x_max: float
+    active_path_segments: list[RetainedPathSegment]
     generated_surfaces: int
     valid_surfaces: int
     invalid_surfaces: int
     minimum_fos: float | None
+    minimum_surface: PrescribedCircleInput | None
     retained_division_indices: list[int]
+    expanded_retained_division_indices: list[int]
+    next_active_path_segments: list[RetainedPathSegment]
 
 
 @dataclass(frozen=True)
@@ -68,6 +85,91 @@ def _build_ground_polyline(profile: UniformSlopeProfile, x_min: float, x_max: fl
     return [(x, profile.y_ground(x)) for x in x_points]
 
 
+def _segment_length(segment: RetainedPathSegment) -> float:
+    return math.hypot(
+        segment.end[0] - segment.start[0],
+        segment.end[1] - segment.start[1],
+    )
+
+
+def _polyline_to_retained_path(polyline: list[tuple[float, float]]) -> list[RetainedPathSegment]:
+    retained_path: list[RetainedPathSegment] = []
+    for start, end in zip(polyline[:-1], polyline[1:]):
+        segment = RetainedPathSegment(start=start, end=end)
+        if _segment_length(segment) <= _RETAINED_PATH_TOL:
+            continue
+        retained_path.append(segment)
+    return retained_path
+
+
+def _build_retained_path(profile: UniformSlopeProfile, x_min: float, x_max: float) -> list[RetainedPathSegment]:
+    return _polyline_to_retained_path(_build_ground_polyline(profile, x_min, x_max))
+
+
+def _retained_path_total_length(retained_path: list[RetainedPathSegment]) -> float:
+    return sum(_segment_length(segment) for segment in retained_path)
+
+
+def _retained_path_bounds(retained_path: list[RetainedPathSegment]) -> tuple[float, float]:
+    if not retained_path:
+        raise GeometryError("Retained path must contain at least one segment.")
+    x_values = [segment.start[0] for segment in retained_path]
+    x_values.extend(segment.end[0] for segment in retained_path)
+    return (min(x_values), max(x_values))
+
+
+def _point_on_segment(segment: RetainedPathSegment, distance: float) -> tuple[float, float]:
+    length = _segment_length(segment)
+    if length <= _RETAINED_PATH_TOL:
+        return segment.end
+    if distance <= 0.0:
+        return segment.start
+    if distance >= length:
+        return segment.end
+    ratio = distance / length
+    return (
+        segment.start[0] + ratio * (segment.end[0] - segment.start[0]),
+        segment.start[1] + ratio * (segment.end[1] - segment.start[1]),
+    )
+
+
+def _segments_are_mergeable(
+    first: RetainedPathSegment,
+    second: RetainedPathSegment,
+    tol: float = _RETAINED_PATH_TOL,
+) -> bool:
+    if math.hypot(first.end[0] - second.start[0], first.end[1] - second.start[1]) > tol:
+        return False
+
+    dx1 = first.end[0] - first.start[0]
+    dy1 = first.end[1] - first.start[1]
+    dx2 = second.end[0] - second.start[0]
+    dy2 = second.end[1] - second.start[1]
+    len1 = math.hypot(dx1, dy1)
+    len2 = math.hypot(dx2, dy2)
+    if len1 <= tol or len2 <= tol:
+        return True
+
+    cross = dx1 * dy2 - dy1 * dx2
+    dot = dx1 * dx2 + dy1 * dy2
+    return abs(cross) <= tol * max(1.0, len1 * len2) and dot >= -tol
+
+
+def _merge_adjacent_retained_segments(
+    retained_path: list[RetainedPathSegment],
+    tol: float = _RETAINED_PATH_TOL,
+) -> list[RetainedPathSegment]:
+    merged: list[RetainedPathSegment] = []
+    for segment in retained_path:
+        if _segment_length(segment) <= tol:
+            continue
+        if merged and _segments_are_mergeable(merged[-1], segment, tol=tol):
+            merged[-1] = RetainedPathSegment(start=merged[-1].start, end=segment.end)
+            continue
+        merged.append(segment)
+    return merged
+
+
 def _cumulative_lengths(polyline: list[tuple[float, float]]) -> tuple[list[float], float]:
     cumulative = [0.0]
     total = 0.0
@@ -101,7 +203,39 @@ def _point_at_arc_length(polyline: list[tuple[float, float]], cumulative: list[f
 def _division_boundaries_and_midpoints(
     polyline: list[tuple[float, float]], divisions: int
 ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
-    cumulative, total = _cumulative_lengths(polyline)
+    retained_path = _polyline_to_retained_path(polyline)
+    return _division_boundaries_and_midpoints_for_retained_path(retained_path, divisions)
+
+
+def _point_at_retained_arc_length(
+    retained_path: list[RetainedPathSegment],
+    s: float,
+) -> tuple[float, float]:
+    if not retained_path:
+        raise GeometryError("Retained path must contain at least one segment.")
+
+    total = _retained_path_total_length(retained_path)
+    if total <= 0.0:
+        raise GeometryError("Search polyline length must be greater than zero.")
+    if s <= 0.0:
+        return retained_path[0].start
+    if s >= total:
+        return retained_path[-1].end
+
+    traversed = 0.0
+    for segment in retained_path:
+        length = _segment_length(segment)
+        if s <= traversed + length:
+            return _point_on_segment(segment, s - traversed)
+        traversed += length
+    return retained_path[-1].end
+
+
+def _division_boundaries_and_midpoints_for_retained_path(
+    retained_path: list[RetainedPathSegment],
+    divisions: int,
+) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+    total = _retained_path_total_length(retained_path)
     if total <= 0.0:
         raise GeometryError("Search polyline length must be greater than zero.")
 
@@ -110,13 +244,108 @@ def _division_boundaries_and_midpoints(
 
     for i in range(divisions + 1):
         target = (i / divisions) * total
-        boundaries.append(_point_at_arc_length(polyline, cumulative, target))
+        boundaries.append(_point_at_retained_arc_length(retained_path, target))
 
     for i in range(divisions):
         target = ((i + 0.5) / divisions) * total
-        midpoints.append(_point_at_arc_length(polyline, cumulative, target))
+        midpoints.append(_point_at_retained_arc_length(retained_path, target))
 
     return boundaries, midpoints
+
+
+def _extract_retained_interval(
+    retained_path: list[RetainedPathSegment],
+    start_s: float,
+    end_s: float,
+) -> list[RetainedPathSegment]:
+    if end_s <= start_s + _RETAINED_PATH_TOL:
+        return []
+
+    extracted: list[RetainedPathSegment] = []
+    traversed = 0.0
+    for segment in retained_path:
+        length = _segment_length(segment)
+        seg_start = traversed
+        seg_end = traversed + length
+        traversed = seg_end
+
+        overlap_start = max(start_s, seg_start)
+        overlap_end = min(end_s, seg_end)
+        if overlap_end <= overlap_start + _RETAINED_PATH_TOL:
+            continue
+
+        extracted.append(
+            RetainedPathSegment(
+                start=_point_on_segment(segment, overlap_start - seg_start),
+                end=_point_on_segment(segment, overlap_end - seg_start),
+            )
+        )
+
+    return _merge_adjacent_retained_segments(extracted)
+
+
+def _build_next_retained_path(
+    retained_path: list[RetainedPathSegment],
+    divisions: int,
+    retained_indices: list[int],
+) -> list[RetainedPathSegment]:
+    total = _retained_path_total_length(retained_path)
+    if total <= 0.0:
+        raise GeometryError("Search polyline length must be greater than zero.")
+
+    next_path: list[RetainedPathSegment] = []
+    for idx in retained_indices:
+        start_s = (idx / divisions) * total
+        end_s = ((idx + 1) / divisions) * total
+        next_path.extend(_extract_retained_interval(retained_path, start_s, end_s))
+
+    return _merge_adjacent_retained_segments(next_path)
+
+
+def _close_small_retained_index_gaps(retained_indices: list[int], max_gap: int = 1) -> list[int]:
+    if not retained_indices:
+        return []
+
+    expanded = [retained_indices[0]]
+    for idx in retained_indices[1:]:
+        gap = idx - expanded[-1] - 1
+        if 0 < gap <= max_gap:
+            expanded.extend(range(expanded[-1] + 1, idx))
+        expanded.append(idx)
+    return expanded
+
+
+def _pad_retained_index_runs(
+    retained_indices: list[int],
+    divisions: int,
+    edge_padding: int = 1,
+) -> list[int]:
+    if not retained_indices:
+        return []
+
+    padded: list[int] = []
+    run_start = retained_indices[0]
+    run_end = retained_indices[0]
+    for idx in retained_indices[1:]:
+        if idx == run_end + 1:
+            run_end = idx
+            continue
+        padded.extend(
+            range(
+                max(0, run_start - edge_padding),
+                min(divisions - 1, run_end + edge_padding) + 1,
+            )
+        )
+        run_start = idx
+        run_end = idx
+
+    padded.extend(
+        range(
+            max(0, run_start - edge_padding),
+            min(divisions - 1, run_end + edge_padding) + 1,
+        )
+    )
+    return sorted(set(padded))
 
 
 def _generate_slide2_betas(theta_chord: float, count: int) -> list[float]:
@@ -128,10 +357,250 @@ def _generate_slide2_betas(theta_chord: float, count: int) -> list[float]:
     return [(m / count) * beta_max for m in range(1, count + 1)]
 
 
+def _circle_lower_y(surface: PrescribedCircleInput, x: float) -> float:
+    inside = surface.r * surface.r - (x - surface.xc) ** 2
+    if inside < -1e-10:
+        raise GeometryError(
+            f"x={x} falls outside prescribed circle domain for xc={surface.xc}, r={surface.r}."
+        )
+    return surface.yc - math.sqrt(max(inside, 0.0))
+
+
+def _surface_has_reverse_curvature(
+    surface: PrescribedCircleInput,
+    tol: float = _REVERSE_CURVATURE_TOL,
+) -> bool:
+    # Slide2 defines reverse curvature in terms of the slip arc rising above the circle center.
+    # Auto-refine uses the lower circular branch, so this should stay false for valid candidates.
+    max_y = max(surface.y_left, surface.y_right)
+    sample_xs = (
+        surface.x_left,
+        0.5 * (surface.x_left + surface.x_right),
+        surface.x_right,
+    )
+    domain_tol = max(1e-9, 2.0 * max(1.0, surface.r) * tol)
+    for x in sample_xs:
+        inside = surface.r * surface.r - (x - surface.xc) ** 2
+        if inside < -domain_tol:
+            continue
+        max_y = max(max_y, surface.yc - math.sqrt(max(inside, 0.0)))
+    return max_y > surface.yc + tol
+
+
+def _dedupe_sorted_roots(roots: list[float], tol: float = _GROUND_INTERSECTION_TOL) -> list[float]:
+    if not roots:
+        return []
+    ordered = sorted(roots)
+    deduped = [ordered[0]]
+    for x in ordered[1:]:
+        if abs(x - deduped[-1]) > tol:
+            deduped.append(x)
+    return deduped
+
+
+def _clip_root_to_segment(x: float, x_start: float, x_end: float, tol: float = _GROUND_INTERSECTION_TOL) -> float | None:
+    if x < x_start - tol or x > x_end + tol:
+        return None
+    return min(max(x, x_start), x_end)
+
+
+def _snap_x_to_ground_breakpoints(
+    x: float,
+    breakpoints: list[float],
+    tol: float = _GROUND_BREAKPOINT_SNAP_TOL,
+) -> float:
+    for breakpoint_x in breakpoints:
+        if abs(x - breakpoint_x) <= tol:
+            return breakpoint_x
+    return x
+
+
+def _horizontal_ground_intersections(
+    surface: PrescribedCircleInput,
+    y_ground: float,
+    x_start: float,
+    x_end: float,
+) -> list[float]:
+    if x_end <= x_start:
+        return []
+    inside = surface.r * surface.r - (surface.yc - y_ground) ** 2
+    if inside < -_GROUND_INTERSECTION_TOL:
+        return []
+    inside = max(inside, 0.0)
+    dx = math.sqrt(inside)
+    roots: list[float] = []
+    for x in (surface.xc - dx, surface.xc + dx):
+        clipped = _clip_root_to_segment(x, x_start, x_end)
+        if clipped is None:
+            continue
+        if abs(_circle_lower_y(surface, clipped) - y_ground) <= _GROUND_DIFF_TOL:
+            roots.append(clipped)
+    return roots
+
+
+def _linear_ground_intersections(
+    surface: PrescribedCircleInput,
+    slope: float,
+    intercept: float,
+    x_start: float,
+    x_end: float,
+) -> list[float]:
+    if x_end <= x_start:
+        return []
+
+    a = 1.0 + slope * slope
+    b = 2.0 * (slope * (intercept - surface.yc) - surface.xc)
+    c = surface.xc * surface.xc + (intercept - surface.yc) ** 2 - surface.r * surface.r
+    discriminant = b * b - 4.0 * a * c
+    if discriminant < -_GROUND_INTERSECTION_TOL:
+        return []
+    discriminant = max(discriminant, 0.0)
+    sqrt_discriminant = math.sqrt(discriminant)
+
+    roots: list[float] = []
+    for x in (
+        (-b - sqrt_discriminant) / (2.0 * a),
+        (-b + sqrt_discriminant) / (2.0 * a),
+    ):
+        clipped = _clip_root_to_segment(x, x_start, x_end)
+        if clipped is None:
+            continue
+        y_ground = slope * clipped + intercept
+        if abs(_circle_lower_y(surface, clipped) - y_ground) <= _GROUND_DIFF_TOL:
+            roots.append(clipped)
+    return roots
+
+
+def _ground_intersections_for_circle(
+    profile: UniformSlopeProfile,
+    surface: PrescribedCircleInput,
+    x_min: float,
+    x_max: float,
+) -> list[float]:
+    if x_max <= x_min:
+        return []
+
+    roots: list[float] = []
+    toe_end = min(x_max, profile.x_toe)
+    if x_min < toe_end:
+        roots.extend(_horizontal_ground_intersections(surface, profile.y_toe, x_min, toe_end))
+
+    slope_start = max(x_min, profile.x_toe)
+    slope_end = min(x_max, profile.crest_x)
+    if slope_start < slope_end:
+        roots.extend(
+            _linear_ground_intersections(
+                surface,
+                slope=profile.slope_gradient,
+                intercept=profile.y_toe - profile.slope_gradient * profile.x_toe,
+                x_start=slope_start,
+                x_end=slope_end,
+            )
+        )
+
+    crest_start = max(x_min, profile.crest_x)
+    if crest_start < x_max:
+        roots.extend(_horizontal_ground_intersections(surface, profile.crest_y, crest_start, x_max))
+
+    return _dedupe_sorted_roots(roots)
+
+
+def _clip_construction_circle_to_ground_intercepts(
+    profile: UniformSlopeProfile,
+    construction_surface: PrescribedCircleInput,
+    search_x_min: float,
+    search_x_max: float,
+    construction_mid_x: float,
+    model_boundary_floor_y: float | None = None,
+) -> PrescribedCircleInput | None:
+    roots = _ground_intersections_for_circle(
+        profile=profile,
+        surface=construction_surface,
+        x_min=search_x_min,
+        x_max=search_x_max,
+    )
+    if len(roots) < 2:
+        return None
+
+    valid_intervals: list[tuple[float, float]] = []
+    for x_left, x_right in zip(roots[:-1], roots[1:]):
+        if x_right <= x_left + _GROUND_INTERSECTION_TOL:
+            continue
+        x_mid = 0.5 * (x_left + x_right)
+        y_diff = profile.y_ground(x_mid) - _circle_lower_y(construction_surface, x_mid)
+        if y_diff >= -_GROUND_DIFF_TOL:
+            valid_intervals.append((x_left, x_right))
+
+    if not valid_intervals:
+        return None
+
+    ordered_intervals = sorted(
+        valid_intervals,
+        key=lambda interval: (
+            0
+            if interval[0] - _GROUND_INTERSECTION_TOL <= construction_mid_x <= interval[1] + _GROUND_INTERSECTION_TOL
+            else 1,
+            -(interval[1] - interval[0]),
+            interval[0],
+            interval[1],
+        ),
+    )
+
+    for x_left, x_right in ordered_intervals:
+        if x_right <= x_left + 1e-9:
+            continue
+
+        snapped_x_left = _snap_x_to_ground_breakpoints(
+            x_left,
+            [
+                search_x_min,
+                profile.x_toe,
+                profile.crest_x,
+                search_x_max,
+            ],
+        )
+        snapped_x_right = _snap_x_to_ground_breakpoints(
+            x_right,
+            [
+                search_x_min,
+                profile.x_toe,
+                profile.crest_x,
+                search_x_max,
+            ],
+        )
+        if snapped_x_right <= snapped_x_left + 1e-9:
+            continue
+
+        candidate = PrescribedCircleInput(
+            xc=construction_surface.xc,
+            yc=construction_surface.yc,
+            r=construction_surface.r,
+            x_left=snapped_x_left,
+            y_left=profile.y_ground(snapped_x_left),
+            x_right=snapped_x_right,
+            y_right=profile.y_ground(snapped_x_right),
+        )
+        if abs(candidate.y_left - candidate.y_right) <= _ENTRY_EXIT_ELEV_TOL:
+            continue
+        if _surface_has_reverse_curvature(candidate):
+            continue
+        if model_boundary_floor_y is not None:
+            x_min_y = min(max(candidate.xc, candidate.x_left), candidate.x_right)
+            if _circle_lower_y(candidate, x_min_y) < model_boundary_floor_y - _MODEL_BOUNDARY_TOL:
+                continue
+        return candidate
+
+    return None
+
+
 def _generate_pre_polish_pair_candidates(
+    profile: UniformSlopeProfile,
+    search_x_min: float,
+    search_x_max: float,
     p_left: tuple[float, float],
     p_right: tuple[float, float],
     circles_per_division: int,
+    model_boundary_floor_y: float | None = None,
 ) -> list[PrescribedCircleInput | None]:
     if p_right[0] <= p_left[0]:
         return []
@@ -140,7 +609,24 @@ def _generate_pre_polish_pair_candidates(
         p_right[0] - p_left[0],
     )
     betas = _generate_slide2_betas(theta_chord, circles_per_division)
-    return [circle_from_endpoints_and_tangent(p_left, p_right, beta) for beta in betas]
+    construction_mid_x = 0.5 * (p_left[0] + p_right[0])
+    candidates: list[PrescribedCircleInput | None] = []
+    for beta in betas:
+        construction_surface = circle_from_endpoints_and_tangent(p_left, p_right, beta)
+        if construction_surface is None:
+            candidates.append(None)
+            continue
+        candidates.append(
+            _clip_construction_circle_to_ground_intercepts(
+                profile=profile,
+                construction_surface=construction_surface,
+                search_x_min=search_x_min,
+                search_x_max=search_x_max,
+                construction_mid_x=construction_mid_x,
+                model_boundary_floor_y=model_boundary_floor_y,
+            )
+        )
+    return candidates
 
 
 def run_auto_refine_search(
@@ -150,8 +636,11 @@ def run_auto_refine_search(
     batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None,
     min_batch_size: int = 1,
 ) -> AutoRefineSearchResult:
-    current_x_min = config.search_limits.x_min
-    current_x_max = config.search_limits.x_max
+    active_retained_path = _build_retained_path(
+        profile,
+        config.search_limits.x_min,
+        config.search_limits.x_max,
+    )
 
     diagnostics: list[AutoRefineIterationDiagnostics] = []
     best_surface: PrescribedCircleInput | None = None
@@ -162,22 +651,30 @@ def run_auto_refine_search(
     post_refinement_counts = PhaseEvaluationCounts()
 
     for iteration in range(1, config.iterations + 1):
-        polyline = _build_ground_polyline(profile, current_x_min, current_x_max)
-        boundaries, midpoints = _division_boundaries_and_midpoints(polyline, config.divisions_along_slope)
+        current_x_min, current_x_max = _retained_path_bounds(active_retained_path)
+        _, midpoints = _division_boundaries_and_midpoints_for_retained_path(
+            active_retained_path,
+            config.divisions_along_slope,
+        )
 
         division_fos: list[list[float]] = [[] for _ in range(config.divisions_along_slope)]
         generated = 0
         valid = 0
         iter_min_fos: float | None = None
+        iter_min_surface: PrescribedCircleInput | None = None
 
         for i in range(config.divisions_along_slope):
             for j in range(i + 1, config.divisions_along_slope):
                 p_left_mid = midpoints[i]
                 p_right_mid = midpoints[j]
                 candidate_surfaces = _generate_pre_polish_pair_candidates(
+                    profile=profile,
+                    search_x_min=config.search_limits.x_min,
+                    search_x_max=config.search_limits.x_max,
                     p_left=p_left_mid,
                     p_right=p_right_mid,
                     circles_per_division=config.circles_per_division,
+                    model_boundary_floor_y=config.model_boundary_floor_y,
                 )
 
                 generated += len(candidate_surfaces)
@@ -199,6 +696,13 @@ def run_auto_refine_search(
 
                     if iter_min_fos is None or result.fos < iter_min_fos - TIE_TOL:
                         iter_min_fos = result.fos
+                        iter_min_surface = evaluation.surface
+                    elif iter_min_fos is not None and abs(result.fos - iter_min_fos) <= TIE_TOL:
+                        assert iter_min_surface is not None
+                        candidate_key = surface_key(evaluation.surface)
+                        iter_key = surface_key(iter_min_surface)
+                        if candidate_key < iter_key:
+                            iter_min_surface = evaluation.surface
 
                     if best_result is None or result.fos < best_result.fos - TIE_TOL:
                         best_surface = evaluation.surface
@@ -228,28 +732,34 @@ def run_auto_refine_search(
         )
         ranked_indices = sorted(range(config.divisions_along_slope), key=lambda idx: (averages[idx], idx))
         retained_indices = sorted(ranked_indices[:keep_count])
+        expanded_retained_indices = retained_indices
 
-        next_x_min = min(boundaries[idx][0] for idx in retained_indices)
-        next_x_max = max(boundaries[idx + 1][0] for idx in retained_indices)
-        if next_x_max <= next_x_min + 1e-9:
-            next_x_min = current_x_min
-            next_x_max = current_x_max
+        next_active_retained_path = _build_next_retained_path(
+            active_retained_path,
+            config.divisions_along_slope,
+            expanded_retained_indices,
+        )
+        if not next_active_retained_path:
+            next_active_retained_path = active_retained_path
 
         diagnostics.append(
             AutoRefineIterationDiagnostics(
                 iteration=iteration,
                 active_x_min=current_x_min,
                 active_x_max=current_x_max,
+                active_path_segments=active_retained_path,
                 generated_surfaces=generated,
                 valid_surfaces=valid,
                 invalid_surfaces=generated - valid,
                 minimum_fos=iter_min_fos,
+                minimum_surface=iter_min_surface,
                 retained_division_indices=retained_indices,
+                expanded_retained_division_indices=expanded_retained_indices,
+                next_active_path_segments=next_active_retained_path,
             )
         )
 
-        current_x_min = next_x_min
-        current_x_max = next_x_max
+        active_retained_path = next_active_retained_path
 
     if best_result is None or best_surface is None:
         raise ConvergenceError("Auto-refine search did not produce any valid surfaces.")
