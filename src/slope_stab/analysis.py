@@ -83,7 +83,11 @@ def _loads_to_dict(loads: LoadsInput | None) -> dict[str, Any]:
             "x_end": loads.uniform_surcharge.x_end,
         }
     if loads.seismic is not None:
-        payload["seismic"] = {"model": loads.seismic.model}
+        seismic_payload: dict[str, Any] = {"model": loads.seismic.model}
+        if loads.seismic.model == "pseudo_static":
+            seismic_payload["kh"] = loads.seismic.kh
+            seismic_payload["kv"] = loads.seismic.kv
+        payload["seismic"] = seismic_payload
     if loads.groundwater is not None:
         groundwater_payload: dict[str, Any] = {"model": loads.groundwater.model}
         if loads.groundwater.model == "water_surfaces":

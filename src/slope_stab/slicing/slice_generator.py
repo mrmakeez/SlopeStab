@@ -8,7 +8,7 @@ from scipy.optimize import brentq, minimize_scalar
 
 from slope_stab.exceptions import GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
-from slope_stab.models import GroundwaterInput, LoadsInput, SliceGeometry, UniformSurchargeInput
+from slope_stab.models import GroundwaterInput, LoadsInput, SeismicLoadInput, SliceGeometry, UniformSurchargeInput
 from slope_stab.surfaces.circular import CircularSlipSurface
 
 
@@ -399,6 +399,32 @@ def _combine_external_resultants(
     return float(sum_fx), float(sum_fy), float(x_app), float(y_app)
 
 
+def _seismic_inertial_resultant(
+    seismic: SeismicLoadInput | None,
+    *,
+    weight: float,
+    x_left: float,
+    x_right: float,
+    y_top_left: float,
+    y_top_right: float,
+    y_base_left: float,
+    y_base_right: float,
+) -> tuple[float, float, float, float]:
+    x_mid = 0.5 * (x_left + x_right)
+    y_centroid = 0.25 * (y_top_left + y_top_right + y_base_left + y_base_right)
+    if seismic is None or seismic.model == "none":
+        return 0.0, 0.0, x_mid, y_centroid
+    if seismic.model != "pseudo_static":
+        raise GeometryError(f"Unsupported seismic model: {seismic.model}")
+    if seismic.kv != 0.0:
+        raise GeometryError("v1 seismic requires kv = 0.0.")
+
+    # v1 mass basis is soil self-weight only. External vertical loads
+    # (surcharge/ponded) and pore-pressure channels are excluded.
+    seismic_fx = seismic.kh * weight
+    return float(seismic_fx), 0.0, float(x_mid), float(y_centroid)
+
+
 def _ponded_water_top_resultant(
     profile: UniformSlopeProfile,
     groundwater: GroundwaterInput,
@@ -564,6 +590,7 @@ def generate_vertical_slices(
         raise GeometryError("x_right must be greater than x_left.")
 
     groundwater = loads.groundwater if loads is not None else None
+    seismic = loads.seismic if loads is not None else None
     x_edges = _resolve_slice_edges(
         profile=profile,
         surface=surface,
@@ -657,6 +684,19 @@ def generate_vertical_slices(
             if abs(ponded_fx) > _VERTICAL_TOL or abs(ponded_fy) > _VERTICAL_TOL:
                 ext_resultants.append((ponded_fx, ponded_fy, ponded_x_app, ponded_y_app))
 
+        seismic_fx, seismic_fy, seismic_x_app, seismic_y_app = _seismic_inertial_resultant(
+            seismic,
+            weight=float(weights[i]),
+            x_left=float(x_edges[i]),
+            x_right=float(x_edges[i + 1]),
+            y_top_left=float(y_top_edges[i]),
+            y_top_right=float(y_top_edges[i + 1]),
+            y_base_left=float(y_base_edges[i]),
+            y_base_right=float(y_base_edges[i + 1]),
+        )
+        if abs(seismic_fx) > _VERTICAL_TOL or abs(seismic_fy) > _VERTICAL_TOL:
+            ext_resultants.append((seismic_fx, seismic_fy, seismic_x_app, seismic_y_app))
+
         ext_force_x, ext_force_y, ext_x_app, ext_y_app = _combine_external_resultants(
             resultants=ext_resultants,
             x_mid=x_mid,
@@ -692,6 +732,8 @@ def generate_vertical_slices(
                 external_force_y=float(ext_force_y),
                 external_x_app=float(ext_x_app),
                 external_y_app=float(ext_y_app),
+                seismic_force_x=float(seismic_fx),
+                seismic_force_y=float(seismic_fy),
                 pore_force=float(pore_force),
                 pore_x_app=float(pore_x_app),
                 pore_y_app=float(pore_y_app),

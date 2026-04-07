@@ -1,0 +1,512 @@
+Slide Interpret View States File:
+  version: "9.041"
+  sli CRC: 0
+  slw CRC: 0
+
+Views States Start:
+  num states: 1
+  view state name 1: "Default"
+  view state ID 1: "{64CE93DB-546B-4af4-A735-787D8549C245}"
+  view state {64CE93DB-546B-4af4-A735-787D8549C245} start:
+    tools start:
+      num tools: 0
+    tools end:
+    gw queries start:
+      num queries: 1
+    gw queries end:
+    result queries start:
+      num result queries: 0
+    result queries end:
+    hydraulic query start:
+    hydraulic query end:
+    print preview layouts start:
+      num: 0
+    print preview layouts end:
+    views start:
+      num views: 1
+      view 1 start:
+        guid: "{CF7F5E99-9EE8-471c-A384-E02B7A014F95}"
+        name: ""
+        Have Description: no
+        m_description: ""
+        m_bAutoNumber: yes
+        m_bIncludeInReport: yes
+        m_bRotate: yes
+        m_relative_index: 2147483647
+        view_rect: 1.79769313486232e+308, 1.79769313486232e+308, 1.79769313486232e+308, 1.79769313486232e+308
+        view type: "InterpretView"
+        view GUID: "{8D0F07B7-54B5-4e9b-B11E-F7DD53CCA9AB}"
+        is_grey_scale: no
+        slide_anchor_forces_master: no
+        slide_anchor_pressure_master: no
+        slide_anchor_tension_master: no
+        bolt_slip_surface_angles: no
+        mode_ss: yes
+        mode_gw: no
+        graph_type: 6023
+        user_data_location: -1
+        last used print view scale: -1
+        last used print view center: 1.79769313486232e+308, 1.79769313486232e+308
+        view_size: -72.2336241045649, 94.9049511878028, 169.88055298495, -33.7877038726373
+        last_num_contours: 24
+        last_contour_style: 6036
+        data types visited start:
+          num: 0
+        data types visited end:
+        slide force diagram start:
+          m_same_side: no
+          bars_lines_mutually_exclusive: yes
+          size_is_world_coords: yes
+          size_om_paper_mm: 30
+          size_world_coords: 1
+          peak_value: yes
+          all_values: no
+          lines: yes
+          bars: no
+          flip_side: no
+          font_pt_sizex10: 120
+          font_bold: no
+          font_italic: no
+          font_name: "Arial"
+          font_charset: 0
+          support_force_font_pt_sizex10: 120
+          support_force_font_bold: no
+          support_force_font_italic: no
+          support_force_font_name: "Arial"
+          font_charset: 0
+          fill_color_pullout: 0, 255, 0
+          fill_color_shear: 255, 0, 255
+          fill_color_tension: 255, 0, 0
+          fill_color_stripping: 0, 255, 255
+          fill_color_compression: 0, 0, 128
+          fill_color_user: 255, 255, 0
+          fill_color_unknown: 0, 0, 255
+          fill_color_rspile: 255, 104, 32
+          fill_color_tensile_shear: 128, 0, 128
+          fill_color_pressure: 40, 40, 40
+          hatch_fill start:
+            negative_color: 0, 255, 255
+            hatch: yes
+            fill: no
+            hatch_style: 2
+            line_color: 75, 0, 130
+            fill_color: 75, 0, 130
+          hatch_fill end:
+        slide force diagram end:
+        slide view settings start:
+          show_all: no
+          show_min: no
+          m_show_stats: yes
+          show_contours: yes
+          show_slices: no
+          analysis_active: 0
+          analysis_method_active: 2
+          show_line_of_thrust: no
+          newmark method active: 0
+        slide view settings end:
+        slide filter settings start:
+          surfaces_available: no
+          between_min: 0.5
+          between_max: 1.5
+          filter_parameter: 9201
+          value_sf: 2
+          value_num: 10
+          error_code: 2147483647
+          between_min_kc: 0
+          between_max_kc: 0.1
+          value_kc: 0.1
+          between_min_newmark: 1
+          between_max_newmark: 20
+          value_newmark: 1
+        slide filter settings end:
+        display params start:
+          clr_material_boundary: 192, 192, 192
+          clr_profile_boundary: 226, 226, 226
+          clr_external: 128, 128, 128
+          clr_piezo: 0, 0, 255
+          clr_water_table: 0, 0, 255
+          clr_water_table_final: 191, 191, 255
+          clr_tension_crack: 192, 192, 192
+          clr_aniso_surface: 255, 0, 255
+          clr_aniso_surface_3d: 128, 128, 128
+          clr_weak_layer: 175, 75, 7
+          clr_discharge_section: 0, 128, 0
+          clr_damage_region: 136, 51, 1
+          bDrawWeakLayerByMaterial: 1
+          bDrawDamageRegionsHatch: 1
+          lineWidth: 3
+          bShowElements: 1
+          bElementNumbers: 0
+          clr elements: 192, 192, 192
+          bShowRuler: 1
+          bBWRuler: 1
+          use custom ruler distance: no
+          custom ruler value: 5
+          load_factor: 1
+          bolt faceplates: 1
+          discrete_strength_transparent_bk: 0
+          show_discrete_strength_values: 0
+          show_discrete_strength_symbols: 1
+          bBCValues: 1
+          bShowDiscretizationsWithMesh: 0
+          bBoundaryConditions: 1
+          bNodeNumbers: 0
+          bDrawMidside: 1
+          scale_display_items: 1
+          show modeler water_pressure_grid: yes
+          water_pressure_grid_values: 0
+          bShowBoundaryVertices: 1
+          m_show_discharge_value: 0
+          show_soil_profile: no
+          show_boreholes_in_model_mode: no
+          bCopyModelerToolsOnOpen: 0
+          discharge_arrow_scale_factor: 1
+          discharge_arrow_offset: 0
+          clr_bolt_force_arrows: 0, 0, 255
+          bolt_force_arrow_scale_factor: 1
+          sf_font_m_font_size_x10: 120
+          sf_font_m_bold_font: no
+          sf_font_m_italic_font: no
+          sf_font_m_strFontName: "Verdana"
+          sf_font_m_char_set: 1
+          bShowFEAPondedWater: 1
+          ponded water style start:
+            negative_color: 255, 173, 91
+            hatch: yes
+            fill: no
+            hatch_style: 5
+            line_color: 191, 191, 255
+            fill_color: 191, 191, 255
+          ponded water style end:
+          infoviewer start:
+            infoviewer font name: "Calibri"
+            infoviewer font size: 3
+            infoviewer num properties per table: 8
+            clr infoviewer data: 0, 0, 0
+            clr infoviewer data header: 0, 0, 0
+            clr infoviewer table cell header: 240, 240, 240
+            clr infoviewer header: 0, 0, 128
+            infoviewer inner borders: no
+          infoviewer end:
+          show values along surface start:
+            m_same_side: no
+            bars_lines_mutually_exclusive: no
+            size_is_world_coords: yes
+            size_om_paper_mm: 30
+            size_world_coords: 12.9043
+            peak_value: yes
+            all_values: no
+            lines: no
+            bars: yes
+            flip_side: no
+            font_pt_sizex10: 120
+            font_bold: no
+            font_italic: no
+            font_name: "Arial"
+            font_charset: 0
+            support_force_font_pt_sizex10: 120
+            support_force_font_bold: no
+            support_force_font_italic: no
+            support_force_font_name: "Arial"
+            font_charset: 0
+            fill_color_pullout: 0, 255, 0
+            fill_color_shear: 255, 0, 255
+            fill_color_tension: 255, 0, 0
+            fill_color_stripping: 0, 255, 255
+            fill_color_compression: 0, 0, 128
+            fill_color_user: 255, 255, 0
+            fill_color_unknown: 0, 0, 255
+            fill_color_rspile: 255, 104, 32
+            fill_color_tensile_shear: 128, 0, 128
+            fill_color_pressure: 40, 40, 40
+            hatch_fill start:
+              negative_color: 0, 255, 255
+              hatch: yes
+              fill: no
+              hatch_style: 2
+              line_color: 75, 0, 130
+              fill_color: 75, 0, 130
+            hatch_fill end:
+          show values along surface end:
+          show_values_slices_data_type: 9000
+          slice_data_checks start:
+            num: 46
+            0: yes
+            1: yes
+            2: yes
+            3: yes
+            4: yes
+            5: yes
+            6: yes
+            7: yes
+            8: yes
+            9: yes
+            10: yes
+            11: yes
+            12: yes
+            13: yes
+            14: yes
+            15: yes
+            16: yes
+            17: yes
+            18: yes
+            19: yes
+            20: yes
+            21: yes
+            22: yes
+            23: yes
+            24: yes
+            25: yes
+            26: yes
+            27: yes
+            28: yes
+            29: yes
+            30: yes
+            31: yes
+            32: yes
+            33: yes
+            34: yes
+            35: yes
+            36: yes
+            37: yes
+            38: yes
+            39: yes
+            40: yes
+            41: yes
+            42: yes
+            43: yes
+            44: yes
+            45: yes
+          slice_data_checks end:
+          tc_symbols: yes
+          scale_display_items: yes
+          draw_in_front_loads: no
+          draw_in_front_support: yes
+          draw_in_front_boundaries: no
+          invalid_on_grid: no
+          lines_to_center: yes
+          grid_outline: yes
+          grid_points: no
+          sf_on_grid: no
+          focus_windows: yes
+          draw_vertical_seg: yes
+          boundaries: yes
+          slope_line: no
+          material_colors: yes
+          slices: yes
+          hatch: no
+          fill: yes
+          slice_numbers: no
+          wedge_lines: yes
+          sf_on_wedges: yes
+          hide_all_but_slice: no
+          water_grids_values: no
+          water_grids_symbols: yes
+          slice_color: 255, 255, 0
+          hatch_style: 3
+          slice_anchor_forces: yes
+          draw_ponded_water: yes
+          slope_limits: yes
+          loads: yes
+          anchors: yes
+          face_plates: yes
+          specific_surfaces: yes
+          surface_centers: no
+          water_symbols: yes
+          sf_text_on_queries: yes
+          scale_fs_text: no
+          text_on_loads: yes
+          seismic_block: yes
+          draw_accurate_arcs: no
+          func_symbols: yes
+          func_values: no
+          water_bc_show_values: yes
+          disrcretizations: no
+          node_numbers: no
+          element_numbers: no
+          shrink_contours: no
+          elements: no
+          shrink_elements: no
+          midside_nodes: no
+          clr_fs: 0, 128, 0
+          fs_line_width: 1
+          clr_fs_query: 0, 0, 0
+          fs_query_line_width: 1
+          fea_water_table: yes
+          discharge_sections: yes
+          flow_vectors: no
+          largest_flow_vector_mm: 18
+          water_bc_steady_state: yes
+          water_bc_time_fn_bcs: yes
+          m_black_and_white_background_for_legend: 1
+          current_stage: 0
+          m_show_discharge_value: 1
+          m_water_table_colour: 255, 0, 255
+          all_stages_water_table: no
+          m_flow_vectors_color: 128, 0, 128
+        display params end:
+        contour_parameters_slide start:
+          invert_legend_slots: no
+          force_min_zero: 0
+          lock_legend_location: 9161
+          below_color: 0, 255, 0
+          above_color: 0, 255, 255
+          between_fill_color: 255, 0, 0
+          using_below_color: no
+          using_above_color: no
+          using_between_fill: no
+          legend_visible: yes
+          legend_format_index: "num decimals"
+          legend_format_num_places: 3
+          auto_range_picked: "this"
+          num_custom_brushes: 7
+          using_interval: no
+          interval_value: 0.25
+          auto_format_name: "Hot to Cold"
+          auto_format_built_in: yes
+          custom_brushes: no
+          grey_scale: no
+          legend_exponents: no
+          lock_range: no
+          custom_format: no
+          auto_format: 6048
+          contour_style: "filled"
+          num_contours: 24
+          color_selection: 6038
+          interpolation_method: 6044
+          interp_from_color: 255, 0, 0
+          interp_to_color: 0, 0, 255
+          minimum: 0
+          maximum: 6
+          legend_format_string: ""
+          lines_in_line_mode: no
+          auto_legend_height: no
+          auto_legend_width: yes
+        contour_parameters_slide end:
+        contour_parameters_water start:
+          invert_legend_slots: no
+          force_min_zero: 0
+          lock_legend_location: 9160
+          below_color: 0, 255, 0
+          above_color: 0, 255, 255
+          between_fill_color: 255, 0, 0
+          using_below_color: no
+          using_above_color: no
+          using_between_fill: no
+          legend_visible: no
+          legend_format_index: "num decimals"
+          legend_format_num_places: 3
+          auto_range_picked: "this"
+          num_custom_brushes: 7
+          using_interval: no
+          interval_value: 0.25
+          auto_format_name: "Hot to Cold"
+          auto_format_built_in: yes
+          custom_brushes: no
+          grey_scale: no
+          legend_exponents: no
+          lock_range: no
+          custom_format: no
+          auto_format: 6048
+          contour_style: "filled"
+          num_contours: 24
+          color_selection: 6038
+          interpolation_method: 6044
+          interp_from_color: 255, 0, 0
+          interp_to_color: 0, 0, 255
+          minimum: 1.79769313486232e+308
+          maximum: 1.79769313486232e+308
+          legend_format_string: ""
+          lines_in_line_mode: no
+          auto_legend_height: no
+          auto_legend_width: yes
+        contour_parameters_water end:
+        contour_parameters_extra start:
+          invert_legend_slots: no
+          force_min_zero: 0
+          lock_legend_location: 9163
+          below_color: 0, 255, 0
+          above_color: 0, 255, 255
+          between_fill_color: 255, 0, 0
+          using_below_color: no
+          using_above_color: no
+          using_between_fill: no
+          legend_visible: no
+          legend_format_index: "num decimals"
+          legend_format_num_places: 3
+          auto_range_picked: "this"
+          num_custom_brushes: 7
+          using_interval: no
+          interval_value: 0.25
+          auto_format_name: "Hot to Cold"
+          auto_format_built_in: yes
+          custom_brushes: no
+          grey_scale: no
+          legend_exponents: no
+          lock_range: no
+          custom_format: no
+          auto_format: 6048
+          contour_style: "filled"
+          num_contours: 24
+          color_selection: 6038
+          interpolation_method: 6044
+          interp_from_color: 255, 0, 0
+          interp_to_color: 0, 0, 255
+          minimum: 1.79769313486232e+308
+          maximum: 1.79769313486232e+308
+          legend_format_string: ""
+          lines_in_line_mode: no
+          auto_legend_height: no
+          auto_legend_width: yes
+        contour_parameters_extra end:
+        contour_parameters_tension start:
+          invert_legend_slots: no
+          force_min_zero: 0
+          lock_legend_location: 9162
+          below_color: 0, 255, 0
+          above_color: 0, 255, 255
+          between_fill_color: 255, 0, 0
+          using_below_color: no
+          using_above_color: no
+          using_between_fill: no
+          legend_visible: no
+          legend_format_index: "num decimals"
+          legend_format_num_places: 3
+          auto_range_picked: "this"
+          num_custom_brushes: 7
+          using_interval: no
+          interval_value: 2.24711641857789e+307
+          auto_format_name: "Hot to Cold"
+          auto_format_built_in: yes
+          custom_brushes: no
+          grey_scale: no
+          legend_exponents: no
+          lock_range: no
+          custom_format: no
+          auto_format: 6051
+          contour_style: "filled"
+          num_contours: 8
+          color_selection: 6038
+          interpolation_method: 6044
+          interp_from_color: 0, 0, 255
+          interp_to_color: 255, 0, 0
+          minimum: 2.2250738585072e-308
+          maximum: 1.79769313486232e+308
+          legend_format_string: ""
+          lines_in_line_mode: no
+          auto_legend_height: no
+          auto_legend_width: yes
+        contour_parameters_tension end:
+        mesh parameters start:
+          shrink_contours: no
+          elements: no
+          nodes: no
+        mesh parameters end:
+        print layout settings start:
+          num: 0
+        print layout settings end:
+      view 1 end:
+    views end:
+  view state {64CE93DB-546B-4af4-A735-787D8549C245} end:
+Views States End:
+

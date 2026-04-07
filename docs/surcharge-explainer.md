@@ -12,7 +12,7 @@ v1 adds optional crest surcharge loading for both Bishop and Spencer analyses.
 
 Not implemented in v1:
 
-- Seismic loading models.
+- Additional seismic models beyond v1 horizontal pseudo-static (`docs/seismic-explainer.md`).
 - Distributed horizontal surcharge components.
 
 ## JSON Interface
@@ -43,7 +43,7 @@ Not implemented in v1:
   - required for `crest_range`
   - must satisfy `x_start < x_end` and both at/above crest start (`x >= geometry.x_toe + geometry.l`)
 
-`seismic.model` accepts only `"none"` in v1. Groundwater models are documented separately in `docs/groundwater-explainer.md`.
+Seismic is supported separately under `loads.seismic` (see `docs/seismic-explainer.md`). Groundwater models are documented in `docs/groundwater-explainer.md`.
 
 ## Solver Semantics
 

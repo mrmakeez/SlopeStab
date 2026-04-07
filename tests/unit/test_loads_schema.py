@@ -89,9 +89,39 @@ class LoadsSchemaTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
-    def test_parse_rejects_active_seismic_in_v1(self) -> None:
+    def test_parse_accepts_pseudo_static_seismic_with_zero_kv(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {"seismic": {"model": "pseudo_static", "kh": 0.132, "kv": 0.0}}
+        project = parse_project_input(payload)
+        assert project.loads is not None
+        assert project.loads.seismic is not None
+        self.assertEqual(project.loads.seismic.model, "pseudo_static")
+        self.assertAlmostEqual(project.loads.seismic.kh, 0.132)
+        self.assertAlmostEqual(project.loads.seismic.kv, 0.0)
+
+    def test_parse_accepts_pseudo_static_seismic_without_kv(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {"seismic": {"model": "pseudo_static", "kh": 0.25}}
+        project = parse_project_input(payload)
+        assert project.loads is not None
+        assert project.loads.seismic is not None
+        self.assertAlmostEqual(project.loads.seismic.kv, 0.0)
+
+    def test_parse_rejects_pseudo_static_seismic_without_kh(self) -> None:
         payload = _base_payload()
         payload["loads"] = {"seismic": {"model": "pseudo_static"}}
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_nonzero_kv_in_v1(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {"seismic": {"model": "pseudo_static", "kh": 0.132, "kv": 0.05}}
+        with self.assertRaises(InputValidationError):
+            parse_project_input(payload)
+
+    def test_parse_rejects_kh_out_of_range(self) -> None:
+        payload = _base_payload()
+        payload["loads"] = {"seismic": {"model": "pseudo_static", "kh": 1.2}}
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 

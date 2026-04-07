@@ -7,6 +7,8 @@ This repository supports two groundwater models under `loads.groundwater`:
 
 Both are deterministic and compatible with prescribed-surface and circular-search workflows.
 
+Seismic is supported separately under `loads.seismic` (horizontal pseudo-static in v1); see `docs/seismic-explainer.md`.
+
 ## 1) Water Surfaces
 
 Required fields:
@@ -70,6 +72,11 @@ Ponded-water and surcharge resultants are treated as external slice loads:
 
 - vertical components contribute through total vertical force terms.
 - horizontal and vertical external components both contribute through external moment terms about slip-center.
+
+Seismic coupling in v1:
+
+- pseudo-static horizontal seismic force is assembled at slice level into `external_force_x`.
+- groundwater pore-pressure resultants (`pore_force`) are not part of seismic inertial mass basis in v1.
 
 ## 4) Verification Coverage
 

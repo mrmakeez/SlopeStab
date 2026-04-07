@@ -1,0 +1,8 @@
+Verification Purpose: To verify that the seismic load function is working in a similar way to Slide2 implementation
+"Case9.slmd" - Slide2 Model
+"\Case10" - Slide2 Model Output (Standard Output)
+"Case 10.pdf" - Slide2 Report
+
+Notes:
+•Surcharge to Crest
+•Sloping watertable with ponded water at the toe

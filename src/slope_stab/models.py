@@ -30,6 +30,8 @@ class UniformSurchargeInput:
 @dataclass(frozen=True)
 class SeismicLoadInput:
     model: str = "none"
+    kh: float = 0.0
+    kv: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -181,6 +183,8 @@ class SliceGeometry:
     external_force_y: float = 0.0
     external_x_app: float = 0.0
     external_y_app: float = 0.0
+    seismic_force_x: float = 0.0
+    seismic_force_y: float = 0.0
     pore_force: float = 0.0
     pore_x_app: float = 0.0
     pore_y_app: float = 0.0
@@ -219,6 +223,8 @@ class SliceResult:
     external_force_y: float = 0.0
     external_x_app: float = 0.0
     external_y_app: float = 0.0
+    seismic_force_x: float = 0.0
+    seismic_force_y: float = 0.0
     pore_force: float = 0.0
     pore_x_app: float = 0.0
     pore_y_app: float = 0.0

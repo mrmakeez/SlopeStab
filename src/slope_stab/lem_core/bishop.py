@@ -152,6 +152,8 @@ class BishopSimplifiedSolver(LEMSolver):
                     external_force_y=s.external_force_y,
                     external_x_app=s.external_x_app,
                     external_y_app=s.external_y_app,
+                    seismic_force_x=s.seismic_force_x,
+                    seismic_force_y=s.seismic_force_y,
                     pore_force=s.pore_force,
                     pore_x_app=s.pore_x_app,
                     pore_y_app=s.pore_y_app,

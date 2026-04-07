@@ -119,9 +119,20 @@ def _parse_seismic_load(seismic_data: object) -> SeismicLoadInput | None:
     if not isinstance(seismic_data, dict):
         raise InputValidationError(f"'{key_prefix}' must be an object.")
     model = str(_require_key(seismic_data, "model")).strip().lower()
-    if model != "none":
-        raise InputValidationError(f"{key_prefix}.model='{model}' is not supported in v1 (planned for v2).")
-    return SeismicLoadInput(model=model)
+    if model == "none":
+        return SeismicLoadInput(model=model, kh=0.0, kv=0.0)
+    if model != "pseudo_static":
+        raise InputValidationError(f"{key_prefix}.model must be one of: none, pseudo_static.")
+
+    kh = _as_float(_require_key(seismic_data, "kh"), f"{key_prefix}.kh")
+    if kh < 0.0 or kh > 1.0:
+        raise InputValidationError(f"{key_prefix}.kh must be in [0, 1].")
+
+    kv = _as_float(seismic_data.get("kv", 0.0), f"{key_prefix}.kv")
+    if kv != 0.0:
+        raise InputValidationError(f"{key_prefix}.kv must be exactly 0.0 in v1.")
+
+    return SeismicLoadInput(model=model, kh=kh, kv=kv)
 
 
 def _parse_water_surface_points(surface_data: object, key_prefix: str) -> tuple[tuple[float, float], ...]:

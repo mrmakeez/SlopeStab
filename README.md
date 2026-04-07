@@ -69,6 +69,7 @@ If rolling p95 drifts upward materially, raise orchestration timeout budgets fir
 - Spencer solver explainer (force and moment equilibrium with lambda coupling): `docs/spencer-explainer.md`
 - Uniform surcharge v1 explainer: `docs/surcharge-explainer.md`
 - Groundwater v1 explainer (Water Surfaces + Ru Coefficient): `docs/groundwater-explainer.md`
+- Seismic v1 explainer (horizontal pseudo-static): `docs/seismic-explainer.md`
 
 ## GitHub Plugin Workflow (Codex)
 
@@ -106,10 +107,11 @@ Supported in v1:
   - `hu.value` required when `hu.mode = custom` (`0 <= hu.value <= 1`)
   - optional `gamma_w` (defaults to `9.81`)
   - `model = ru_coefficient` with required `ru` (`0 <= ru <= 1`)
-
-Reserved interfaces (v2-ready stubs in v1):
-
-- `loads.seismic.model` supports only `"none"` in v1.
+- `loads.seismic` with:
+  - `model = pseudo_static`
+  - required `kh` (`0 <= kh <= 1`)
+  - optional `kv` (must be exactly `0.0` in v1)
+  - `model = none`
 
 Example:
 
@@ -120,7 +122,11 @@ Example:
       "magnitude_kpa": 10.0,
       "placement": "crest_infinite"
     },
-    "seismic": { "model": "none" },
+    "seismic": {
+      "model": "pseudo_static",
+      "kh": 0.132,
+      "kv": 0.0
+    },
     "groundwater": {
       "model": "water_surfaces",
       "surface": [[0.0, 15.0], [18.0, 15.0], [30.0, 23.0], [48.0, 29.0], [66.0, 32.0]],
