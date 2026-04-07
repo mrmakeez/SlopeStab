@@ -67,3 +67,25 @@ Case 9 and Case 10 Slide2 artifacts are used for v1 parity checks:
 - Case 10: `kh = 0.25`, `kv = 0`
 - per-slice horizontal seismic force parity is checked from `.s01` evidence
 - Bishop/Spencer FOS parity is checked in verification/regression tests
+
+## Auto-Refine Parity Snapshot
+
+Snapshot date: `2026-04-07`.
+
+Auto-refine run settings used for this snapshot:
+
+- `divisions_along_slope = 20`
+- `circles_per_division = 10`
+- `iterations = 10`
+- `divisions_to_use_next_iteration_pct = 50.0`
+- Case 9 search limits: `x_min = -50`, `x_max = 150`
+- Case 10 search limits: `x_min = 0`, `x_max = 35`
+
+| Case | Method | Slide2 FOS | Before-Polish FOS | Before Delta (abs) | After-Polish FOS | After Delta (abs) |
+|---|---|---:|---:|---:|---:|---:|
+| Case 9 | Bishop | 0.987678 | 0.997426 | 0.009748 | 0.986979 | 0.000699 |
+| Case 9 | Spencer | 1.001120 | 1.010174 | 0.009054 | 1.001366 | 0.000246 |
+| Case 10 | Bishop | 0.907907 | 0.909056 | 0.001149 | 0.907613 | 0.000294 |
+| Case 10 | Spencer | 0.918623 | 0.918893 | 0.000270 | 0.916492 | 0.002131 |
+
+This section is an analysis snapshot only and is not a locked verification benchmark.
