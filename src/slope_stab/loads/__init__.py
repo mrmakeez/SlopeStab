@@ -1,3 +1,3 @@
-from slope_stab.loads.null_models import NullLoadModel, NullPorePressureModel
+"""Load-related package namespace."""
 
-__all__ = ["NullLoadModel", "NullPorePressureModel"]
+__all__: list[str] = []

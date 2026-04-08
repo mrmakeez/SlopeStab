@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 from unittest.mock import patch
 
@@ -23,7 +24,7 @@ def _fake_result() -> AnalysisResult:
     )
 
 
-def _fake_run_result(*, passed: bool = True) -> VerificationRunResult:
+def _fake_run_result(*, passed: bool = True, error: dict[str, str] | None = None) -> VerificationRunResult:
     outcome = VerificationOutcome(
         name="Fake Case",
         case_type="prescribed_benchmark",
@@ -41,7 +42,7 @@ def _fake_run_result(*, passed: bool = True) -> VerificationRunResult:
         requested_workers=1,
         resolved_workers=1,
     )
-    return VerificationRunResult(outcomes=[outcome], execution=execution)
+    return VerificationRunResult(outcomes=[outcome], execution=execution, error=error)
 
 
 class CliVerifyContractTests(unittest.TestCase):
@@ -64,6 +65,31 @@ class CliVerifyContractTests(unittest.TestCase):
         self.assertEqual(code, 0)
         mock_run.assert_called_once_with(requested_mode="serial", requested_workers=1)
 
+    def test_cmd_verify_workers_negative_returns_validation_error(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["verify", "--workers", "-1"])
+        with patch("slope_stab.cli._emit_stdout_text", return_value=True) as mock_emit:
+            code = _cmd_verify(args)
+        self.assertEqual(code, 2)
+        payload = json.loads(mock_emit.call_args.args[0])
+        self.assertFalse(payload["all_passed"])
+        self.assertEqual(payload["error"]["code"], "validation_error")
+        self.assertEqual(payload["error"]["stage"], "validation")
+
+    def test_cmd_verify_runtime_failure_returns_runtime_error_payload(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["verify", "--serial"])
+        with (
+            patch("slope_stab.cli.run_verification_suite_with_execution", side_effect=RuntimeError("boom")),
+            patch("slope_stab.cli._emit_stdout_text", return_value=True) as mock_emit,
+        ):
+            code = _cmd_verify(args)
+        self.assertEqual(code, 2)
+        payload = json.loads(mock_emit.call_args.args[0])
+        self.assertFalse(payload["all_passed"])
+        self.assertEqual(payload["error"]["code"], "runtime_worker_error")
+        self.assertEqual(payload["error"]["stage"], "runtime")
+
     def test_cmd_verify_returns_zero_when_stdout_closed(self) -> None:
         parser = build_parser()
         args = parser.parse_args(["verify", "--serial"])
@@ -80,12 +106,6 @@ class CliVerifyContractTests(unittest.TestCase):
         self.assertEqual(code, 0)
         mock_run.assert_called_once_with(requested_mode="serial", requested_workers=1)
         mock_emit.assert_called_once()
-
-    def test_cmd_verify_workers_negative_raises(self) -> None:
-        parser = build_parser()
-        args = parser.parse_args(["verify", "--workers", "-1"])
-        with self.assertRaises(ValueError):
-            _cmd_verify(args)
 
 
 if __name__ == "__main__":

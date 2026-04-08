@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 from unittest.mock import patch
 
@@ -26,7 +27,7 @@ def _fake_target(*, passed: bool = True) -> UnittestTargetOutcome:
     )
 
 
-def _fake_run_result(*, passed: bool = True) -> UnittestRunResult:
+def _fake_run_result(*, passed: bool = True, error: dict[str, str] | None = None) -> UnittestRunResult:
     return UnittestRunResult(
         targets=[_fake_target(passed=passed)],
         execution=UnittestExecution(
@@ -40,6 +41,7 @@ def _fake_run_result(*, passed: bool = True) -> UnittestRunResult:
         start_directory="tests",
         pattern="test_*.py",
         top_level_directory=".",
+        error=error,
     )
 
 
@@ -78,11 +80,30 @@ class CliTestContractTests(unittest.TestCase):
             top_level_directory=args.top_level_directory,
         )
 
-    def test_cmd_test_workers_negative_raises(self) -> None:
+    def test_cmd_test_workers_negative_returns_validation_error(self) -> None:
         parser = build_parser()
         args = parser.parse_args(["test", "--workers", "-1"])
-        with self.assertRaises(ValueError):
-            _cmd_test(args)
+        with patch("slope_stab.cli._emit_stdout_text", return_value=True) as mock_emit:
+            code = _cmd_test(args)
+        self.assertEqual(code, 1)
+        payload = json.loads(mock_emit.call_args.args[0])
+        self.assertFalse(payload["all_passed"])
+        self.assertEqual(payload["error"]["code"], "validation_error")
+        self.assertEqual(payload["error"]["stage"], "validation")
+
+    def test_cmd_test_runtime_failure_returns_runtime_error_payload(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["test", "--serial"])
+        with (
+            patch("slope_stab.cli.run_unittest_suite_with_execution", side_effect=RuntimeError("boom")),
+            patch("slope_stab.cli._emit_stdout_text", return_value=True) as mock_emit,
+        ):
+            code = _cmd_test(args)
+        self.assertEqual(code, 1)
+        payload = json.loads(mock_emit.call_args.args[0])
+        self.assertFalse(payload["all_passed"])
+        self.assertEqual(payload["error"]["code"], "runtime_worker_error")
+        self.assertEqual(payload["error"]["stage"], "runtime")
 
     def test_cmd_test_returns_zero_when_stdout_closed(self) -> None:
         parser = build_parser()

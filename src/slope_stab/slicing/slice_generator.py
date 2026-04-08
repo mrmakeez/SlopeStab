@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from bisect import bisect_right
+from functools import lru_cache
 
 import numpy as np
 from scipy.optimize import brentq, minimize_scalar
@@ -93,7 +94,7 @@ def _water_surface_y_and_slope(
     elif x >= x_max - _WATER_SURFACE_X_TOL:
         seg_idx = len(surface_points) - 2
     else:
-        xs = [point[0] for point in surface_points]
+        xs = _water_surface_x_coordinates(surface_points)
         seg_idx = bisect_right(xs, x) - 1
         seg_idx = max(0, min(seg_idx, len(surface_points) - 2))
 
@@ -104,6 +105,11 @@ def _water_surface_y_and_slope(
     slope = (y1 - y0) / (x1 - x0)
     y = y0 + slope * (x - x0)
     return y, slope
+
+
+@lru_cache(maxsize=64)
+def _water_surface_x_coordinates(surface_points: tuple[tuple[float, float], ...]) -> tuple[float, ...]:
+    return tuple(point[0] for point in surface_points)
 
 
 def _surface_water_intersections(

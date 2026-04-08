@@ -117,7 +117,8 @@ class CliTestRegressionTests(unittest.TestCase):
         payload = json.loads(proc.stdout)
         self.assertFalse(payload["all_passed"])
         self.assertEqual(payload["targets"], [])
-        self.assertEqual(payload["discovery"]["error"], "no_test_targets_discovered")
+        self.assertEqual(payload["discovery"]["error"]["code"], "discovery_unexpected_error")
+        self.assertEqual(payload["discovery"]["error"]["stage"], "discovery")
         self.assertEqual(payload["execution"]["decision_reason"], "no_test_targets_discovered")
 
 

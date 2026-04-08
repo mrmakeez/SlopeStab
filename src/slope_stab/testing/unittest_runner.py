@@ -2,13 +2,22 @@ from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
-import os
 from pathlib import Path
+import os
 import subprocess
 import sys
 import time
 import unittest
 from typing import Any, Iterator
+
+from slope_stab.errors.contracts import (
+    ERROR_CODE_DISCOVERY_IMPORT,
+    ERROR_CODE_DISCOVERY_UNEXPECTED,
+    STAGE_DISCOVERY,
+    error_payload,
+)
+from slope_stab.execution.worker_policy import effective_cpu_count, resolve_requested_workers
+
 
 TEST_MODE_SERIAL = "serial"
 TEST_MODE_AUTO_PARALLEL = "auto_parallel"
@@ -17,15 +26,23 @@ TEST_RESOLVED_MODE_PARALLEL = "parallel"
 
 TEST_BACKEND_SERIAL = "serial"
 TEST_BACKEND_PROCESS = "process"
-TEST_BACKEND_THREAD = "thread"
 
 TEST_DECISION_FORCED_SERIAL_MODE = "forced_serial_mode"
 TEST_DECISION_WORKERS_LE_ONE_SERIAL = "workers_le_one_serial"
 TEST_DECISION_PROCESS_BACKEND_PARALLEL = "process_backend_parallel"
 TEST_DECISION_THREAD_BACKEND_DEFAULT_SERIAL = "thread_backend_default_serial"
 TEST_DECISION_NO_TARGETS_DISCOVERED = "no_test_targets_discovered"
+TEST_DECISION_DISCOVERY_ERROR = "discovery_error_serial"
 
 TEST_EVIDENCE_VERSION = "unittest-auto-v1"
+
+
+class _ParallelStartupError(RuntimeError):
+    pass
+
+
+class _ParallelRuntimeError(RuntimeError):
+    pass
 
 
 @dataclass(frozen=True)
@@ -60,28 +77,20 @@ class UnittestRunResult:
     start_directory: str
     pattern: str
     top_level_directory: str
-    discovery_error: str | None = None
+    discovery_error: dict[str, str] | None = None
+    error: dict[str, str] | None = None
 
     @property
     def all_passed(self) -> bool:
-        return self.discovery_error is None and bool(self.targets) and all(item.passed for item in self.targets)
+        return self.error is None and self.discovery_error is None and bool(self.targets) and all(item.passed for item in self.targets)
 
 
 def effective_unittest_cpu_count() -> int:
-    try:
-        if hasattr(os, "sched_getaffinity"):
-            affinity_count = len(os.sched_getaffinity(0))  # type: ignore[attr-defined]
-            if affinity_count > 0:
-                return affinity_count
-    except Exception:
-        pass
-    return max(1, int(os.cpu_count() or 1))
+    return effective_cpu_count()
 
 
 def resolve_unittest_requested_workers(configured_workers: int, available_workers: int) -> int:
-    if configured_workers == 0:
-        return min(4, available_workers)
-    return min(max(1, configured_workers), available_workers)
+    return resolve_requested_workers(configured_workers, available_workers)
 
 
 def _iter_tests(suite: unittest.TestSuite) -> Iterator[unittest.case.TestCase]:
@@ -165,14 +174,27 @@ def _evaluate_targets_parallel(
     pythonpath: str,
 ) -> list[UnittestTargetOutcome]:
     outcomes: list[UnittestTargetOutcome | None] = [None] * len(targets)
-    with executor_cm as executor:
-        futures = [executor.submit(_run_unittest_target, target, cwd, pythonpath) for target in targets]
-        for idx, future in enumerate(futures):
-            target = targets[idx]
-            try:
-                outcomes[idx] = future.result()
-            except Exception as exc:
-                raise RuntimeError(f"Unittest worker failed for target '{target}' (index={idx}).") from exc
+
+    try:
+        with executor_cm as executor:
+            futures = []
+            for target in targets:
+                try:
+                    futures.append(executor.submit(_run_unittest_target, target, cwd, pythonpath))
+                except (OSError, PermissionError) as exc:
+                    raise _ParallelStartupError("Unittest process backend failed during worker startup.") from exc
+
+            for idx, future in enumerate(futures):
+                target = targets[idx]
+                try:
+                    outcomes[idx] = future.result()
+                except Exception as exc:
+                    raise _ParallelRuntimeError(
+                        f"Unittest worker failed for target '{target}' (index={idx})."
+                    ) from exc
+    except (OSError, PermissionError) as exc:
+        raise _ParallelStartupError("Unittest process backend failed during worker startup.") from exc
+
     return [outcome for outcome in outcomes if outcome is not None]
 
 
@@ -207,19 +229,82 @@ def run_unittest_suite_with_execution(
         start_directory=start_directory,
         top_level_directory=top_level_directory,
     )
-    targets = _discover_target_modules(
-        start_directory=resolved_start_directory,
-        pattern=pattern,
-        top_level_directory=resolved_top_level_directory,
-    )
     src_directory = str((Path(resolved_top_level_directory) / "src").resolve())
     pythonpath = _compose_pythonpath([src_directory])
+
+    try:
+        targets = _discover_target_modules(
+            start_directory=resolved_start_directory,
+            pattern=pattern,
+            top_level_directory=resolved_top_level_directory,
+        )
+    except ImportError as exc:
+        requested_workers_for_discovery = (
+            1
+            if requested_mode == TEST_MODE_SERIAL
+            else resolve_unittest_requested_workers(requested_workers, effective_unittest_cpu_count())
+        )
+        discovery_error = error_payload(
+            code=ERROR_CODE_DISCOVERY_IMPORT,
+            message=str(exc),
+            stage=STAGE_DISCOVERY,
+        )
+        execution = UnittestExecution(
+            requested_mode=requested_mode,
+            resolved_mode=TEST_RESOLVED_MODE_SERIAL,
+            decision_reason=TEST_DECISION_DISCOVERY_ERROR,
+            backend=TEST_BACKEND_SERIAL,
+            requested_workers=requested_workers_for_discovery,
+            resolved_workers=1,
+        )
+        return UnittestRunResult(
+            targets=[],
+            execution=execution,
+            start_directory=resolved_start_directory,
+            pattern=pattern,
+            top_level_directory=resolved_top_level_directory,
+            discovery_error=discovery_error,
+            error=discovery_error,
+        )
+    except Exception as exc:
+        requested_workers_for_discovery = (
+            1
+            if requested_mode == TEST_MODE_SERIAL
+            else resolve_unittest_requested_workers(requested_workers, effective_unittest_cpu_count())
+        )
+        discovery_error = error_payload(
+            code=ERROR_CODE_DISCOVERY_UNEXPECTED,
+            message=f"{exc.__class__.__name__}: {exc}",
+            stage=STAGE_DISCOVERY,
+        )
+        execution = UnittestExecution(
+            requested_mode=requested_mode,
+            resolved_mode=TEST_RESOLVED_MODE_SERIAL,
+            decision_reason=TEST_DECISION_DISCOVERY_ERROR,
+            backend=TEST_BACKEND_SERIAL,
+            requested_workers=requested_workers_for_discovery,
+            resolved_workers=1,
+        )
+        return UnittestRunResult(
+            targets=[],
+            execution=execution,
+            start_directory=resolved_start_directory,
+            pattern=pattern,
+            top_level_directory=resolved_top_level_directory,
+            discovery_error=discovery_error,
+            error=discovery_error,
+        )
 
     if not targets:
         requested_workers_for_discovery = (
             1
             if requested_mode == TEST_MODE_SERIAL
             else resolve_unittest_requested_workers(requested_workers, effective_unittest_cpu_count())
+        )
+        discovery_error = error_payload(
+            code=ERROR_CODE_DISCOVERY_UNEXPECTED,
+            message="No test targets discovered for the provided discovery inputs.",
+            stage=STAGE_DISCOVERY,
         )
         execution = UnittestExecution(
             requested_mode=requested_mode,
@@ -235,7 +320,8 @@ def run_unittest_suite_with_execution(
             start_directory=resolved_start_directory,
             pattern=pattern,
             top_level_directory=resolved_top_level_directory,
-            discovery_error=TEST_DECISION_NO_TARGETS_DISCOVERED,
+            discovery_error=discovery_error,
+            error=discovery_error,
         )
 
     if requested_mode == TEST_MODE_SERIAL:
@@ -281,7 +367,7 @@ def run_unittest_suite_with_execution(
             requested_mode=TEST_MODE_AUTO_PARALLEL,
             resolved_mode=TEST_RESOLVED_MODE_SERIAL,
             decision_reason=TEST_DECISION_THREAD_BACKEND_DEFAULT_SERIAL,
-            backend=TEST_BACKEND_THREAD,
+            backend=TEST_BACKEND_SERIAL,
             requested_workers=normalized_requested_workers,
             resolved_workers=1,
         )
@@ -303,12 +389,12 @@ def run_unittest_suite_with_execution(
     )
     try:
         outcomes = _evaluate_targets_parallel(targets, executor_cm, resolved_top_level_directory, pythonpath)
-    except (OSError, PermissionError):
+    except _ParallelStartupError:
         fallback_execution = UnittestExecution(
             requested_mode=TEST_MODE_AUTO_PARALLEL,
             resolved_mode=TEST_RESOLVED_MODE_SERIAL,
             decision_reason=TEST_DECISION_THREAD_BACKEND_DEFAULT_SERIAL,
-            backend=TEST_BACKEND_THREAD,
+            backend=TEST_BACKEND_SERIAL,
             requested_workers=normalized_requested_workers,
             resolved_workers=1,
         )

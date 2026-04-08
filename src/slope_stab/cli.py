@@ -9,6 +9,15 @@ from pathlib import Path
 import sys
 
 from slope_stab.analysis import run_analysis
+from slope_stab.errors.contracts import (
+    ERROR_CODE_RUNTIME_WORKER,
+    ERROR_CODE_STARTUP_BACKEND,
+    ERROR_CODE_VALIDATION,
+    STAGE_RUNTIME,
+    STAGE_STARTUP,
+    STAGE_VALIDATION,
+    error_payload,
+)
 from slope_stab.io.json_io import dump_result_json, load_project_input
 from slope_stab.testing import (
     TEST_MODE_AUTO_PARALLEL,
@@ -53,6 +62,15 @@ def _emit_stdout_text(text: str) -> bool:
     return True
 
 
+def _emit_failure_summary(*, code: str, message: str, stage: str, exit_code: int) -> int:
+    summary = {
+        "all_passed": False,
+        "error": error_payload(code=code, message=message, stage=stage),
+    }
+    _emit_stdout_text(json.dumps(summary, indent=2))
+    return exit_code
+
+
 def _cmd_analyze(args: argparse.Namespace) -> int:
     project = load_project_input(args.input)
     forced_mode: str | None = args.parallel_mode
@@ -76,17 +94,38 @@ def _cmd_verify(args: argparse.Namespace) -> int:
         requested_workers = 0 if args.workers is None else int(args.workers)
 
     if requested_workers < 0:
-        raise ValueError("--workers must be greater than or equal to zero.")
+        return _emit_failure_summary(
+            code=ERROR_CODE_VALIDATION,
+            message="--workers must be greater than or equal to zero.",
+            stage=STAGE_VALIDATION,
+            exit_code=2,
+        )
 
-    run_result = run_verification_suite_with_execution(
-        requested_mode=requested_mode,
-        requested_workers=requested_workers,
-    )
+    try:
+        run_result = run_verification_suite_with_execution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+        )
+    except RuntimeError as exc:
+        return _emit_failure_summary(
+            code=ERROR_CODE_RUNTIME_WORKER,
+            message=str(exc),
+            stage=STAGE_RUNTIME,
+            exit_code=2,
+        )
+    except (OSError, PermissionError) as exc:
+        return _emit_failure_summary(
+            code=ERROR_CODE_STARTUP_BACKEND,
+            message=str(exc),
+            stage=STAGE_STARTUP,
+            exit_code=2,
+        )
     outcomes = run_result.outcomes
-    all_passed = all(o.passed for o in outcomes)
+    all_passed = run_result.error is None and all(o.passed for o in outcomes)
 
     summary = {
         "all_passed": all_passed,
+        "error": run_result.error,
         "execution": asdict(run_result.execution),
         "cases": [
             {
@@ -127,17 +166,38 @@ def _cmd_test(args: argparse.Namespace) -> int:
         requested_workers = 0 if args.workers is None else int(args.workers)
 
     if requested_workers < 0:
-        raise ValueError("--workers must be greater than or equal to zero.")
+        return _emit_failure_summary(
+            code=ERROR_CODE_VALIDATION,
+            message="--workers must be greater than or equal to zero.",
+            stage=STAGE_VALIDATION,
+            exit_code=1,
+        )
 
-    run_result = run_unittest_suite_with_execution(
-        requested_mode=requested_mode,
-        requested_workers=requested_workers,
-        start_directory=args.start_directory,
-        pattern=args.pattern,
-        top_level_directory=args.top_level_directory,
-    )
+    try:
+        run_result = run_unittest_suite_with_execution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            start_directory=args.start_directory,
+            pattern=args.pattern,
+            top_level_directory=args.top_level_directory,
+        )
+    except RuntimeError as exc:
+        return _emit_failure_summary(
+            code=ERROR_CODE_RUNTIME_WORKER,
+            message=str(exc),
+            stage=STAGE_RUNTIME,
+            exit_code=1,
+        )
+    except (OSError, PermissionError) as exc:
+        return _emit_failure_summary(
+            code=ERROR_CODE_STARTUP_BACKEND,
+            message=str(exc),
+            stage=STAGE_STARTUP,
+            exit_code=1,
+        )
     summary = {
         "all_passed": run_result.all_passed,
+        "error": run_result.error,
         "execution": asdict(run_result.execution),
         "discovery": {
             "start_directory": run_result.start_directory,

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import os
 from typing import Final
 
+from slope_stab.execution.worker_policy import effective_cpu_count as _effective_cpu_count
+from slope_stab.execution.worker_policy import resolve_requested_workers as _resolve_requested_workers
 from slope_stab.models import SearchInput
 
 
@@ -63,20 +64,11 @@ def allowed_parallel_modes() -> set[str]:
 
 
 def effective_cpu_count() -> int:
-    try:
-        if hasattr(os, "sched_getaffinity"):
-            affinity_count = len(os.sched_getaffinity(0))  # type: ignore[attr-defined]
-            if affinity_count > 0:
-                return affinity_count
-    except Exception:
-        pass
-    return max(1, int(os.cpu_count() or 1))
+    return _effective_cpu_count()
 
 
 def resolve_requested_workers(configured_workers: int, available_workers: int) -> int:
-    if configured_workers == 0:
-        return min(4, available_workers)
-    return min(max(1, configured_workers), available_workers)
+    return _resolve_requested_workers(configured_workers, available_workers)
 
 
 def classify_batching(min_batch_size: int) -> str:

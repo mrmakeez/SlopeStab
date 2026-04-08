@@ -17,6 +17,16 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
 2. `python -m slope_stab.cli verify` (default auto-parallel case scheduling)
 3. `python -m slope_stab.cli test` (default auto-parallel unittest scheduling)
 
+## Breaking Changes (2026-04-08)
+
+- Removed legacy verification API `run_verification_suite(...)`.
+  - Migration: use `run_verification_suite_with_execution(...)` from `slope_stab.verification.runner`.
+- Removed orphaned placeholder symbols `NullLoadModel` and `NullPorePressureModel` from `slope_stab.loads`.
+  - Migration: no direct replacement is required; these placeholders were non-functional.
+- CLI error payloads for `verify` and `test` now expose a shared structured contract:
+  - `error = {"code": "<stable_code>", "message": "<human_text>", "stage": "<discovery|startup|runtime|validation>"}`
+  - `error` is `null` on successful runs.
+
 ## Canonical Gate Baseline Capture
 
 Use a single run-id bundle for verification/test evidence to avoid mismatched snapshots:

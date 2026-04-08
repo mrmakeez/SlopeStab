@@ -264,3 +264,69 @@ for phi in (90.0,95.0,-5.0): \
 - Fix Evidence:
   - [cmaes_global.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/search/cmaes_global.py:437) now increments `post_refinement_counts` for every objective call.
   - [test_global_search_refinement_counters.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_global_search_refinement_counters.py:61) adds regression coverage asserting `post_refinement_total_evaluations > 0` when `post_polish=True` and `polish.nfev > 0`.
+
+## BUG-008
+- ID: `BUG-008`
+- Severity: `High`
+- Status: `Fixed (2026-04-08)`
+- Summary: `run_unittest_suite_with_execution(...)` can raise uncaught unittest-discovery exceptions (for example invalid start directory) instead of returning structured `UnittestRunResult` discovery metadata.
+- Evidence:
+  - [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:103) (`loader.discover(...)` can raise directly).
+  - [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:210) discovery call is not wrapped in a guard that populates `discovery_error`.
+- Repro:
+  ```powershell
+  $env:PYTHONPATH='src'
+  python -c "from slope_stab.testing.unittest_runner import run_unittest_suite_with_execution; run_unittest_suite_with_execution(start_directory='tests/does_not_exist', top_level_directory='.')"
+  ```
+- Expected vs Actual:
+  - Expected: structured `UnittestRunResult` with `discovery_error` and no uncaught traceback path.
+  - Actual: uncaught `ImportError` from `unittest.loader.discover` aborts execution.
+- Suggested Fix Direction:
+  - Catch discovery-time exceptions and map to explicit `discovery_error` payload in returned `UnittestRunResult`.
+  - Add CLI contract tests asserting deterministic JSON output and failure exit code for discovery failures.
+- Fix Evidence:
+  - [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:80) updates `UnittestRunResult.discovery_error` to structured payloads and adds run-level `error`.
+  - [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:241) wraps discovery exceptions (`ImportError` and unexpected exceptions) into deterministic structured discovery errors.
+  - [cli.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/cli.py:200) publishes structured discovery errors in `cli test` output and emits structured validation/runtime startup errors.
+  - [test_unittest_runner_workers.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/unit/test_unittest_runner_workers.py:292), [test_cli_test_contract.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/unit/test_cli_test_contract.py:80), and [test_cli_test.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/regression/test_cli_test.py:120) enforce structured discovery and CLI error contracts.
+
+## BUG-009
+- ID: `BUG-009`
+- Severity: `High`
+- Status: `Fixed (2026-04-08)`
+- Summary: Verification/unittest auto-parallel fallback semantics are inconsistent with effective control flow because runtime worker failures are wrapped into `RuntimeError`, bypassing outer `(OSError, PermissionError)` fallback handlers that appear to cover them.
+- Evidence:
+  - [verification/runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py:256) `_evaluate_cases_parallel(...)`.
+  - [verification/runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py:263) catches worker exceptions and raises `RuntimeError`.
+  - [verification/runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py:325) outer fallback currently catches only `(OSError, PermissionError)`.
+  - [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:161), [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:174), and [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:306) show the same pattern for unittest execution.
+- Repro:
+  ```powershell
+  $env:PYTHONPATH='src'
+  @'
+  from unittest.mock import patch
+  from slope_stab.verification.runner import run_verification_suite_with_execution
+
+  class FakeFuture:
+      def result(self): raise PermissionError("worker submit denied")
+  class FakeExecutor:
+      def __enter__(self): return self
+      def __exit__(self, exc_type, exc, tb): return False
+      def submit(self, *args, **kwargs): return FakeFuture()
+
+  with patch("slope_stab.verification.runner.effective_verify_cpu_count", return_value=4), \
+       patch("slope_stab.verification.runner.ProcessPoolExecutor", return_value=FakeExecutor()):
+      run_verification_suite_with_execution(requested_mode="auto_parallel", requested_workers=0)
+  '@ | python -
+  ```
+- Expected vs Actual:
+  - Expected: explicit and policy-aligned separation between startup fallback and runtime hard-failure behavior, with tests that exercise true boundaries.
+  - Actual: current implementation/test shape suggests broader fallback than actually occurs in runtime worker-failure paths.
+- Suggested Fix Direction:
+  - Make startup failure boundary explicit at executor construction/context entry and keep runtime worker failures as deterministic hard failures.
+  - Update unit tests to avoid mocking private `_evaluate_*_parallel` paths in ways that bypass real exception translation.
+- Fix Evidence:
+  - [verification/runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py:68) and [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:40) introduce explicit startup/runtime boundary exceptions.
+  - [verification/runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py:332) and [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:392) fallback only on startup-boundary failures in auto mode; runtime worker failures are propagated.
+  - [verification/runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/verification/runner.py:290) and [unittest_runner.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/src/slope_stab/testing/unittest_runner.py:351) now report fallback execution backend as `serial` to match actual execution path.
+  - [test_verification_runner_workers.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/unit/test_verification_runner_workers.py:194) and [test_unittest_runner_workers.py](/C:/Users/JamesMcKerrow/Stanley%20Gray%20Limited/SP%20-%20ENG/Technical/JAMES%20TECHNICAL/Codex/SlopeStab/tests/unit/test_unittest_runner_workers.py:247) add explicit runtime hard-failure coverage and startup-only fallback coverage.
