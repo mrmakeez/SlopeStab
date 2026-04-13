@@ -7,15 +7,15 @@ from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.lem_core.base import LEMSolver
 from slope_stab.lem_core.bishop import BishopSimplifiedSolver
 from slope_stab.lem_core.spencer import SpencerSolver
-from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
+from slope_stab.materials.soil_domain import SoilDomain, build_soil_domain
 from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
     GeometryInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
+    SoilsInput,
 )
 from slope_stab.slicing.slice_generator import generate_vertical_slices
 from slope_stab.surfaces.circular import CircularSlipSurface
@@ -24,15 +24,20 @@ from slope_stab.surfaces.circular import CircularSlipSurface
 @dataclass(frozen=True)
 class AnalysisWorkerContext:
     geometry: GeometryInput
-    material: MaterialInput
+    soils: SoilsInput
+    soil_domain: SoilDomain
     analysis: AnalysisInput
     loads: LoadsInput | None
 
 
 def build_worker_context(project: ProjectInput) -> AnalysisWorkerContext:
+    if project.soils is None:
+        raise GeometryError("ProjectInput.soils is required.")
+    soil_domain = build_soil_domain(project.soils)
     return AnalysisWorkerContext(
         geometry=project.geometry,
-        material=project.material,
+        soils=project.soils,
+        soil_domain=soil_domain,
         analysis=project.analysis,
         loads=project.loads,
     )
@@ -68,21 +73,13 @@ def _validate_prescribed_surface_alignment(
 
 
 def _build_solver(context: AnalysisWorkerContext, surface: CircularSlipSurface) -> LEMSolver:
-    material = MohrCoulombMaterial(
-        gamma=context.material.gamma,
-        cohesion=context.material.c,
-        phi_deg=context.material.phi_deg,
-    )
-
     if context.analysis.method == "bishop_simplified":
         return BishopSimplifiedSolver(
-            material=material,
             analysis=context.analysis,
             surface=surface,
         )
     if context.analysis.method == "spencer":
         return SpencerSolver(
-            material=material,
             analysis=context.analysis,
             surface=surface,
         )
@@ -118,7 +115,7 @@ def solve_surface_for_context(
         n_slices=context.analysis.n_slices,
         x_left=surface_input.x_left,
         x_right=surface_input.x_right,
-        gamma=context.material.gamma,
+        soil_domain=context.soil_domain,
         loads=context.loads,
     )
 

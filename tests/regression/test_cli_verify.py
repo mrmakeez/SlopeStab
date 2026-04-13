@@ -24,7 +24,7 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)
         payload = json.loads(proc.stdout)
         self.assertTrue(payload["all_passed"])
-        self.assertEqual(len(payload["cases"]), 43)
+        self.assertEqual(len(payload["cases"]), 59)
         self.assertIn("execution", payload)
 
         execution = payload["execution"]

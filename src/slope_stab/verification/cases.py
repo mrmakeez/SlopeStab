@@ -1,8 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TypeAlias
 
+from slope_stab.materials.uniform_soils import build_uniform_soils
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
@@ -13,14 +14,78 @@ from slope_stab.models import (
     GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     SeismicLoadInput,
+    SoilMaterialInput,
+    SoilRegionAssignmentInput,
+    SoilsInput,
     SearchInput,
     SearchLimitsInput,
     UniformSurchargeInput,
 )
+
+
+def _uniform_soils(*, gamma: float, c: float, phi_deg: float):
+    return build_uniform_soils(gamma=gamma, cohesion=c, phi_deg=phi_deg)
+
+
+def _case11_soils() -> SoilsInput:
+    return SoilsInput(
+        materials=(
+            SoilMaterialInput(id="soil_1", gamma=19.5, c=0.0, phi_deg=38.0),
+            SoilMaterialInput(id="soil_2", gamma=19.5, c=5.3, phi_deg=23.0),
+            SoilMaterialInput(id="soil_3", gamma=19.5, c=7.2, phi_deg=20.0),
+        ),
+        external_boundary=(
+            (20.0, 20.0),
+            (70.0, 20.0),
+            (70.0, 24.0),
+            (70.0, 31.0),
+            (70.0, 35.0),
+            (50.0, 35.0),
+            (30.0, 25.0),
+            (20.0, 25.0),
+        ),
+        material_boundaries=(
+            ((40.0, 27.0), (52.0, 24.0), (70.0, 24.0)),
+            ((30.0, 25.0), (40.0, 27.0), (50.0, 29.0), (54.0, 31.0), (70.0, 31.0)),
+        ),
+        region_assignments=(
+            SoilRegionAssignmentInput(material_id="soil_1", seed_x=66.0, seed_y=33.0),
+            SoilRegionAssignmentInput(material_id="soil_2", seed_x=66.0, seed_y=27.0),
+            SoilRegionAssignmentInput(material_id="soil_3", seed_x=66.0, seed_y=22.0),
+        ),
+    )
+
+
+def _case12_soils() -> SoilsInput:
+    return SoilsInput(
+        materials=(
+            SoilMaterialInput(id="top_layer", gamma=18.82, c=29.4, phi_deg=12.0),
+            SoilMaterialInput(id="middle_layer", gamma=18.82, c=9.8, phi_deg=5.0),
+            SoilMaterialInput(id="lower_layer", gamma=18.82, c=294.0, phi_deg=40.0),
+        ),
+        external_boundary=(
+            (0.0, 3.0),
+            (96.0, 3.0),
+            (96.0, 35.0),
+            (72.0, 35.0),
+            (48.0, 35.0),
+            (24.0, 19.0),
+            (18.0, 15.0),
+            (0.0, 15.0),
+        ),
+        material_boundaries=(
+            ((24.0, 19.0), (72.0, 35.0)),
+            ((0.0, 3.0), (96.0, 35.0)),
+        ),
+        region_assignments=(
+            SoilRegionAssignmentInput(material_id="top_layer", seed_x=70.0, seed_y=34.8),
+            SoilRegionAssignmentInput(material_id="middle_layer", seed_x=32.0, seed_y=21.0),
+            SoilRegionAssignmentInput(material_id="lower_layer", seed_x=32.0, seed_y=10.0),
+        ),
+    )
 
 
 @dataclass(frozen=True)
@@ -50,6 +115,7 @@ class AutoRefineVerificationCase:
     expected_right: tuple[float, float]
     endpoint_abs_tolerance: float
     analysis_method: str = "bishop_simplified"
+    radius_hard_check: bool = True
 
 
 @dataclass(frozen=True)
@@ -77,7 +143,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -107,7 +173,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=7,
@@ -137,7 +203,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -172,7 +238,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -207,7 +273,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -240,7 +306,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            soils=_uniform_soils(gamma=18.82, c=41.65, phi_deg=15.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=30,
@@ -275,7 +341,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            soils=_uniform_soils(gamma=18.82, c=41.65, phi_deg=15.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=30,
@@ -310,7 +376,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0),
-            material=MaterialInput(gamma=18.0, c=10.8, phi_deg=40.0),
+            soils=_uniform_soils(gamma=18.0, c=10.8, phi_deg=40.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=30,
@@ -343,7 +409,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=6.0, l=2.0, x_toe=5.0, y_toe=3.0),
-            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            soils=_uniform_soils(gamma=16.0, c=12.0, phi_deg=38.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=50,
@@ -378,7 +444,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=6.0, l=7.0, x_toe=5.0, y_toe=3.0),
-            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            soils=_uniform_soils(gamma=16.0, c=12.0, phi_deg=38.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=50,
@@ -413,7 +479,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=25.0, l=75.0, x_toe=0.0, y_toe=0.0),
-            material=MaterialInput(gamma=20.0, c=25.0, phi_deg=30.0),
+            soils=_uniform_soils(gamma=20.0, c=25.0, phi_deg=30.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=30,
@@ -447,7 +513,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=50,
@@ -490,7 +556,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=7,
@@ -522,7 +588,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -553,7 +619,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -584,7 +650,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=7,
@@ -622,7 +688,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -659,7 +725,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -696,7 +762,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=7,
@@ -736,7 +802,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -775,7 +841,7 @@ VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=25,
@@ -818,7 +884,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=7,
@@ -846,7 +912,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -874,7 +940,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -902,7 +968,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -936,7 +1002,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            soils=_uniform_soils(gamma=18.82, c=41.65, phi_deg=15.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=30,
@@ -972,7 +1038,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+            soils=_uniform_soils(gamma=18.82, c=41.65, phi_deg=15.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=30,
@@ -1008,7 +1074,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0),
-            material=MaterialInput(gamma=18.0, c=10.8, phi_deg=40.0),
+            soils=_uniform_soils(gamma=18.0, c=10.8, phi_deg=40.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=30,
@@ -1042,7 +1108,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=6.0, l=2.0, x_toe=5.0, y_toe=3.0),
-            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            soils=_uniform_soils(gamma=16.0, c=12.0, phi_deg=38.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=50,
@@ -1078,7 +1144,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=6.0, l=7.0, x_toe=5.0, y_toe=3.0),
-            material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+            soils=_uniform_soils(gamma=16.0, c=12.0, phi_deg=38.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=50,
@@ -1114,7 +1180,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=25.0, l=75.0, x_toe=0.0, y_toe=0.0),
-            material=MaterialInput(gamma=20.0, c=25.0, phi_deg=30.0),
+            soils=_uniform_soils(gamma=20.0, c=25.0, phi_deg=30.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=30,
@@ -1149,7 +1215,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=50,
@@ -1192,7 +1258,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1228,7 +1294,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1265,7 +1331,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=7,
@@ -1298,7 +1364,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1330,7 +1396,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1362,7 +1428,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=7,
@@ -1375,8 +1441,8 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
                 method="cuckoo_global_circular",
                 cuckoo_global_circular=CuckooGlobalSearchInput(
                     population_size=40,
-                    max_iterations=300,
-                    max_evaluations=7000,
+                    max_iterations=320,
+                    max_evaluations=8000,
                     discovery_rate=0.25,
                     levy_beta=1.5,
                     alpha_max=0.5,
@@ -1401,7 +1467,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1439,7 +1505,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1477,7 +1543,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-            material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+            soils=_uniform_soils(gamma=20.0, c=20.0, phi_deg=20.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=7,
@@ -1518,7 +1584,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+            soils=_uniform_soils(gamma=20.0, c=3.0, phi_deg=19.6),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1558,7 +1624,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         project=ProjectInput(
             units="metric",
             geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-            material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+            soils=_uniform_soils(gamma=16.0, c=9.0, phi_deg=32.0),
             analysis=AnalysisInput(
                 method="spencer",
                 n_slices=25,
@@ -1592,4 +1658,540 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
     ),
 )
 
-VERIFICATION_CASES = VERIFICATION_CASES + SPENCER_VERIFICATION_CASES
+NON_UNIFORM_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 11 (Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=34.3564770291949,
+                yc=43.1776668271541,
+                r=18.7083429364022,
+                x_left=29.9321664448199,
+                y_left=25.0,
+                x_right=51.1828807058601,
+                y_right=35.0,
+            ),
+        ),
+        expected_fos=1.4044,
+        fos_tolerance=0.01,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 11 (Spencer Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=34.2480382935823,
+                yc=43.1167273766689,
+                r=18.6211847230616,
+                x_left=29.943074919773,
+                y_left=25.0,
+                x_right=51.0071330538376,
+                y_right=35.0,
+            ),
+        ),
+        expected_fos=1.37415,
+        fos_tolerance=0.01,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 11 (Water Seismic Surcharge Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=34.183079296796,
+                yc=47.8914439255684,
+                r=26.0651931256039,
+                x_left=21.7180848051171,
+                y_left=25.0,
+                x_right=56.8371068898964,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=10.0,
+                    placement="crest_range",
+                    x_start=50.0,
+                    x_end=70.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.729855,
+        fos_tolerance=0.01,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 11 (Spencer Water Seismic Surcharge Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=34.758216047538,
+                yc=47.4139808995605,
+                r=25.2899060876324,
+                x_left=23.0452825910806,
+                y_left=25.0,
+                x_right=56.791654910925,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=10.0,
+                    placement="crest_range",
+                    x_start=50.0,
+                    x_end=70.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.734161,
+        fos_tolerance=0.02,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 12 (Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=26.9670236395274,
+                yc=45.1403590545699,
+                r=31.44959404703,
+                x_left=17.9872841230053,
+                y_left=15.0,
+                x_right=56.7369763430066,
+                y_right=35.0,
+            ),
+        ),
+        expected_fos=0.420185,
+        fos_tolerance=0.01,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 12 (Spencer Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=26.1262507562982,
+                yc=44.854279211412,
+                r=30.9417362680874,
+                x_left=17.9952572099393,
+                y_left=15.0,
+                x_right=55.4568529408325,
+                y_right=35.0,
+            ),
+        ),
+        expected_fos=0.418145,
+        fos_tolerance=0.01,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        name="Case 12 (Water Surcharge Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.1059126376014,
+                yc=45.137548717983,
+                r=31.4094627809815,
+                x_left=18.0795317108721,
+                y_left=15.0530211405814,
+                x_right=56.8344251833105,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=100.0,
+                    placement="crest_range",
+                    x_start=48.0,
+                    x_end=55.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.311775,
+        fos_tolerance=0.01,
+    ),
+    PrescribedVerificationCase(
+        case_type="prescribed_benchmark",
+        analysis_method="spencer",
+        name="Case 12 (Spencer Water Surcharge Non-Uniform Prescribed)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=PrescribedCircleInput(
+                xc=27.1059126376014,
+                yc=45.137548717983,
+                r=31.4094627809815,
+                x_left=18.0795317108721,
+                y_left=15.0530211405814,
+                x_right=56.8344251833105,
+                y_right=35.0,
+            ),
+            loads=LoadsInput(
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=100.0,
+                    placement="crest_range",
+                    x_start=48.0,
+                    x_end=55.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.316117,
+        fos_tolerance=0.01,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        name="Case 11 (Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        expected_fos=1.4044,
+        fos_tolerance=0.02,
+        expected_radius=18.7083429364022,
+        radius_rel_tolerance=0.25,
+        expected_center=(34.3564770291949, 43.1776668271541),
+        expected_left=(29.9321664448199, 25.0),
+        expected_right=(51.1828807058601, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        analysis_method="spencer",
+        name="Case 11 (Spencer Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+        ),
+        expected_fos=1.37415,
+        fos_tolerance=0.02,
+        expected_radius=18.6211847230616,
+        radius_rel_tolerance=0.25,
+        expected_center=(34.2480382935823, 43.1167273766689),
+        expected_left=(29.943074919773, 25.0),
+        expected_right=(51.0071330538376, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        name="Case 12 (Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
+                ),
+            ),
+        ),
+        expected_fos=0.420185,
+        fos_tolerance=0.02,
+        expected_radius=31.44959404703,
+        radius_rel_tolerance=0.25,
+        expected_center=(26.9670236395274, 45.1403590545699),
+        expected_left=(17.9872841230053, 15.0),
+        expected_right=(56.7369763430066, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        analysis_method="spencer",
+        name="Case 12 (Spencer Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
+                ),
+            ),
+        ),
+        expected_fos=0.418145,
+        fos_tolerance=0.02,
+        expected_radius=30.9417362680874,
+        radius_rel_tolerance=0.25,
+        expected_center=(26.1262507562982, 44.854279211412),
+        expected_left=(17.9952572099393, 15.0),
+        expected_right=(55.4568529408325, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        name="Case 11 (Water Seismic Surcharge Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+            loads=LoadsInput(
+                seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=10.0,
+                    placement="crest_range",
+                    x_start=50.0,
+                    x_end=70.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.729855,
+        fos_tolerance=0.02,
+        expected_radius=26.0651931256039,
+        radius_rel_tolerance=0.25,
+        expected_center=(34.183079296796, 47.8914439255684),
+        expected_left=(21.7180848051171, 25.0),
+        expected_right=(56.8371068898964, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        analysis_method="spencer",
+        name="Case 11 (Spencer Water Seismic Surcharge Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            soils=_case11_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
+                ),
+            ),
+            loads=LoadsInput(
+                seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=10.0,
+                    placement="crest_range",
+                    x_start=50.0,
+                    x_end=70.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.734161,
+        fos_tolerance=0.02,
+        expected_radius=25.2899060876324,
+        radius_rel_tolerance=0.25,
+        expected_center=(34.758216047538, 47.4139808995605),
+        expected_left=(23.0452825910806, 25.0),
+        expected_right=(56.791654910925, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        name="Case 12 (Water Surcharge Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
+                ),
+            ),
+            loads=LoadsInput(
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=100.0,
+                    placement="crest_range",
+                    x_start=48.0,
+                    x_end=55.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.311775,
+        fos_tolerance=0.02,
+        expected_radius=31.4094627809815,
+        radius_rel_tolerance=0.25,
+        expected_center=(27.1059126376014, 45.137548717983),
+        expected_left=(18.0795317108721, 15.0530211405814),
+        expected_right=(56.8344251833105, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+    AutoRefineVerificationCase(
+        case_type="auto_refine_parity",
+        analysis_method="spencer",
+        name="Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine)",
+        project=ProjectInput(
+            units="metric",
+            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            soils=_case12_soils(),
+            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
+            prescribed_surface=None,
+            search=SearchInput(
+                method="auto_refine_circular",
+                auto_refine_circular=AutoRefineSearchInput(
+                    divisions_along_slope=20,
+                    circles_per_division=10,
+                    iterations=10,
+                    divisions_to_use_next_iteration_pct=50.0,
+                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
+                ),
+            ),
+            loads=LoadsInput(
+                uniform_surcharge=UniformSurchargeInput(
+                    magnitude_kpa=100.0,
+                    placement="crest_range",
+                    x_start=48.0,
+                    x_end=55.0,
+                ),
+                groundwater=GroundwaterInput(
+                    model="water_surfaces",
+                    surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
+                    hu=GroundwaterHuInput(mode="auto", value=None),
+                    gamma_w=9.81,
+                ),
+            ),
+        ),
+        expected_fos=0.316117,
+        fos_tolerance=0.02,
+        expected_radius=31.4094627809815,
+        radius_rel_tolerance=0.25,
+        expected_center=(27.1059126376014, 45.137548717983),
+        expected_left=(18.0795317108721, 15.0530211405814),
+        expected_right=(56.8344251833105, 35.0),
+        endpoint_abs_tolerance=2.0,
+        radius_hard_check=False,
+    ),
+)
+
+VERIFICATION_CASES = VERIFICATION_CASES + SPENCER_VERIFICATION_CASES + NON_UNIFORM_VERIFICATION_CASES
+

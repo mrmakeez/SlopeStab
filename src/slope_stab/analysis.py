@@ -18,6 +18,7 @@ from slope_stab.search.auto_parallel_policy import (
     EVIDENCE_VERSION,
     REASON_FORCED_PARALLEL_MODE,
     REASON_FORCED_SERIAL_MODE,
+    REASON_NON_UNIFORM_AUTO_REFINE_SERIAL,
     REASON_POLICY_THRESHOLD_PARALLEL,
     REASON_POLICY_THRESHOLD_SERIAL,
     REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL,
@@ -165,6 +166,8 @@ def _initial_parallel_resolution(
     analysis_method: str,
     requested: ParallelExecutionInput,
     available_workers: int,
+    *,
+    non_uniform_auto_refine: bool,
 ) -> ParallelResolution:
     requested_mode = requested.mode
     requested_workers = resolve_requested_workers(requested.workers, available_workers)
@@ -211,6 +214,19 @@ def _initial_parallel_resolution(
         )
 
     # requested_mode == "auto"
+    if non_uniform_auto_refine:
+        return ParallelResolution(
+            requested_mode=requested_mode,
+            requested_workers=requested_workers,
+            resolved_mode="serial",
+            resolved_workers=1,
+            decision_reason=REASON_NON_UNIFORM_AUTO_REFINE_SERIAL,
+            workload_class=workload_class,
+            batching_class=batching_class,
+            evidence_version=EVIDENCE_VERSION,
+            backend="serial",
+        )
+
     if workload_class == "unsupported":
         return ParallelResolution(
             requested_mode=requested_mode,
@@ -541,6 +557,15 @@ def run_analysis(
         return result
 
     if project.search is not None and project.prescribed_surface is None:
+        if context.soil_domain.is_non_uniform and project.search.method in {
+            "direct_global_circular",
+            "cuckoo_global_circular",
+            "cmaes_global_circular",
+        }:
+            raise GeometryError(
+                "Non-uniform soils support only search.method='auto_refine_circular' in v1."
+            )
+
         runner = _SEARCH_RUNNERS.get(project.search.method)
         if runner is None:
             raise GeometryError(f"Unsupported search method: {project.search.method}")
@@ -557,6 +582,11 @@ def run_analysis(
             analysis_method=project.analysis.method,
             requested=requested_parallel,
             available_workers=available_workers,
+            non_uniform_auto_refine=(
+                context.soil_domain.is_non_uniform
+                and project.search.method == "auto_refine_circular"
+                and requested_parallel.mode == "auto"
+            ),
         )
 
         batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None

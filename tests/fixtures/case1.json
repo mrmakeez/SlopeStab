@@ -6,11 +6,6 @@
     "x_toe": 30.0,
     "y_toe": 25.0
   },
-  "material": {
-    "gamma": 20.0,
-    "c": 3.0,
-    "phi_deg": 19.6
-  },
   "analysis": {
     "method": "bishop_simplified",
     "n_slices": 25,
@@ -26,5 +21,41 @@
     "y_left": 25.014442135145,
     "x_right": 51.6518254752929,
     "y_right": 35.0
+  },
+  "soils": {
+    "materials": [
+      {
+        "id": "soil_1",
+        "gamma": 20.0,
+        "c": 3.0,
+        "phi_deg": 19.6
+      }
+    ],
+    "external_boundary": [
+      [
+        -1000000.0,
+        -1000000.0
+      ],
+      [
+        1000000.0,
+        -1000000.0
+      ],
+      [
+        1000000.0,
+        1000000.0
+      ],
+      [
+        -1000000.0,
+        1000000.0
+      ]
+    ],
+    "material_boundaries": [],
+    "region_assignments": [
+      {
+        "material_id": "soil_1",
+        "seed_x": 0.0,
+        "seed_y": 0.0
+      }
+    ]
   }
 }

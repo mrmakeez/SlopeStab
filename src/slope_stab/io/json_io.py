@@ -16,11 +16,13 @@ from slope_stab.models import (
     GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     ParallelExecutionInput,
     PrescribedCircleInput,
     ProjectInput,
     SeismicLoadInput,
+    SoilMaterialInput,
+    SoilRegionAssignmentInput,
+    SoilsInput,
     SearchInput,
     SearchLimitsInput,
     UniformSurchargeInput,
@@ -66,6 +68,97 @@ def _as_bool(v: object, key: str) -> bool:
     if isinstance(v, bool):
         return v
     raise InputValidationError(f"Key '{key}' must be a boolean.")
+
+
+def _parse_point_pair(value: object, key: str) -> tuple[float, float]:
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        raise InputValidationError(f"{key} must be a [x, y] pair.")
+    return (_as_float(value[0], f"{key}[0]"), _as_float(value[1], f"{key}[1]"))
+
+
+def _parse_polyline_points(value: object, key: str, min_points: int) -> tuple[tuple[float, float], ...]:
+    if not isinstance(value, list):
+        raise InputValidationError(f"{key} must be an array of [x, y] points.")
+    if len(value) < min_points:
+        raise InputValidationError(f"{key} must contain at least {min_points} points.")
+    points = tuple(_parse_point_pair(point, f"{key}[{idx}]") for idx, point in enumerate(value))
+    for idx, (x1, y1) in enumerate(points[:-1]):
+        x2, y2 = points[idx + 1]
+        if math.hypot(x2 - x1, y2 - y1) <= 0.0:
+            raise InputValidationError(f"{key}[{idx}] and {key}[{idx + 1}] must not be identical points.")
+    return points
+
+
+def _parse_soils(soils_data: object) -> SoilsInput:
+    key_prefix = "soils"
+    if not isinstance(soils_data, dict):
+        raise InputValidationError("'soils' must be an object.")
+
+    materials_raw = _require_key(soils_data, "materials")
+    if not isinstance(materials_raw, list) or len(materials_raw) == 0:
+        raise InputValidationError("soils.materials must be a non-empty array.")
+
+    materials: list[SoilMaterialInput] = []
+    seen_ids: set[str] = set()
+    for idx, entry in enumerate(materials_raw):
+        prefix = f"{key_prefix}.materials[{idx}]"
+        if not isinstance(entry, dict):
+            raise InputValidationError(f"{prefix} must be an object.")
+        material_id = str(_require_key(entry, "id")).strip()
+        if not material_id:
+            raise InputValidationError(f"{prefix}.id must be a non-empty string.")
+        if material_id in seen_ids:
+            raise InputValidationError(f"{prefix}.id '{material_id}' is duplicated.")
+        seen_ids.add(material_id)
+        materials.append(
+            SoilMaterialInput(
+                id=material_id,
+                gamma=_as_float(_require_key(entry, "gamma"), f"{prefix}.gamma"),
+                c=_as_float(_require_key(entry, "c"), f"{prefix}.c"),
+                phi_deg=_as_float(_require_key(entry, "phi_deg"), f"{prefix}.phi_deg"),
+            )
+        )
+
+    external_boundary = _parse_polyline_points(
+        _require_key(soils_data, "external_boundary"),
+        f"{key_prefix}.external_boundary",
+        min_points=3,
+    )
+
+    boundaries_raw = soils_data.get("material_boundaries", [])
+    if not isinstance(boundaries_raw, list):
+        raise InputValidationError("soils.material_boundaries must be an array.")
+    material_boundaries: list[tuple[tuple[float, float], ...]] = []
+    for idx, entry in enumerate(boundaries_raw):
+        material_boundaries.append(
+            _parse_polyline_points(entry, f"{key_prefix}.material_boundaries[{idx}]", min_points=2)
+        )
+
+    assignments_raw = _require_key(soils_data, "region_assignments")
+    if not isinstance(assignments_raw, list) or len(assignments_raw) == 0:
+        raise InputValidationError("soils.region_assignments must be a non-empty array.")
+    region_assignments: list[SoilRegionAssignmentInput] = []
+    for idx, entry in enumerate(assignments_raw):
+        prefix = f"{key_prefix}.region_assignments[{idx}]"
+        if not isinstance(entry, dict):
+            raise InputValidationError(f"{prefix} must be an object.")
+        material_id = str(_require_key(entry, "material_id")).strip()
+        if material_id not in seen_ids:
+            raise InputValidationError(f"{prefix}.material_id '{material_id}' is not defined in soils.materials.")
+        region_assignments.append(
+            SoilRegionAssignmentInput(
+                material_id=material_id,
+                seed_x=_as_float(_require_key(entry, "seed_x"), f"{prefix}.seed_x"),
+                seed_y=_as_float(_require_key(entry, "seed_y"), f"{prefix}.seed_y"),
+            )
+        )
+
+    return SoilsInput(
+        materials=tuple(materials),
+        external_boundary=external_boundary,
+        material_boundaries=tuple(material_boundaries),
+        region_assignments=tuple(region_assignments),
+    )
 
 
 def _parse_uniform_surcharge(
@@ -539,14 +632,16 @@ def parse_project_input(payload: dict) -> ProjectInput:
         raise InputValidationError("Only metric units are supported in MVP.")
 
     geom_data = _require_key(payload, "geometry")
-    mat_data = _require_key(payload, "material")
+    if "material" in payload:
+        raise InputValidationError("Top-level key 'material' is no longer supported; use required key 'soils'.")
+    soils_data = _require_key(payload, "soils")
     ana_data = _require_key(payload, "analysis")
     surface_data = payload.get("prescribed_surface")
     search_data = payload.get("search")
     loads_data = payload.get("loads")
 
-    if not isinstance(geom_data, dict) or not isinstance(mat_data, dict):
-        raise InputValidationError("'geometry' and 'material' must be objects.")
+    if not isinstance(geom_data, dict):
+        raise InputValidationError("'geometry' must be an object.")
     if not isinstance(ana_data, dict):
         raise InputValidationError("'analysis' must be an object.")
 
@@ -556,11 +651,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
         x_toe=_as_float(_require_key(geom_data, "x_toe"), "geometry.x_toe"),
         y_toe=_as_float(_require_key(geom_data, "y_toe"), "geometry.y_toe"),
     )
-    material = MaterialInput(
-        gamma=_as_float(_require_key(mat_data, "gamma"), "material.gamma"),
-        c=_as_float(_require_key(mat_data, "c"), "material.c"),
-        phi_deg=_as_float(_require_key(mat_data, "phi_deg"), "material.phi_deg"),
-    )
+    soils = _parse_soils(soils_data)
     analysis = AnalysisInput(
         method=str(_require_key(ana_data, "method")).strip().lower(),
         n_slices=_as_int(_require_key(ana_data, "n_slices"), "analysis.n_slices"),
@@ -570,10 +661,11 @@ def parse_project_input(payload: dict) -> ProjectInput:
     )
     if geometry.h <= 0 or geometry.l <= 0:
         raise InputValidationError("geometry.h and geometry.l must be greater than zero.")
-    if material.gamma <= 0:
-        raise InputValidationError("material.gamma must be greater than zero.")
-    if material.phi_deg < 0 or material.phi_deg >= 90:
-        raise InputValidationError("material.phi_deg must be in [0, 90).")
+    for material in soils.materials:
+        if material.gamma <= 0:
+            raise InputValidationError(f"soils.materials[{material.id}].gamma must be greater than zero.")
+        if material.phi_deg < 0 or material.phi_deg >= 90:
+            raise InputValidationError(f"soils.materials[{material.id}].phi_deg must be in [0, 90).")
     if analysis.method not in {"bishop_simplified", "spencer"}:
         raise InputValidationError("Only analysis.method='bishop_simplified' or 'spencer' is supported.")
     if analysis.n_slices <= 0 or analysis.max_iter <= 0:
@@ -666,7 +758,7 @@ def parse_project_input(payload: dict) -> ProjectInput:
     return ProjectInput(
         units=units,
         geometry=geometry,
-        material=material,
+        soils=soils,
         analysis=analysis,
         prescribed_surface=surface,
         search=search,

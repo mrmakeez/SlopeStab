@@ -14,7 +14,12 @@ def _base_payload() -> dict:
     return {
         "units": "metric",
         "geometry": {"h": 7.5, "l": 15.0, "x_toe": 10.0, "y_toe": 10.0},
-        "material": {"gamma": 20.0, "c": 20.0, "phi_deg": 20.0},
+        "soils": {
+            "materials": [{"id": "soil_1", "gamma": 20.0, "c": 20.0, "phi_deg": 20.0}],
+            "external_boundary": [[-1000.0, -1000.0], [1000.0, -1000.0], [1000.0, 1000.0], [-1000.0, 1000.0]],
+            "material_boundaries": [],
+            "region_assignments": [{"material_id": "soil_1", "seed_x": 0.0, "seed_y": 0.0}],
+        },
         "analysis": {
             "method": "bishop_simplified",
             "n_slices": 7,

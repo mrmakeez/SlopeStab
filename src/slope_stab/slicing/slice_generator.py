@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from bisect import bisect_right
+from collections import defaultdict
 from functools import lru_cache
 
 import numpy as np
@@ -9,6 +10,7 @@ from scipy.optimize import brentq, minimize_scalar
 
 from slope_stab.exceptions import GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
+from slope_stab.materials.soil_domain import SoilDomain
 from slope_stab.models import GroundwaterInput, LoadsInput, SeismicLoadInput, SliceGeometry, UniformSurchargeInput
 from slope_stab.surfaces.circular import CircularSlipSurface
 
@@ -31,11 +33,21 @@ def _slice_edge_tolerances(
     return float(x_tol), float(y_tol)
 
 
-def _integration_nodes(x_edges: np.ndarray, profile: UniformSlopeProfile) -> np.ndarray:
+def _integration_nodes(
+    x_edges: np.ndarray,
+    profile: UniformSlopeProfile,
+    soil_domain: SoilDomain | None = None,
+) -> np.ndarray:
     breakpoints: list[float] = []
     for breakpoint_x in (profile.x_toe, profile.crest_x):
         if float(x_edges[0]) < breakpoint_x < float(x_edges[-1]):
             breakpoints.append(breakpoint_x)
+
+    if soil_domain is not None:
+        for polyline in soil_domain.boundary_polylines:
+            for x, _ in polyline:
+                if float(x_edges[0]) < x < float(x_edges[-1]):
+                    breakpoints.append(float(x))
 
     if not breakpoints:
         return x_edges
@@ -311,23 +323,38 @@ def _resolve_slice_edges(
     profile: UniformSlopeProfile,
     surface: CircularSlipSurface,
     groundwater: GroundwaterInput | None,
+    soil_domain: SoilDomain | None,
     x_left: float,
     x_right: float,
     n_slices: int,
 ) -> np.ndarray:
     uniform_edges = np.linspace(x_left, x_right, n_slices + 1, dtype=float)
-    if groundwater is None or groundwater.model != "water_surfaces":
+    raw_roots: list[float] = []
+    if groundwater is not None and groundwater.model == "water_surfaces":
+        x_tol, y_tol = _slice_edge_tolerances(x_left=x_left, x_right=x_right, profile=profile)
+        raw_roots.extend(
+            _surface_water_intersections(
+                surface=surface,
+                surface_points=groundwater.surface,
+                x_left=x_left,
+                x_right=x_right,
+                x_tol=x_tol,
+                y_tol=y_tol,
+            )
+        )
+    if soil_domain is not None and soil_domain.is_non_uniform:
+        raw_roots.extend(
+            soil_domain.base_boundary_intersection_xs(
+                surface=surface,
+                x_left=x_left,
+                x_right=x_right,
+            )
+        )
+
+    if not raw_roots:
         return uniform_edges
 
     x_tol, y_tol = _slice_edge_tolerances(x_left=x_left, x_right=x_right, profile=profile)
-    raw_roots = _surface_water_intersections(
-        surface=surface,
-        surface_points=groundwater.surface,
-        x_left=x_left,
-        x_right=x_right,
-        x_tol=x_tol,
-        y_tol=y_tol,
-    )
     merged_roots = _merge_close_points(raw_roots, merge_tol=10.0 * x_tol)
     internal_roots = [x for x in merged_roots if (x_left + x_tol) < x < (x_right - x_tol)]
     if not internal_roots:
@@ -581,19 +608,97 @@ def _groundwater_pore_resultant(
     raise GeometryError(f"Unsupported groundwater model: {groundwater.model}")
 
 
+def _material_length_vector(
+    *,
+    soil_domain: SoilDomain,
+    material_ids: tuple[str, ...],
+    x: float,
+    y_base: float,
+    y_top: float,
+) -> np.ndarray:
+    lengths = soil_domain.vertical_material_lengths(x=x, y_bottom=y_base, y_top=y_top)
+    vector = np.zeros(len(material_ids), dtype=float)
+    for idx, material_id in enumerate(material_ids):
+        vector[idx] = float(lengths.get(material_id, 0.0))
+    return vector
+
+
+def _integrate_material_areas(
+    *,
+    soil_domain: SoilDomain,
+    material_ids: tuple[str, ...],
+    x_nodes: np.ndarray,
+    y_base_nodes: np.ndarray,
+    y_top_nodes: np.ndarray,
+) -> np.ndarray:
+    n_nodes = x_nodes.size
+    lengths = np.zeros((n_nodes, len(material_ids)), dtype=float)
+    for idx in range(n_nodes):
+        lengths[idx, :] = _material_length_vector(
+            soil_domain=soil_domain,
+            material_ids=material_ids,
+            x=float(x_nodes[idx]),
+            y_base=float(y_base_nodes[idx]),
+            y_top=float(y_top_nodes[idx]),
+        )
+    dx = x_nodes[1:] - x_nodes[:-1]
+    return 0.5 * (lengths[:-1, :] + lengths[1:, :]) * dx[:, np.newaxis]
+
+
+def _slice_base_material(
+    *,
+    soil_domain: SoilDomain,
+    x_left: float,
+    y_base_left: float,
+    x_right: float,
+    y_base_right: float,
+) -> tuple[str, float, float]:
+    base_segments = soil_domain.base_material_segments(
+        x_left=x_left,
+        y_left=y_base_left,
+        x_right=x_right,
+        y_right=y_base_right,
+    )
+    if not base_segments:
+        raise GeometryError("Unable to resolve base material for slice; no base segments found.")
+
+    material_lengths: dict[str, float] = defaultdict(float)
+    for item in base_segments:
+        material_lengths[item.material_id] += item.length
+    significant = [material_id for material_id, length in material_lengths.items() if length > 1e-7]
+    if len(significant) != 1:
+        raise GeometryError(
+            "Slice base intersects multiple materials after boundary-edge insertion; "
+            f"materials={sorted(significant)}."
+        )
+
+    material = soil_domain.materials[significant[0]]
+    return material.id, material.c, material.phi_deg
+
+
 def generate_vertical_slices(
     profile: UniformSlopeProfile,
     surface: CircularSlipSurface,
     n_slices: int,
     x_left: float,
     x_right: float,
-    gamma: float,
+    gamma: float | None = None,
+    soil_domain: SoilDomain | None = None,
     loads: LoadsInput | None = None,
 ) -> list[SliceGeometry]:
     if n_slices <= 0:
         raise GeometryError("n_slices must be greater than zero.")
     if x_right <= x_left:
         raise GeometryError("x_right must be greater than x_left.")
+    if soil_domain is None and gamma is None:
+        raise GeometryError("Either gamma or soil_domain must be provided for slice generation.")
+    if soil_domain is not None and len(soil_domain.materials) == 0:
+        raise GeometryError("Soil domain has no materials.")
+    uniform_material = (
+        next(iter(soil_domain.materials.values()))
+        if soil_domain is not None and not soil_domain.is_non_uniform
+        else None
+    )
 
     groundwater = loads.groundwater if loads is not None else None
     seismic = loads.seismic if loads is not None else None
@@ -601,12 +706,13 @@ def generate_vertical_slices(
         profile=profile,
         surface=surface,
         groundwater=groundwater,
+        soil_domain=soil_domain,
         x_left=x_left,
         x_right=x_right,
         n_slices=n_slices,
     )
 
-    x_nodes = _integration_nodes(x_edges, profile)
+    x_nodes = _integration_nodes(x_edges, profile, soil_domain)
     y_top_nodes = profile.y_ground_array(x_nodes)
     y_base_nodes = surface.y_base_array(x_nodes)
     heights_nodes = y_top_nodes - y_base_nodes
@@ -624,6 +730,39 @@ def generate_vertical_slices(
 
     edge_indices = np.searchsorted(x_nodes, x_edges)
     slice_areas = cumulative_area[edge_indices[1:]] - cumulative_area[edge_indices[:-1]]
+
+    material_ids: tuple[str, ...]
+    material_gamma: np.ndarray
+    if soil_domain is None or not soil_domain.is_non_uniform:
+        if soil_domain is None:
+            if gamma is None:
+                raise GeometryError("Uniform gamma must be provided when soil_domain is not supplied.")
+            material_ids = ("soil",)
+            material_gamma = np.array([float(gamma)], dtype=float)
+        else:
+            if uniform_material is None:
+                raise GeometryError("Uniform soil material could not be resolved.")
+            material_ids = (uniform_material.id,)
+            material_gamma = np.array([float(uniform_material.gamma)], dtype=float)
+        material_segment_areas = segment_areas[:, np.newaxis]
+    else:
+        material_ids = tuple(sorted(soil_domain.materials.keys()))
+        material_gamma = np.array([soil_domain.materials[m_id].gamma for m_id in material_ids], dtype=float)
+        material_segment_areas = _integrate_material_areas(
+            soil_domain=soil_domain,
+            material_ids=material_ids,
+            x_nodes=x_nodes,
+            y_base_nodes=y_base_nodes,
+            y_top_nodes=y_top_nodes,
+        )
+
+    material_cumulative_areas = np.vstack(
+        [
+            np.zeros((1, len(material_ids)), dtype=float),
+            np.cumsum(material_segment_areas, axis=0),
+        ]
+    )
+    material_slice_areas = material_cumulative_areas[edge_indices[1:], :] - material_cumulative_areas[edge_indices[:-1], :]
 
     y_top_edges = y_top_nodes[edge_indices]
     y_base_edges = y_base_nodes[edge_indices]
@@ -656,11 +795,39 @@ def generate_vertical_slices(
         bad_idx = int(np.flatnonzero(base_length <= 0.0)[0])
         raise GeometryError(f"Slice {bad_idx + 1} has invalid base length: {float(base_length[bad_idx])}.")
 
-    weights = gamma * slice_areas
+    weights = material_slice_areas @ material_gamma
 
     surcharge = loads.uniform_surcharge if loads is not None else None
     slices: list[SliceGeometry] = []
     for i in range(n_slices):
+        if soil_domain is None:
+            base_material_id = ""
+            base_cohesion = 0.0
+            base_phi_deg = 0.0
+        elif not soil_domain.is_non_uniform:
+            if uniform_material is None:
+                raise GeometryError("Uniform soil material could not be resolved.")
+            base_material_id = uniform_material.id
+            base_cohesion = float(uniform_material.c)
+            base_phi_deg = float(uniform_material.phi_deg)
+        else:
+            base_material_id, base_cohesion, base_phi_deg = _slice_base_material(
+                soil_domain=soil_domain,
+                x_left=float(x_edges[i]),
+                y_base_left=float(y_base_edges[i]),
+                x_right=float(x_edges[i + 1]),
+                y_base_right=float(y_base_edges[i + 1]),
+            )
+
+        weight_contributions = tuple(
+            (
+                material_ids[j],
+                float(material_slice_areas[i, j] * material_gamma[j]),
+            )
+            for j in range(len(material_ids))
+            if abs(float(material_slice_areas[i, j] * material_gamma[j])) > 1e-10
+        )
+
         x_mid = float(0.5 * (x_edges[i] + x_edges[i + 1]))
         y_mid = float(0.5 * (y_top_edges[i] + y_top_edges[i + 1]))
         ext_resultants: list[tuple[float, float, float, float]] = []
@@ -743,6 +910,10 @@ def generate_vertical_slices(
                 pore_force=float(pore_force),
                 pore_x_app=float(pore_x_app),
                 pore_y_app=float(pore_y_app),
+                base_material_id=base_material_id,
+                base_cohesion=float(base_cohesion),
+                base_phi_deg=float(base_phi_deg),
+                material_weight_contributions=weight_contributions,
             )
         )
 

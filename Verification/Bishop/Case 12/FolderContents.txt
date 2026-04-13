@@ -1,0 +1,12 @@
+Verification Purpose: To verify that the seismic load function is working in a similar way to Slide2 implementation
+"Case11.slmd" - Slide2 Model
+"Case11_Water_Seismic_Surcharge" - Slide2 Model Variation with Seismic, Watertable, & Crest Surcharge
+"\Case11" - Slide2 Model Output (Standard Output)
+"\Case11_Water_Seismic_Surcharge" - Slide2 Model Variation Output (Standard Output)
+"Case 11.pdf" - Slide2 Report
+"Case 11 Water Seismic Surcharge" - Slide2 Variation Report
+
+Variation Notes:
+•Surcharge to Crest
+•Sloping watertable with ponded water at the toe (Hu=1)
+•Seismic acceleration applied

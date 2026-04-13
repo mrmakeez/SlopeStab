@@ -14,18 +14,36 @@ from slope_stab.surfaces.circular import CircularSlipSurface
 class BishopSimplifiedSolver(LEMSolver):
     def __init__(
         self,
-        material: MohrCoulombMaterial,
-        analysis: AnalysisInput,
-        surface: CircularSlipSurface,
+        analysis: AnalysisInput | MohrCoulombMaterial,
+        surface: CircularSlipSurface | AnalysisInput,
+        material: MohrCoulombMaterial | CircularSlipSurface | None = None,
     ) -> None:
-        self._material = material
+        if isinstance(analysis, MohrCoulombMaterial):
+            # Backward-compatible constructor form:
+            # BishopSimplifiedSolver(material, analysis, surface)
+            if not isinstance(surface, AnalysisInput) or not isinstance(material, CircularSlipSurface):
+                raise TypeError(
+                    "Legacy BishopSimplifiedSolver signature requires "
+                    "(material: MohrCoulombMaterial, analysis: AnalysisInput, surface: CircularSlipSurface)."
+                )
+            self._analysis = surface
+            self._surface = material
+            self._material = analysis
+            return
+
+        if not isinstance(analysis, AnalysisInput) or not isinstance(surface, CircularSlipSurface):
+            raise TypeError(
+                "BishopSimplifiedSolver requires "
+                "(analysis: AnalysisInput, surface: CircularSlipSurface, material: MohrCoulombMaterial | None)."
+            )
+        if material is not None and not isinstance(material, MohrCoulombMaterial):
+            raise TypeError("BishopSimplifiedSolver material must be MohrCoulombMaterial or None.")
+
         self._analysis = analysis
         self._surface = surface
+        self._material = material
 
     def solve(self, slices: list[SliceGeometry]) -> AnalysisResult:
-        tan_phi = self._material.tan_phi
-        cohesion = self._material.cohesion
-
         f_k = self._analysis.f_init
         history: list[IterationState] = []
         warnings: list[str] = []
@@ -46,6 +64,12 @@ class BishopSimplifiedSolver(LEMSolver):
         pore_forces = np.fromiter((s.pore_force for s in slices), dtype=float)
         alpha = np.fromiter((s.alpha_rad for s in slices), dtype=float)
         base_lengths = np.fromiter((s.base_length for s in slices), dtype=float)
+        base_cohesion = np.fromiter((s.base_cohesion for s in slices), dtype=float)
+        base_phi_deg = np.fromiter((s.base_phi_deg for s in slices), dtype=float)
+        if self._material is not None and np.allclose(base_cohesion, 0.0) and np.allclose(base_phi_deg, 0.0):
+            base_cohesion = np.full_like(base_cohesion, self._material.cohesion)
+            base_phi_deg = np.full_like(base_phi_deg, self._material.phi_deg)
+        tan_phi = np.tan(np.radians(base_phi_deg))
 
         sin_a = np.sin(alpha)
         cos_a = np.cos(alpha)
@@ -71,7 +95,7 @@ class BishopSimplifiedSolver(LEMSolver):
         if abs(denominator) < 1e-12:
             raise ConvergenceError("Driving denominator is numerically zero.")
 
-        cohesion_base = cohesion * base_lengths
+        cohesion_base = base_cohesion * base_lengths
         cohesion_base_sin = cohesion_base * sin_a
 
         for iteration in range(1, self._analysis.max_iter + 1):
@@ -157,6 +181,10 @@ class BishopSimplifiedSolver(LEMSolver):
                     pore_force=s.pore_force,
                     pore_x_app=s.pore_x_app,
                     pore_y_app=s.pore_y_app,
+                    base_material_id=s.base_material_id,
+                    base_cohesion=s.base_cohesion,
+                    base_phi_deg=s.base_phi_deg,
+                    material_weight_contributions=s.material_weight_contributions,
                     alpha_deg=math.degrees(s.alpha_rad),
                     base_length=s.base_length,
                     normal=float(normal[idx]),

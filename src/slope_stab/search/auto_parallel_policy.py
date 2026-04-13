@@ -19,6 +19,7 @@ REASON_THREAD_BACKEND_DEFAULT_SERIAL: Final[str] = "thread_backend_default_seria
 REASON_THREAD_BACKEND_WHITELIST_PARALLEL: Final[str] = "thread_backend_whitelist_parallel"
 REASON_UNSUPPORTED_WORKLOAD_SERIAL: Final[str] = "unsupported_workload_serial"
 REASON_UNSUPPORTED_BATCHING_SERIAL: Final[str] = "unsupported_batching_serial"
+REASON_NON_UNIFORM_AUTO_REFINE_SERIAL: Final[str] = "non_uniform_auto_refine_serial_v1"
 REASON_POLICY_THRESHOLD_PARALLEL: Final[str] = "policy_threshold_parallel"
 REASON_POLICY_THRESHOLD_SERIAL: Final[str] = "policy_threshold_serial"
 

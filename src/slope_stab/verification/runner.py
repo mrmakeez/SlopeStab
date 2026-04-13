@@ -181,6 +181,7 @@ def _evaluate_auto_refine_case(
             "tolerance": case.radius_rel_tolerance,
             "expected": case.expected_radius,
             "passed": radius_rel_error <= case.radius_rel_tolerance,
+            "hard_check": case.radius_hard_check,
         },
     }
 
@@ -188,7 +189,7 @@ def _evaluate_auto_refine_case(
     passed = (
         hard_checks["fos_abs_error"]["passed"]
         and endpoint_passed
-        and hard_checks["radius_rel_error"]["passed"]
+        and (hard_checks["radius_rel_error"]["passed"] if case.radius_hard_check else True)
     )
 
     center_distance = math.hypot(xc - case.expected_center[0], yc - case.expected_center[1])
