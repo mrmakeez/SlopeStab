@@ -19,10 +19,13 @@ User-visible outcome: `python -m slope_stab.cli verify` now includes Case 11/12 
 - [x] (2026-04-13 +12:00) Implemented deterministic planar face-based soil region resolver and replaced line-of-sight seed routing.
 - [x] (2026-04-13 +12:00) Added/updated Case 11/12 + variation verification entries (prescribed and auto-refine for Bishop/Spencer).
 - [x] (2026-04-13 +12:00) Added auto-refine hybrid policy behavior for new non-uniform cases (radius as diagnostics-only via `radius_hard_check=False`).
-- [x] (2026-04-13 +12:00) Added non-uniform policy fences in analysis for unsupported global search methods and serial auto mode behavior.
+- [x] (2026-04-13 +12:00) Added non-uniform policy fences in analysis for unsupported global search methods and initial serial auto mode behavior (later superseded by auto-v2 policy-driven parallel).
 - [x] (2026-04-13 +12:00) Restored compatibility for legacy solver constructor call order used by existing regressions.
 - [x] (2026-04-13 +12:00) Updated regression expectations for expanded verify case inventory.
 - [x] (2026-04-13 +12:00) Passed guarded gate end-to-end (`run_id=20260413T025652Z`): verify passed, test passed.
+- [x] (2026-04-13 +12:00) Upgraded non-uniform auto-refine auto-mode policy from serial-v1 guard to policy-driven process parallel (`auto-v2`) with explicit non-uniform whitelist entries.
+- [x] (2026-04-13 +12:00) Added regression coverage proving representative Case 11/12 non-uniform auto-mode results match serial (FOS + winning surface + iteration diagnostics) while resolving `decision_reason=policy_threshold_parallel`.
+- [x] (2026-04-13 +12:00) Re-ran full guarded gate after auto-v2 policy shift (`run_id=20260413T111158Z`): verify passed, test passed.
 
 ## Surprises & Discoveries
 
@@ -59,6 +62,10 @@ User-visible outcome: `python -m slope_stab.cli verify` now includes Case 11/12 
   Rationale: baseline policy explicitly forbids altering Case 1/2 benchmark contracts without owner approval.
   Date/Author: 2026-04-13 / Codex
 
+- Decision: Move non-uniform auto-refine auto-mode from forced serial to explicit policy-driven process parallel (auto-v2) while keeping uniform small-workload auto-refine behavior unchanged.
+  Rationale: owner-approved readiness after Case 11/12 gate tightening; maintain deterministic guardrails by scoping new parallel allowance to non-uniform policy keys.
+  Date/Author: 2026-04-13 / Codex
+
 ## Outcomes & Retrospective
 
 Implemented outcome:
@@ -74,6 +81,7 @@ Implemented outcome:
 What remains outside this completed scope:
 
 - No additional global-search support for non-uniform geometry beyond auto-refine (explicitly fenced by validation).
+- Auto-mode for non-uniform auto-refine now resolves via policy and can run process-parallel (no longer hard-forced serial-v1).
 
 Lessons learned:
 

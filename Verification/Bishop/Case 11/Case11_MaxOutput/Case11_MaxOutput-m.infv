@@ -3,7 +3,7 @@
   <Metadata>
     <MetadataEntry>
       <MetadataName>SaveTime</MetadataName>
-      <MetadataValue>13/04/2026 8:16:22 pm</MetadataValue>
+      <MetadataValue>13/04/2026 8:13:41 pm</MetadataValue>
     </MetadataEntry>
   </Metadata>
   <InfoViewerPreferences>
@@ -19,12 +19,6 @@
       <Surface-Options>true</Surface-Options>
       <Seismic-Loading>true</Seismic-Loading>
       <Materials>true</Materials>
-      <Global-Minimums>true</Global-Minimums>
-      <Global-Minimum-Support-Data>true</Global-Minimum-Support-Data>
-      <Valid-and-Invalid-Surfaces>true</Valid-and-Invalid-Surfaces>
-      <Slice-Data>true</Slice-Data>
-      <Interslice-Data>true</Interslice-Data>
-      <Discharge-Sections>true</Discharge-Sections>
       <Entity-Information>true</Entity-Information>
     </SelectedSections>
     <CoverPageOptions>
@@ -37,7 +31,7 @@
       <CoverImageAlignment>At Center</CoverImageAlignment>
       <CompanyLogoFilePath>pack://application:,,,/ReportFlow;component/Logo/Rocscience_Logo_Primary1000_px.png</CompanyLogoFilePath>
       <CoverImageFilePath>pack://application:,,,/ReportFlow;component/Logo/Slide2-Cover_square.png</CoverImageFilePath>
-      <TextBox1>Case12_MaxOutput</TextBox1>
+      <TextBox1>Case11_MaxOutput</TextBox1>
       <TextBox2>SLIDE - An Interactive Slope Stability Program</TextBox2>
       <TextBox3>Rocscience Inc.</TextBox3>
     </CoverPageOptions>

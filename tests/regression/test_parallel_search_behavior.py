@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import replace
 import json
 import pathlib
 import unittest
@@ -13,8 +14,10 @@ ensure_src_on_path()
 from slope_stab.analysis import run_analysis
 from slope_stab.exceptions import ParallelExecutionError
 from slope_stab.io.json_io import parse_project_input
+from slope_stab.models import ParallelExecutionInput, ProjectInput
 from slope_stab.search.common import evaluate_surface_candidate
 from slope_stab.search.surface_solver import solve_surface_for_context
+from slope_stab.verification.cases import AutoRefineVerificationCase, NON_UNIFORM_VERIFICATION_CASES
 
 
 def _load_fixture_payload(name: str) -> dict:
@@ -40,6 +43,31 @@ def _set_parallel(
     if timeout_seconds is not None:
         out["search"]["parallel"]["timeout_seconds"] = timeout_seconds
     return out
+
+
+def _set_project_parallel(
+    project: ProjectInput,
+    *,
+    mode: str,
+    workers: int,
+    min_batch_size: int,
+    timeout_seconds: float | None = None,
+) -> ProjectInput:
+    assert project.search is not None
+    parallel = ParallelExecutionInput(
+        mode=mode,
+        workers=workers,
+        min_batch_size=min_batch_size,
+        timeout_seconds=timeout_seconds,
+    )
+    return replace(project, search=replace(project.search, parallel=parallel))
+
+
+def _non_uniform_auto_case_project(name: str) -> ProjectInput:
+    for case in NON_UNIFORM_VERIFICATION_CASES:
+        if isinstance(case, AutoRefineVerificationCase) and case.name == name:
+            return case.project
+    raise AssertionError(f"Missing non-uniform auto-refine verification case: {name}")
 
 
 class _FakeProcessExecutor:
@@ -127,6 +155,35 @@ class ParallelSearchBehaviorTests(unittest.TestCase):
         with patch("slope_stab.analysis.ParallelSurfaceExecutor", _FakeProcessExecutor):
             with self.assertRaises(ParallelExecutionError):
                 run_analysis(timeout_project)
+
+    def test_non_uniform_auto_mode_parallel_matches_serial_for_representative_cases(self) -> None:
+        representative_cases = (
+            "Case 11 (Non-Uniform Auto-Refine)",
+            "Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine)",
+        )
+        for case_name in representative_cases:
+            with self.subTest(case=case_name):
+                base_project = _non_uniform_auto_case_project(case_name)
+                serial_project = _set_project_parallel(base_project, mode="serial", workers=1, min_batch_size=1)
+                auto_project = _set_project_parallel(base_project, mode="auto", workers=0, min_batch_size=1)
+
+                serial = run_analysis(serial_project)
+                with (
+                    patch("slope_stab.analysis.effective_cpu_count", return_value=6),
+                    patch("slope_stab.analysis.ParallelSurfaceExecutor", _FakeProcessExecutor),
+                ):
+                    auto_mode = run_analysis(auto_project)
+
+                self.assertAlmostEqual(serial.fos, auto_mode.fos, places=12)
+                self.assertEqual(serial.metadata["prescribed_surface"], auto_mode.metadata["prescribed_surface"])
+                self.assertEqual(
+                    serial.metadata["search"]["iteration_diagnostics"],
+                    auto_mode.metadata["search"]["iteration_diagnostics"],
+                )
+                self.assertEqual(auto_mode.metadata["search"]["parallel"]["requested_mode"], "auto")
+                self.assertEqual(auto_mode.metadata["search"]["parallel"]["resolved_mode"], "parallel")
+                self.assertEqual(auto_mode.metadata["search"]["parallel"]["decision_reason"], "policy_threshold_parallel")
+                self.assertEqual(auto_mode.metadata["search"]["parallel"]["backend"], "process")
 
 
 if __name__ == "__main__":

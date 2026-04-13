@@ -8,7 +8,7 @@ from slope_stab.execution.worker_policy import resolve_requested_workers as _res
 from slope_stab.models import SearchInput
 
 
-EVIDENCE_VERSION: Final[str] = "auto-v1"
+EVIDENCE_VERSION: Final[str] = "auto-v2"
 
 REASON_PRESCRIBED_ANALYSIS_SERIAL: Final[str] = "prescribed_analysis_serial"
 REASON_FORCED_SERIAL_MODE: Final[str] = "forced_serial_mode"
@@ -19,7 +19,6 @@ REASON_THREAD_BACKEND_DEFAULT_SERIAL: Final[str] = "thread_backend_default_seria
 REASON_THREAD_BACKEND_WHITELIST_PARALLEL: Final[str] = "thread_backend_whitelist_parallel"
 REASON_UNSUPPORTED_WORKLOAD_SERIAL: Final[str] = "unsupported_workload_serial"
 REASON_UNSUPPORTED_BATCHING_SERIAL: Final[str] = "unsupported_batching_serial"
-REASON_NON_UNIFORM_AUTO_REFINE_SERIAL: Final[str] = "non_uniform_auto_refine_serial_v1"
 REASON_POLICY_THRESHOLD_PARALLEL: Final[str] = "policy_threshold_parallel"
 REASON_POLICY_THRESHOLD_SERIAL: Final[str] = "policy_threshold_serial"
 
@@ -37,6 +36,17 @@ _PROCESS_PARALLEL_WHITELIST: Final[set[tuple[str, str, str, str]]] = {
     ("auto_refine_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
     ("cmaes_global_circular", "bishop_simplified", "large", DEFAULT_BATCHING_CLASS),
     ("cmaes_global_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
+}
+
+# Non-uniform auto-refine policy. Keep this explicit so uniform small-workload
+# auto-refine behavior remains unchanged.
+_PROCESS_PARALLEL_WHITELIST_NON_UNIFORM: Final[set[tuple[str, str, str, str]]] = {
+    ("auto_refine_circular", "bishop_simplified", "small", DEFAULT_BATCHING_CLASS),
+    ("auto_refine_circular", "bishop_simplified", "medium", DEFAULT_BATCHING_CLASS),
+    ("auto_refine_circular", "bishop_simplified", "large", DEFAULT_BATCHING_CLASS),
+    ("auto_refine_circular", "spencer", "small", DEFAULT_BATCHING_CLASS),
+    ("auto_refine_circular", "spencer", "medium", DEFAULT_BATCHING_CLASS),
+    ("auto_refine_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
 }
 
 # v1 intentionally empty: thread backend remains serial-by-default in auto mode.
@@ -132,8 +142,12 @@ def process_policy_allows_parallel(
     analysis_method: str,
     workload_class: str,
     batching_class: str,
+    is_non_uniform: bool = False,
 ) -> bool:
-    return (search_method, analysis_method, workload_class, batching_class) in _PROCESS_PARALLEL_WHITELIST
+    key = (search_method, analysis_method, workload_class, batching_class)
+    if is_non_uniform and key in _PROCESS_PARALLEL_WHITELIST_NON_UNIFORM:
+        return True
+    return key in _PROCESS_PARALLEL_WHITELIST
 
 
 def thread_policy_allows_parallel(

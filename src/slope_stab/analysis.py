@@ -18,7 +18,6 @@ from slope_stab.search.auto_parallel_policy import (
     EVIDENCE_VERSION,
     REASON_FORCED_PARALLEL_MODE,
     REASON_FORCED_SERIAL_MODE,
-    REASON_NON_UNIFORM_AUTO_REFINE_SERIAL,
     REASON_POLICY_THRESHOLD_PARALLEL,
     REASON_POLICY_THRESHOLD_SERIAL,
     REASON_PROCESS_BACKEND_STARTUP_FAILED_SERIAL,
@@ -167,7 +166,7 @@ def _initial_parallel_resolution(
     requested: ParallelExecutionInput,
     available_workers: int,
     *,
-    non_uniform_auto_refine: bool,
+    is_non_uniform: bool,
 ) -> ParallelResolution:
     requested_mode = requested.mode
     requested_workers = resolve_requested_workers(requested.workers, available_workers)
@@ -214,19 +213,6 @@ def _initial_parallel_resolution(
         )
 
     # requested_mode == "auto"
-    if non_uniform_auto_refine:
-        return ParallelResolution(
-            requested_mode=requested_mode,
-            requested_workers=requested_workers,
-            resolved_mode="serial",
-            resolved_workers=1,
-            decision_reason=REASON_NON_UNIFORM_AUTO_REFINE_SERIAL,
-            workload_class=workload_class,
-            batching_class=batching_class,
-            evidence_version=EVIDENCE_VERSION,
-            backend="serial",
-        )
-
     if workload_class == "unsupported":
         return ParallelResolution(
             requested_mode=requested_mode,
@@ -258,6 +244,7 @@ def _initial_parallel_resolution(
         analysis_method=analysis_method,
         workload_class=workload_class,
         batching_class=batching_class,
+        is_non_uniform=is_non_uniform,
     ):
         return ParallelResolution(
             requested_mode=requested_mode,
@@ -582,11 +569,7 @@ def run_analysis(
             analysis_method=project.analysis.method,
             requested=requested_parallel,
             available_workers=available_workers,
-            non_uniform_auto_refine=(
-                context.soil_domain.is_non_uniform
-                and project.search.method == "auto_refine_circular"
-                and requested_parallel.mode == "auto"
-            ),
+            is_non_uniform=context.soil_domain.is_non_uniform,
         )
 
         batch_evaluate_surfaces: SurfaceBatchEvaluator | None = None

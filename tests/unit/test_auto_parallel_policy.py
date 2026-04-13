@@ -25,6 +25,7 @@ from slope_stab.search.auto_parallel_policy import (
     classify_batching,
     classify_workload,
     effective_cpu_count,
+    process_policy_allows_parallel,
     resolve_requested_workers,
 )
 from slope_stab.search.common import evaluate_surface_candidate
@@ -71,6 +72,28 @@ class AutoParallelPolicyHelperTests(unittest.TestCase):
         self.assertIsNotNone(project.search)
         workload = classify_workload(project.search, project.analysis.method)
         self.assertEqual(workload, "large")
+
+    def test_process_policy_small_auto_refine_uniform_remains_serial(self) -> None:
+        self.assertFalse(
+            process_policy_allows_parallel(
+                search_method="auto_refine_circular",
+                analysis_method="bishop_simplified",
+                workload_class="small",
+                batching_class="default_batching",
+                is_non_uniform=False,
+            )
+        )
+
+    def test_process_policy_small_auto_refine_non_uniform_allows_parallel(self) -> None:
+        self.assertTrue(
+            process_policy_allows_parallel(
+                search_method="auto_refine_circular",
+                analysis_method="bishop_simplified",
+                workload_class="small",
+                batching_class="default_batching",
+                is_non_uniform=True,
+            )
+        )
 
 
 class AutoParallelResolutionTests(unittest.TestCase):
