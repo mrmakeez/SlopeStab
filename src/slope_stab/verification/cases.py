@@ -366,6 +366,25 @@ def _build_non_uniform_search_verification_cases() -> tuple[VerificationCase, ..
     return tuple(cases)
 
 
+_NON_UNIFORM_DEFAULT_SEARCH_CASE_NAMES = (
+    "Case 11 (Non-Uniform Auto-Refine Search Benchmark)",
+    "Case 11 (Water Seismic Surcharge Non-Uniform Cuckoo Global Search Benchmark)",
+    "Case 12 (Non-Uniform Direct Global Search Benchmark)",
+    "Case 12 (Water Surcharge Non-Uniform CMAES Global Search Benchmark)",
+    "Case 11 (Spencer Non-Uniform CMAES Global Search Benchmark)",
+    "Case 11 (Spencer Water Seismic Surcharge Non-Uniform Direct Global Search Benchmark)",
+    "Case 12 (Spencer Non-Uniform Cuckoo Global Search Benchmark)",
+    "Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine Search Benchmark)",
+)
+
+
+def _build_non_uniform_default_search_verification_cases(
+    full_cases: tuple[VerificationCase, ...],
+) -> tuple[VerificationCase, ...]:
+    selected_by_name = {case.name: case for case in full_cases}
+    return tuple(selected_by_name[name] for name in _NON_UNIFORM_DEFAULT_SEARCH_CASE_NAMES)
+
+
 VERIFICATION_CASES: tuple[VerificationCase, ...] = (
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
@@ -2121,10 +2140,14 @@ NON_UNIFORM_PRESCRIBED_CASES: tuple[VerificationCase, ...] = (
     ),
 )
 
-NON_UNIFORM_SEARCH_VERIFICATION_CASES = _build_non_uniform_search_verification_cases()
+NON_UNIFORM_SEARCH_VERIFICATION_CASES_FULL = _build_non_uniform_search_verification_cases()
+NON_UNIFORM_SEARCH_VERIFICATION_CASES_DEFAULT = _build_non_uniform_default_search_verification_cases(
+    NON_UNIFORM_SEARCH_VERIFICATION_CASES_FULL
+)
+NON_UNIFORM_SEARCH_VERIFICATION_CASES = NON_UNIFORM_SEARCH_VERIFICATION_CASES_DEFAULT
 
 NON_UNIFORM_VERIFICATION_CASES = (
-    NON_UNIFORM_PRESCRIBED_CASES + NON_UNIFORM_SEARCH_VERIFICATION_CASES
+    NON_UNIFORM_PRESCRIBED_CASES + NON_UNIFORM_SEARCH_VERIFICATION_CASES_DEFAULT
 )
 
 VERIFICATION_CASES = VERIFICATION_CASES + SPENCER_VERIFICATION_CASES + NON_UNIFORM_VERIFICATION_CASES

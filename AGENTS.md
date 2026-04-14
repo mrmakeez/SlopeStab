@@ -107,6 +107,8 @@ Expected:
 - Built-in `cli verify` includes Bishop and Spencer verification coverage:
   - Bishop: Case 1, Case 2, Case 3, Case 4, Case 5 (Water Surfaces Hu=1), Case 5 (Water Surfaces Hu=Auto), Case 6 (Ru Coefficient), Case 7 (Ponded Water Hu=Auto), Case 8 (Ponded Water Hu=Auto), plus Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
   - Spencer: prescribed benchmarks for Cases 2-8 (including Case 5 Hu=1/Hu=Auto, Case 6 Ru, and Cases 7-8 ponded water Hu=Auto), auto-refine parity for Cases 3-4, and Cases 2-4 global benchmark checks for `direct_global_circular`, `cuckoo_global_circular`, and `cmaes_global_circular`.
+  - Non-uniform prescribed verification remains fully included for Case 11, Case 11 Water/Seismic/Surcharge, Case 12, and Case 12 Water/Surcharge for both Bishop and Spencer.
+  - Non-uniform search verification in default `cli verify` uses a representative 8-case matrix spanning all four non-uniform scenarios, all four search methods, and both Bishop and Spencer; the full 32-case non-uniform search catalog remains internal/diagnostic and is not part of the default gate.
   - Surcharge benchmark policy: Case 3 surcharge 50 kPa prescribed benchmarks (Bishop + Spencer) are included in `cli verify`.
   - Case 3 surcharge 100 kPa remains a non-verify stress regression in unittest (`tests/regression/test_surcharge_case3.py`).
   - Global benchmark rule remains `FOS(method) <= FOS(benchmark) + 0.01`.

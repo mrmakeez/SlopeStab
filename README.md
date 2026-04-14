@@ -234,6 +234,8 @@ Parallel decision metadata is emitted at `result.metadata.search.parallel` with:
 - `cli verify --serial` cannot be combined with `--workers`.
 - Verify output includes top-level `execution` metadata with `requested_mode`, `resolved_mode`, `decision_reason`, `backend`, `requested_workers`, `resolved_workers`, and `evidence_version`.
 - Case ordering in verify output remains deterministic and follows built-in verification case definition order.
+- Default `cli verify` includes all non-uniform prescribed Case 11/12 checks and a representative 8-case non-uniform search matrix spanning all four scenarios, all four search methods, and both Bishop and Spencer.
+- The full 32-case non-uniform search benchmark catalog remains internal/diagnostic and is not part of the default gate.
 - Non-gating auto-mode evidence can be captured with `python scripts/benchmarks/auto_mode_matrix.py` (latest captured artifact: `docs/benchmarks/auto-mode-policy-evidence-2026-03-23.json`).
 
 ## Solver Validity Rules

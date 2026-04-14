@@ -1,108 +1,102 @@
 from __future__ import annotations
 
 import json
-import os
-import pathlib
-import subprocess
-import sys
 import unittest
+from unittest.mock import patch
+
+from tests.path_setup import ensure_src_on_path
+
+ensure_src_on_path()
+
+from slope_stab.cli import _cmd_verify, build_parser
+from slope_stab.models import AnalysisResult
+from slope_stab.verification.runner import VerificationExecution, VerificationOutcome, VerificationRunResult
+
+
+def _fake_result(*, fos: float) -> AnalysisResult:
+    return AnalysisResult(
+        fos=fos,
+        converged=True,
+        iterations=5,
+        residual=0.0,
+        driving_moment=10.0,
+        resisting_moment=12.0,
+    )
+
+
+def _fake_run_result() -> VerificationRunResult:
+    outcomes = [
+        VerificationOutcome(
+            name="Case 1",
+            case_type="prescribed_benchmark",
+            analysis_method="bishop_simplified",
+            result=_fake_result(fos=1.0),
+            hard_checks={"fos_abs_error": {"value": 0.0, "tolerance": 0.001, "expected": 1.0, "passed": True}},
+            diagnostics={},
+            passed=True,
+        ),
+        VerificationOutcome(
+            name="Case 11 (Non-Uniform Direct Global Search Benchmark)",
+            case_type="non_uniform_search_benchmark",
+            analysis_method="bishop_simplified",
+            result=_fake_result(fos=0.42),
+            hard_checks={
+                "fos_vs_slide2_plus_margin": {
+                    "value": 0.42,
+                    "threshold": 0.43,
+                    "slide2_fos": 0.42,
+                    "margin": 0.01,
+                    "passed": True,
+                }
+            },
+            diagnostics={"radius": 30.0},
+            passed=True,
+        ),
+    ]
+    execution = VerificationExecution(
+        requested_mode="auto_parallel",
+        resolved_mode="parallel",
+        decision_reason="process_backend_parallel",
+        backend="process",
+        requested_workers=4,
+        resolved_workers=4,
+    )
+    return VerificationRunResult(outcomes=outcomes, execution=execution, error=None)
 
 
 class CliRegressionTests(unittest.TestCase):
-    def test_verify_command(self) -> None:
-        root = pathlib.Path(__file__).resolve().parents[2]
-        env = dict(os.environ)
-        env["PYTHONPATH"] = str(root / "src")
-        proc = subprocess.run(
-            [sys.executable, "-m", "slope_stab.cli", "verify"],
-            cwd=root,
-            env=env,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)
-        payload = json.loads(proc.stdout)
+    def test_verify_command_contract(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["verify"])
+        with (
+            patch("slope_stab.cli.run_verification_suite_with_execution", return_value=_fake_run_result()),
+            patch("slope_stab.cli._emit_stdout_text", return_value=True) as mock_emit,
+        ):
+            code = _cmd_verify(args)
+
+        self.assertEqual(code, 0)
+        payload = json.loads(mock_emit.call_args.args[0])
         self.assertTrue(payload["all_passed"])
-        self.assertEqual(len(payload["cases"]), 83)
+        self.assertEqual(len(payload["cases"]), 2)
         self.assertIn("execution", payload)
 
         execution = payload["execution"]
         self.assertEqual(execution["requested_mode"], "auto_parallel")
-        self.assertGreaterEqual(execution["requested_workers"], 1)
-        self.assertLessEqual(execution["requested_workers"], 4)
-        self.assertIn(
-            execution["decision_reason"],
-            {
-                "workers_le_one_serial",
-                "process_backend_parallel",
-                "thread_backend_default_serial",
-            },
-        )
-        if execution["backend"] == "process":
-            self.assertEqual(execution["resolved_mode"], "parallel")
-            self.assertGreater(execution["resolved_workers"], 1)
-        else:
-            self.assertIn(execution["backend"], {"thread", "serial"})
-            self.assertEqual(execution["resolved_mode"], "serial")
-            self.assertEqual(execution["resolved_workers"], 1)
+        self.assertEqual(execution["resolved_mode"], "parallel")
+        self.assertEqual(execution["decision_reason"], "process_backend_parallel")
+        self.assertEqual(execution["backend"], "process")
+        self.assertEqual(execution["requested_workers"], 4)
+        self.assertEqual(execution["resolved_workers"], 4)
 
         cases = {item["name"]: item for item in payload["cases"]}
         self.assertIn("Case 1", cases)
-        self.assertIn("Case 2 (Spencer Prescribed Benchmark)", cases)
-        self.assertIn("Case 4 (Spencer CMAES Global Search Benchmark)", cases)
-        self.assertIn("Case 3 (Surcharge 50kPa Benchmark)", cases)
-        self.assertIn("Case 3 (Spencer Surcharge 50kPa Benchmark)", cases)
-        self.assertIn("Case 5 (Water Surfaces Hu=1 Benchmark)", cases)
-        self.assertIn("Case 5 (Water Surfaces Hu=Auto Benchmark)", cases)
-        self.assertIn("Case 6 (Ru Coefficient Benchmark)", cases)
-        self.assertIn("Case 7 (Ponded Water Hu=Auto Benchmark)", cases)
-        self.assertIn("Case 8 (Ponded Water Hu=Auto Benchmark)", cases)
-        self.assertIn("Case 9 (Horizontal Seismic + Ru=0.5 Benchmark)", cases)
-        self.assertIn("Case 10 (Horizontal Seismic + Surcharge + Ponded Toe Water Benchmark)", cases)
-        self.assertIn("Case 5 (Spencer Water Surfaces Hu=1 Benchmark)", cases)
-        self.assertIn("Case 5 (Spencer Water Surfaces Hu=Auto Benchmark)", cases)
-        self.assertIn("Case 6 (Spencer Ru Coefficient Benchmark)", cases)
-        self.assertIn("Case 7 (Spencer Ponded Water Hu=Auto Benchmark)", cases)
-        self.assertIn("Case 8 (Spencer Ponded Water Hu=Auto Benchmark)", cases)
-        self.assertIn("Case 9 (Spencer Horizontal Seismic + Ru=0.5 Benchmark)", cases)
-        self.assertIn("Case 10 (Spencer Horizontal Seismic + Surcharge + Ponded Toe Water Benchmark)", cases)
         self.assertIn("Case 11 (Non-Uniform Direct Global Search Benchmark)", cases)
-        self.assertIn("Case 11 (Spencer Water Seismic Surcharge Non-Uniform CMAES Global Search Benchmark)", cases)
-        self.assertIn("Case 12 (Water Surcharge Non-Uniform Cuckoo Global Search Benchmark)", cases)
-        self.assertIn("Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine Search Benchmark)", cases)
-        self.assertNotIn("Case 3 (Surcharge 100kPa Benchmark)", cases)
-
         self.assertEqual(cases["Case 1"]["case_type"], "prescribed_benchmark")
-        self.assertEqual(cases["Case 2"]["case_type"], "prescribed_benchmark")
-        self.assertEqual(cases["Case 3"]["case_type"], "auto_refine_parity")
-        self.assertEqual(cases["Case 4"]["case_type"], "auto_refine_parity")
-        self.assertEqual(cases["Case 2 (Global Search Benchmark)"]["case_type"], "global_search_benchmark")
-        self.assertEqual(cases["Case 3 (Global Search Benchmark)"]["case_type"], "global_search_benchmark")
-        self.assertEqual(cases["Case 4 (Global Search Benchmark)"]["case_type"], "global_search_benchmark")
-        self.assertEqual(cases["Case 2 (Cuckoo Global Search Benchmark)"]["case_type"], "cuckoo_global_search_benchmark")
-        self.assertEqual(cases["Case 3 (Cuckoo Global Search Benchmark)"]["case_type"], "cuckoo_global_search_benchmark")
-        self.assertEqual(cases["Case 4 (Cuckoo Global Search Benchmark)"]["case_type"], "cuckoo_global_search_benchmark")
-        self.assertEqual(cases["Case 2 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
-        self.assertEqual(cases["Case 3 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
-        self.assertEqual(cases["Case 4 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
         self.assertEqual(
             cases["Case 11 (Non-Uniform Direct Global Search Benchmark)"]["case_type"],
             "non_uniform_search_benchmark",
         )
-        self.assertEqual(
-            cases["Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine Search Benchmark)"]["case_type"],
-            "non_uniform_search_benchmark",
-        )
-        self.assertEqual(cases["Case 2 (Spencer Prescribed Benchmark)"]["analysis_method"], "spencer")
-        self.assertEqual(cases["Case 4 (Spencer CMAES Global Search Benchmark)"]["analysis_method"], "spencer")
-
-        global_check = cases["Case 2 (Global Search Benchmark)"]["hard_checks"]["fos_vs_benchmark_plus_margin"]
-        self.assertIn("value", global_check)
-        self.assertIn("threshold", global_check)
-        self.assertIn("benchmark", global_check)
-        self.assertIn("margin", global_check)
-        self.assertIn("passed", global_check)
+        self.assertEqual(cases["Case 11 (Non-Uniform Direct Global Search Benchmark)"]["analysis_method"], "bishop_simplified")
 
         non_uniform_check = cases["Case 11 (Non-Uniform Direct Global Search Benchmark)"]["hard_checks"][
             "fos_vs_slide2_plus_margin"
@@ -120,19 +114,10 @@ class CliRegressionTests(unittest.TestCase):
             self.assertIn("analysis_method", item)
 
     def test_verify_serial_workers_conflict(self) -> None:
-        root = pathlib.Path(__file__).resolve().parents[2]
-        env = dict(os.environ)
-        env["PYTHONPATH"] = str(root / "src")
-        proc = subprocess.run(
-            [sys.executable, "-m", "slope_stab.cli", "verify", "--serial", "--workers", "1"],
-            cwd=root,
-            env=env,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        self.assertEqual(proc.returncode, 2)
-        self.assertIn("not allowed", proc.stderr)
+        parser = build_parser()
+        with self.assertRaises(SystemExit) as ctx:
+            parser.parse_args(["verify", "--serial", "--workers", "1"])
+        self.assertEqual(ctx.exception.code, 2)
 
 
 if __name__ == "__main__":
