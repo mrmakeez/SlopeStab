@@ -1,0 +1,166 @@
+{
+  "units": "metric",
+  "geometry": {
+    "h": 20.0,
+    "l": 30.0,
+    "x_toe": 18.0,
+    "y_toe": 15.0
+  },
+  "analysis": {
+    "method": "spencer",
+    "n_slices": 50,
+    "tolerance": 0.001,
+    "max_iter": 75,
+    "f_init": 1.0
+  },
+  "soils": {
+    "materials": [
+      {
+        "id": "top_layer",
+        "gamma": 18.82,
+        "c": 29.4,
+        "phi_deg": 12.0
+      },
+      {
+        "id": "middle_layer",
+        "gamma": 18.82,
+        "c": 9.8,
+        "phi_deg": 5.0
+      },
+      {
+        "id": "lower_layer",
+        "gamma": 18.82,
+        "c": 294.0,
+        "phi_deg": 40.0
+      }
+    ],
+    "external_boundary": [
+      [
+        0.0,
+        3.0
+      ],
+      [
+        96.0,
+        3.0
+      ],
+      [
+        96.0,
+        35.0
+      ],
+      [
+        72.0,
+        35.0
+      ],
+      [
+        48.0,
+        35.0
+      ],
+      [
+        24.0,
+        19.0
+      ],
+      [
+        18.0,
+        15.0
+      ],
+      [
+        0.0,
+        15.0
+      ]
+    ],
+    "material_boundaries": [
+      [
+        [
+          24.0,
+          19.0
+        ],
+        [
+          72.0,
+          35.0
+        ]
+      ],
+      [
+        [
+          0.0,
+          3.0
+        ],
+        [
+          96.0,
+          35.0
+        ]
+      ]
+    ],
+    "region_assignments": [
+      {
+        "material_id": "top_layer",
+        "seed_x": 70.0,
+        "seed_y": 34.8
+      },
+      {
+        "material_id": "middle_layer",
+        "seed_x": 32.0,
+        "seed_y": 21.0
+      },
+      {
+        "material_id": "lower_layer",
+        "seed_x": 32.0,
+        "seed_y": 10.0
+      }
+    ]
+  },
+  "prescribed_surface": null,
+  "search": {
+    "method": "direct_global_circular",
+    "auto_refine_circular": null,
+    "direct_global_circular": {
+      "max_iterations": 90,
+      "max_evaluations": 1200,
+      "min_improvement": 0.0001,
+      "stall_iterations": 12,
+      "min_rectangle_half_size": 0.001,
+      "search_limits": {
+        "x_min": 15.0,
+        "x_max": 65.0
+      }
+    },
+    "cuckoo_global_circular": null,
+    "cmaes_global_circular": null,
+    "parallel": null
+  },
+  "loads": {
+    "uniform_surcharge": {
+      "magnitude_kpa": 100.0,
+      "placement": "crest_range",
+      "x_start": 48.0,
+      "x_end": 55.0
+    },
+    "seismic": null,
+    "groundwater": {
+      "model": "water_surfaces",
+      "surface": [
+        [
+          0.0,
+          19.0
+        ],
+        [
+          24.0,
+          19.0
+        ],
+        [
+          56.976,
+          32.2524
+        ],
+        [
+          96.0,
+          32.2524
+        ]
+      ],
+      "hu": {
+        "mode": "auto",
+        "value": null
+      },
+      "gamma_w": 9.81,
+      "ru": null
+    }
+  }
+}

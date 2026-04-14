@@ -7,11 +7,11 @@ from tests.path_setup import ensure_src_on_path
 ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     GeometryInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     UniformSurchargeInput,
@@ -19,10 +19,11 @@ from slope_stab.models import (
 
 
 def _case4_project(method: str) -> ProjectInput:
+    geometry = GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0)
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-        material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=16.0, cohesion=9.0, phi_deg=32.0),
         analysis=AnalysisInput(
             method=method,
             n_slices=25,

@@ -10,13 +10,13 @@ ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
 from slope_stab.geometry.profile import UniformSlopeProfile
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     GeometryInput,
     GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
 )
@@ -25,7 +25,6 @@ from slope_stab.surfaces.circular import CircularSlipSurface
 
 
 _CASE5_GEOMETRY = GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0)
-_CASE5_MATERIAL = MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0)
 _CASE5_WATER_SURFACE = ((0.0, 15.0), (18.0, 15.0), (30.0, 23.0), (48.0, 29.0), (66.0, 32.0))
 _CASE5_PARITY_TOL = 0.001
 _CASE5_BOUNDARY_TOL = 0.0015
@@ -48,7 +47,12 @@ def _case5_project(*, method: str, hu_mode: str, hu_value: float | None, surface
     return ProjectInput(
         units="metric",
         geometry=_CASE5_GEOMETRY,
-        material=_CASE5_MATERIAL,
+        soils=build_uniform_soils_for_geometry(
+            geometry=_CASE5_GEOMETRY,
+            gamma=18.82,
+            cohesion=41.65,
+            phi_deg=15.0,
+        ),
         analysis=AnalysisInput(
             method=method,
             n_slices=30,
@@ -69,10 +73,11 @@ def _case5_project(*, method: str, hu_mode: str, hu_value: float | None, surface
 
 
 def _case6_project(*, method: str, surface: PrescribedCircleInput) -> ProjectInput:
+    geometry = GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0)
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0),
-        material=MaterialInput(gamma=18.0, c=10.8, phi_deg=40.0),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=18.0, cohesion=10.8, phi_deg=40.0),
         analysis=AnalysisInput(
             method=method,
             n_slices=30,
@@ -373,6 +378,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                     x_toe=project.geometry.x_toe,
                     y_toe=project.geometry.y_toe,
                 )
+                material = project.soils.materials[0]
                 slices = generate_vertical_slices(
                     profile=profile,
                     surface=CircularSlipSurface(
@@ -383,7 +389,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                     n_slices=project.analysis.n_slices,
                     x_left=project.prescribed_surface.x_left,
                     x_right=project.prescribed_surface.x_right,
-                    gamma=project.material.gamma,
+                    gamma=material.gamma,
                     loads=project.loads,
                 )
                 s01_rows = _parse_minimum_slice_info(Path(scenario.s01_path), scenario.method_label)
@@ -405,6 +411,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                     x_toe=project.geometry.x_toe,
                     y_toe=project.geometry.y_toe,
                 )
+                material = project.soils.materials[0]
                 slices = generate_vertical_slices(
                     profile=profile,
                     surface=CircularSlipSurface(
@@ -415,7 +422,7 @@ class GroundwaterCase56RegressionTests(unittest.TestCase):
                     n_slices=project.analysis.n_slices,
                     x_left=project.prescribed_surface.x_left,
                     x_right=project.prescribed_surface.x_right,
-                    gamma=project.material.gamma,
+                    gamma=material.gamma,
                     loads=project.loads,
                 )
 

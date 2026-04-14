@@ -24,7 +24,7 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr + proc.stdout)
         payload = json.loads(proc.stdout)
         self.assertTrue(payload["all_passed"])
-        self.assertEqual(len(payload["cases"]), 59)
+        self.assertEqual(len(payload["cases"]), 83)
         self.assertIn("execution", payload)
 
         execution = payload["execution"]
@@ -67,6 +67,10 @@ class CliRegressionTests(unittest.TestCase):
         self.assertIn("Case 8 (Spencer Ponded Water Hu=Auto Benchmark)", cases)
         self.assertIn("Case 9 (Spencer Horizontal Seismic + Ru=0.5 Benchmark)", cases)
         self.assertIn("Case 10 (Spencer Horizontal Seismic + Surcharge + Ponded Toe Water Benchmark)", cases)
+        self.assertIn("Case 11 (Non-Uniform Direct Global Search Benchmark)", cases)
+        self.assertIn("Case 11 (Spencer Water Seismic Surcharge Non-Uniform CMAES Global Search Benchmark)", cases)
+        self.assertIn("Case 12 (Water Surcharge Non-Uniform Cuckoo Global Search Benchmark)", cases)
+        self.assertIn("Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine Search Benchmark)", cases)
         self.assertNotIn("Case 3 (Surcharge 100kPa Benchmark)", cases)
 
         self.assertEqual(cases["Case 1"]["case_type"], "prescribed_benchmark")
@@ -82,6 +86,14 @@ class CliRegressionTests(unittest.TestCase):
         self.assertEqual(cases["Case 2 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
         self.assertEqual(cases["Case 3 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
         self.assertEqual(cases["Case 4 (CMAES Global Search Benchmark)"]["case_type"], "cmaes_global_search_benchmark")
+        self.assertEqual(
+            cases["Case 11 (Non-Uniform Direct Global Search Benchmark)"]["case_type"],
+            "non_uniform_search_benchmark",
+        )
+        self.assertEqual(
+            cases["Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine Search Benchmark)"]["case_type"],
+            "non_uniform_search_benchmark",
+        )
         self.assertEqual(cases["Case 2 (Spencer Prescribed Benchmark)"]["analysis_method"], "spencer")
         self.assertEqual(cases["Case 4 (Spencer CMAES Global Search Benchmark)"]["analysis_method"], "spencer")
 
@@ -91,6 +103,15 @@ class CliRegressionTests(unittest.TestCase):
         self.assertIn("benchmark", global_check)
         self.assertIn("margin", global_check)
         self.assertIn("passed", global_check)
+
+        non_uniform_check = cases["Case 11 (Non-Uniform Direct Global Search Benchmark)"]["hard_checks"][
+            "fos_vs_slide2_plus_margin"
+        ]
+        self.assertIn("value", non_uniform_check)
+        self.assertIn("threshold", non_uniform_check)
+        self.assertIn("slide2_fos", non_uniform_check)
+        self.assertIn("margin", non_uniform_check)
+        self.assertIn("passed", non_uniform_check)
 
         for item in payload["cases"]:
             self.assertIn("solver", item)

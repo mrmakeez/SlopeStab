@@ -27,6 +27,13 @@ The `cmaes_global_circular` path requires `scipy` and `cma`; fallback implementa
   - `error = {"code": "<stable_code>", "message": "<human_text>", "stage": "<discovery|startup|runtime|validation>"}`
   - `error` is `null` on successful runs.
 
+## Breaking Changes (2026-04-14)
+
+- Removed legacy top-level `material` input and in-repo `ProjectInput.material` compatibility.
+  - Migration: use required `soils` for all JSON inputs and in-repo constructors.
+- Removed legacy `search.parallel.enabled`.
+  - Migration: use `search.parallel.mode = auto|serial|parallel`.
+
 ## Canonical Gate Baseline Capture
 
 Use a single run-id bundle for verification/test evidence to avoid mismatched snapshots:
@@ -153,6 +160,7 @@ Example:
 - `search.method = direct_global_circular` for deterministic DIRECT-style global search.
 - `search.method = cuckoo_global_circular` for seeded stochastic Cuckoo global search with deterministic repeatability per seed.
 - `search.method = cmaes_global_circular` for seeded hybrid DIRECT prescan + CMA-ES + Nelder-Mead polish.
+- Uniform and non-uniform soil models are supported across all four circular search methods.
 - Input settings and output diagnostics for each method are documented in the explainer files above.
 
 ## Search Architecture
@@ -185,11 +193,10 @@ Worker rules:
 - explicit `workers >= 1` is clamped to available workers.
 - if resolved workers are `<= 1`, execution resolves serial.
 
-Backward compatibility:
+Legacy alias status:
 
-- `search.parallel.enabled = false` maps to `mode = serial`.
-- `search.parallel.enabled = true` maps to `mode = parallel`.
-- conflicting `enabled` and `mode` values are rejected.
+- `search.parallel.enabled` is no longer supported.
+- legacy top-level `material` is no longer supported.
 
 Thread backend posture:
 

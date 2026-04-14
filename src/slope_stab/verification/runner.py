@@ -209,6 +209,39 @@ def _evaluate_global_search_benchmark_case(
     result: AnalysisResult,
 ) -> tuple[dict[str, Any], dict[str, Any], bool]:
     threshold = case.benchmark_fos + case.margin
+    surface = result.metadata.get("prescribed_surface", {})
+    diagnostics = {
+        "delta_vs_benchmark": result.fos - case.benchmark_fos,
+        "delta_vs_threshold": result.fos - threshold,
+        "center": {
+            "xc": surface.get("xc"),
+            "yc": surface.get("yc"),
+        },
+        "radius": surface.get("r"),
+        "endpoints": {
+            "left": {
+                "x": surface.get("x_left"),
+                "y": surface.get("y_left"),
+            },
+            "right": {
+                "x": surface.get("x_right"),
+                "y": surface.get("y_right"),
+            },
+        },
+    }
+    if case.case_type == "non_uniform_search_benchmark":
+        hard_checks = {
+            "fos_vs_slide2_plus_margin": {
+                "value": result.fos,
+                "threshold": threshold,
+                "slide2_fos": case.benchmark_fos,
+                "margin": case.margin,
+                "passed": result.fos <= threshold,
+            }
+        }
+        passed = hard_checks["fos_vs_slide2_plus_margin"]["passed"]
+        return hard_checks, diagnostics, passed
+
     hard_checks = {
         "fos_vs_benchmark_plus_margin": {
             "value": result.fos,
@@ -217,10 +250,6 @@ def _evaluate_global_search_benchmark_case(
             "margin": case.margin,
             "passed": result.fos <= threshold,
         }
-    }
-    diagnostics = {
-        "delta_vs_benchmark": result.fos - case.benchmark_fos,
-        "delta_vs_threshold": result.fos - threshold,
     }
     passed = hard_checks["fos_vs_benchmark_plus_margin"]["passed"]
     return hard_checks, diagnostics, passed

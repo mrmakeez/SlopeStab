@@ -1,0 +1,155 @@
+{
+  "units": "metric",
+  "geometry": {
+    "h": 10.0,
+    "l": 20.0,
+    "x_toe": 30.0,
+    "y_toe": 25.0
+  },
+  "analysis": {
+    "method": "bishop_simplified",
+    "n_slices": 50,
+    "tolerance": 0.001,
+    "max_iter": 75,
+    "f_init": 1.0
+  },
+  "soils": {
+    "materials": [
+      {
+        "id": "soil_1",
+        "gamma": 19.5,
+        "c": 0.0,
+        "phi_deg": 38.0
+      },
+      {
+        "id": "soil_2",
+        "gamma": 19.5,
+        "c": 5.3,
+        "phi_deg": 23.0
+      },
+      {
+        "id": "soil_3",
+        "gamma": 19.5,
+        "c": 7.2,
+        "phi_deg": 20.0
+      }
+    ],
+    "external_boundary": [
+      [
+        20.0,
+        20.0
+      ],
+      [
+        70.0,
+        20.0
+      ],
+      [
+        70.0,
+        24.0
+      ],
+      [
+        70.0,
+        31.0
+      ],
+      [
+        70.0,
+        35.0
+      ],
+      [
+        50.0,
+        35.0
+      ],
+      [
+        30.0,
+        25.0
+      ],
+      [
+        20.0,
+        25.0
+      ]
+    ],
+    "material_boundaries": [
+      [
+        [
+          40.0,
+          27.0
+        ],
+        [
+          52.0,
+          24.0
+        ],
+        [
+          70.0,
+          24.0
+        ]
+      ],
+      [
+        [
+          30.0,
+          25.0
+        ],
+        [
+          40.0,
+          27.0
+        ],
+        [
+          50.0,
+          29.0
+        ],
+        [
+          54.0,
+          31.0
+        ],
+        [
+          70.0,
+          31.0
+        ]
+      ]
+    ],
+    "region_assignments": [
+      {
+        "material_id": "soil_1",
+        "seed_x": 66.0,
+        "seed_y": 33.0
+      },
+      {
+        "material_id": "soil_2",
+        "seed_x": 66.0,
+        "seed_y": 27.0
+      },
+      {
+        "material_id": "soil_3",
+        "seed_x": 66.0,
+        "seed_y": 22.0
+      }
+    ]
+  },
+  "prescribed_surface": null,
+  "search": {
+    "method": "cmaes_global_circular",
+    "auto_refine_circular": null,
+    "direct_global_circular": null,
+    "cuckoo_global_circular": null,
+    "cmaes_global_circular": {
+      "max_evaluations": 4500,
+      "direct_prescan_evaluations": 600,
+      "cmaes_population_size": 8,
+      "cmaes_max_iterations": 180,
+      "cmaes_restarts": 2,
+      "cmaes_sigma0": 0.15,
+      "polish_max_evaluations": 80,
+      "min_improvement": 0.0001,
+      "stall_iterations": 25,
+      "seed": 1,
+      "post_polish": true,
+      "invalid_penalty": 1000000.0,
+      "nonconverged_penalty": 100000.0,
+      "search_limits": {
+        "x_min": 20.0,
+        "x_max": 70.0
+      }
+    },
+    "parallel": null
+  },
+  "loads": null
+}

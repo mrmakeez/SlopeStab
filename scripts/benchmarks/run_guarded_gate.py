@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-DEFAULT_VERIFY_TIMEOUT_MS = 1_200_000
+DEFAULT_VERIFY_TIMEOUT_MS = 1_800_000
 DEFAULT_TEST_TIMEOUT_MS = 2_700_000
 DEFAULT_RETRY_TIMEOUT_SCALE = 1.5
 
@@ -188,42 +188,31 @@ def _run_stage(
         argv = _build_stage_argv(cli_args, force_fork_start_method=force_fork_start_method)
         timed_out = False
         returncode: int | None
-        stdout_text = ""
-        stderr_text = ""
         timeout_error_message: str | None = None
+        stdout_file = run_dir / f"{name}_attempt{attempt_index}_stdout.txt"
+        stderr_file = run_dir / f"{name}_attempt{attempt_index}_stderr.txt"
         try:
-            completed = subprocess.run(
-                argv,
-                cwd=ROOT,
-                env=env,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=current_timeout_ms / 1000.0,
-            )
-            returncode = int(completed.returncode)
-            stdout_text = completed.stdout
-            stderr_text = completed.stderr
+            with stdout_file.open("w", encoding="utf-8") as stdout_handle, stderr_file.open(
+                "w", encoding="utf-8"
+            ) as stderr_handle:
+                completed = subprocess.run(
+                    argv,
+                    cwd=ROOT,
+                    env=env,
+                    check=False,
+                    stdout=stdout_handle,
+                    stderr=stderr_handle,
+                    text=True,
+                    timeout=current_timeout_ms / 1000.0,
+                )
+                returncode = int(completed.returncode)
         except subprocess.TimeoutExpired as exc:
             timed_out = True
             returncode = None
             timeout_error_message = str(exc)
-            if isinstance(exc.stdout, str):
-                stdout_text = exc.stdout
-            elif isinstance(exc.stdout, bytes):
-                stdout_text = exc.stdout.decode("utf-8", errors="replace")
-            if isinstance(exc.stderr, str):
-                stderr_text = exc.stderr
-            elif isinstance(exc.stderr, bytes):
-                stderr_text = exc.stderr.decode("utf-8", errors="replace")
 
         elapsed_seconds = round(time.perf_counter() - attempt_started, 3)
         attempt_finished_utc = _iso_timestamp_utc()
-
-        stdout_file = run_dir / f"{name}_attempt{attempt_index}_stdout.txt"
-        stderr_file = run_dir / f"{name}_attempt{attempt_index}_stderr.txt"
-        _write_text(stdout_file, stdout_text)
-        _write_text(stderr_file, stderr_text)
 
         attempt_payload = {
             "attempt": attempt_index,

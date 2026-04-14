@@ -368,7 +368,7 @@ class SearchInputParsingTests(unittest.TestCase):
         with self.assertRaises(InputValidationError):
             parse_project_input(payload)
 
-    def test_parse_parallel_legacy_enabled_mapping(self) -> None:
+    def test_parse_rejects_legacy_parallel_enabled_mapping(self) -> None:
         payload = _base_payload()
         payload["search"] = {
             "method": "auto_refine_circular",
@@ -383,13 +383,14 @@ class SearchInputParsingTests(unittest.TestCase):
                 "divisions_to_use_next_iteration_pct": 50.0,
             },
         }
-        project = parse_project_input(payload)
-        self.assertIsNotNone(project.search)
-        self.assertIsNotNone(project.search.parallel)
-        self.assertEqual(project.search.parallel.mode, "parallel")
-        self.assertEqual(project.search.parallel.workers, 3)
+        with self.assertRaises(InputValidationError) as ctx:
+            parse_project_input(payload)
+        self.assertEqual(
+            str(ctx.exception),
+            "search.parallel.enabled is no longer supported; use search.parallel.mode.",
+        )
 
-    def test_parse_parallel_legacy_enabled_false_maps_to_serial(self) -> None:
+    def test_parse_rejects_legacy_parallel_enabled_false_mapping(self) -> None:
         payload = _base_payload()
         payload["search"] = {
             "method": "auto_refine_circular",
@@ -403,11 +404,12 @@ class SearchInputParsingTests(unittest.TestCase):
                 "divisions_to_use_next_iteration_pct": 50.0,
             },
         }
-        project = parse_project_input(payload)
-        self.assertIsNotNone(project.search)
-        self.assertIsNotNone(project.search.parallel)
-        self.assertEqual(project.search.parallel.mode, "serial")
-        self.assertEqual(project.search.parallel.workers, 0)
+        with self.assertRaises(InputValidationError) as ctx:
+            parse_project_input(payload)
+        self.assertEqual(
+            str(ctx.exception),
+            "search.parallel.enabled is no longer supported; use search.parallel.mode.",
+        )
 
     def test_parse_rejects_parallel_enabled_mode_conflict(self) -> None:
         payload = _base_payload()
@@ -425,8 +427,12 @@ class SearchInputParsingTests(unittest.TestCase):
                 "divisions_to_use_next_iteration_pct": 50.0,
             },
         }
-        with self.assertRaises(InputValidationError):
+        with self.assertRaises(InputValidationError) as ctx:
             parse_project_input(payload)
+        self.assertEqual(
+            str(ctx.exception),
+            "search.parallel.enabled is no longer supported; use search.parallel.mode.",
+        )
 
     def test_parse_rejects_invalid_parallel_mode(self) -> None:
         payload = _base_payload()

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import shutil
 import unittest
+from unittest.mock import patch
 from uuid import uuid4
 
 
@@ -87,6 +88,45 @@ class RunGuardedGateScriptTests(unittest.TestCase):
             passed, err = self.mod._read_all_passed(bad)
             self.assertIsNone(passed)
             self.assertEqual(err, "output_all_passed_missing_or_non_bool")
+        finally:
+            shutil.rmtree(base, ignore_errors=True)
+
+    def test_run_stage_streams_output_to_files_instead_of_capture_pipes(self) -> None:
+        tmp_root = Path(__file__).resolve().parents[2] / "tmp"
+        base = tmp_root / "unit_test_scratch" / f"guarded_gate_{uuid4().hex}"
+        run_dir = base / "run"
+        run_dir.mkdir(parents=True, exist_ok=True)
+        output_path = run_dir / "verify.json"
+
+        def _fake_run(*args, **kwargs):
+            self.assertNotIn("capture_output", kwargs)
+            self.assertIsNotNone(kwargs.get("stdout"))
+            self.assertIsNotNone(kwargs.get("stderr"))
+            kwargs["stdout"].write("stage stdout\n")
+            kwargs["stderr"].write("stage stderr\n")
+            output_path.write_text(json.dumps({"all_passed": True}), encoding="utf-8")
+
+            class _Completed:
+                returncode = 0
+
+            return _Completed()
+
+        try:
+            with patch.object(self.mod.subprocess, "run", side_effect=_fake_run):
+                stage = self.mod._run_stage(
+                    name="verify",
+                    cli_args=["verify", "--output", str(output_path)],
+                    env={},
+                    run_dir=run_dir,
+                    timeout_ms=1000,
+                    retry_timeout_scale=1.5,
+                    force_fork_start_method=False,
+                )
+            self.assertTrue(stage["passed"])
+            stdout_file = Path(self.mod.ROOT) / stage["attempts"][0]["stdout_file"]
+            stderr_file = Path(self.mod.ROOT) / stage["attempts"][0]["stderr_file"]
+            self.assertEqual(stdout_file.read_text(encoding="utf-8"), "stage stdout\n")
+            self.assertEqual(stderr_file.read_text(encoding="utf-8"), "stage stderr\n")
         finally:
             shutil.rmtree(base, ignore_errors=True)
 

@@ -12,7 +12,7 @@ Primary goal: preserve correctness of Bishop simplified and Spencer calculations
 Supported:
 - 2D plane-strain, unit thickness
 - Uniform slope geometry with infinite flat toe/crest extent
-- Homogeneous Mohr-Coulomb soil
+- Uniform and non-uniform Mohr-Coulomb soils via `soils.materials`, `material_boundaries`, and `region_assignments`
 - Uniform surcharge loading on crest region (`loads.uniform_surcharge` with `crest_infinite` or `crest_range`)
 - Groundwater loading via `loads.groundwater`:
   - `model = water_surfaces` with `hu.mode = custom|auto`
@@ -30,8 +30,6 @@ Supported:
 Not supported in baseline:
 - Additional/alternative search algorithms beyond current auto-refine, direct-global, cuckoo-global, and CMAES-global circular search (grid, random, GA, etc.)
 - Non-circular surfaces
-- Multi-soil zoning/internal boundaries
-- Seismic loading
 
 ## Non-Negotiable Rules
 - Verification-first always: do not add new feature paths until baseline verification remains passing.
@@ -41,7 +39,7 @@ Not supported in baseline:
 - Runtime dependencies for optimization paths are required (no fallback paths): `numpy`, `scipy`, and `cma`.
 - Do not commit runtime cache artifacts (`__pycache__/`, `*.pyc`).
 - Search parallel execution resolves through `search.parallel.mode` with default `auto` (`serial` and `parallel` remain explicit overrides).
-- Legacy `search.parallel.enabled` is backward-compatible (`false => serial`, `true => parallel`); conflicting `enabled` and `mode` must raise validation errors.
+- Legacy `search.parallel.enabled` is removed; inputs must use `search.parallel.mode`.
 - Auto-mode resolution must remain deterministic and policy-table driven (no runtime calibration/probing).
 - Worker resolution must remain deterministic: use effective CPU availability, clamp explicit requests to available workers, and resolve `workers=0` to `min(4, available)`.
 - In auto mode, thread backend remains serial-by-default unless an explicit thread whitelist entry exists (v1 whitelist is intentionally empty).
@@ -155,9 +153,8 @@ When writing complex features or significant refactors, use an ExecPlan (as desc
 Deferred until explicitly approved:
 - Additional/alternative search algorithms (beyond current auto-refine, direct-global, cuckoo-global, and CMAES-global circular search)
 - Non-circular surfaces
-- Layered/zoned soils
 - Advanced load models beyond v1 uniform surcharge
-- Seismic loading
+- Advanced seismic models beyond horizontal pseudo-static loading
 - Advanced groundwater models beyond v1 `water_surfaces` and `ru_coefficient`
 
 Any roadmap implementation must be additive and must not alter baseline prescribed Bishop/Spencer outputs.

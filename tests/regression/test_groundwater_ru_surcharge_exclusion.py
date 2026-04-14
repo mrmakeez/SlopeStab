@@ -7,12 +7,12 @@ from tests.path_setup import ensure_src_on_path
 ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     GeometryInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     UniformSurchargeInput,
@@ -25,6 +25,7 @@ def _case6_project(
     surface: PrescribedCircleInput,
     surcharge_kpa: float | None,
 ) -> ProjectInput:
+    geometry = GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0)
     loads = LoadsInput(
         groundwater=GroundwaterInput(model="ru_coefficient", ru=0.5),
         uniform_surcharge=(
@@ -35,8 +36,8 @@ def _case6_project(
     )
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=-30.0, l=60.0, x_toe=10.0, y_toe=40.0),
-        material=MaterialInput(gamma=18.0, c=10.8, phi_deg=40.0),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=18.0, cohesion=10.8, phi_deg=40.0),
         analysis=AnalysisInput(
             method=method,
             n_slices=30,

@@ -17,7 +17,7 @@ from slope_stab.io.json_io import parse_project_input
 from slope_stab.models import ParallelExecutionInput, ProjectInput
 from slope_stab.search.common import evaluate_surface_candidate
 from slope_stab.search.surface_solver import solve_surface_for_context
-from slope_stab.verification.cases import AutoRefineVerificationCase, NON_UNIFORM_VERIFICATION_CASES
+from slope_stab.verification.cases import GlobalSearchBenchmarkVerificationCase, NON_UNIFORM_SEARCH_VERIFICATION_CASES
 
 
 def _load_fixture_payload(name: str) -> dict:
@@ -64,8 +64,12 @@ def _set_project_parallel(
 
 
 def _non_uniform_auto_case_project(name: str) -> ProjectInput:
-    for case in NON_UNIFORM_VERIFICATION_CASES:
-        if isinstance(case, AutoRefineVerificationCase) and case.name == name:
+    for case in NON_UNIFORM_SEARCH_VERIFICATION_CASES:
+        if (
+            isinstance(case, GlobalSearchBenchmarkVerificationCase)
+            and case.search_method == "auto_refine_circular"
+            and case.name == name
+        ):
             return case.project
     raise AssertionError(f"Missing non-uniform auto-refine verification case: {name}")
 
@@ -158,8 +162,8 @@ class ParallelSearchBehaviorTests(unittest.TestCase):
 
     def test_non_uniform_auto_mode_parallel_matches_serial_for_representative_cases(self) -> None:
         representative_cases = (
-            "Case 11 (Non-Uniform Auto-Refine)",
-            "Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine)",
+            "Case 11 (Non-Uniform Auto-Refine Search Benchmark)",
+            "Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine Search Benchmark)",
         )
         for case_name in representative_cases:
             with self.subTest(case=case_name):

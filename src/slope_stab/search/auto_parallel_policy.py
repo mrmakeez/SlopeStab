@@ -8,7 +8,7 @@ from slope_stab.execution.worker_policy import resolve_requested_workers as _res
 from slope_stab.models import SearchInput
 
 
-EVIDENCE_VERSION: Final[str] = "auto-v2"
+EVIDENCE_VERSION: Final[str] = "auto-v3"
 
 REASON_PRESCRIBED_ANALYSIS_SERIAL: Final[str] = "prescribed_analysis_serial"
 REASON_FORCED_SERIAL_MODE: Final[str] = "forced_serial_mode"
@@ -47,6 +47,24 @@ _PROCESS_PARALLEL_WHITELIST_NON_UNIFORM: Final[set[tuple[str, str, str, str]]] =
     ("auto_refine_circular", "spencer", "small", DEFAULT_BATCHING_CLASS),
     ("auto_refine_circular", "spencer", "medium", DEFAULT_BATCHING_CLASS),
     ("auto_refine_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
+    ("direct_global_circular", "bishop_simplified", "small", DEFAULT_BATCHING_CLASS),
+    ("direct_global_circular", "bishop_simplified", "medium", DEFAULT_BATCHING_CLASS),
+    ("direct_global_circular", "bishop_simplified", "large", DEFAULT_BATCHING_CLASS),
+    ("direct_global_circular", "spencer", "small", DEFAULT_BATCHING_CLASS),
+    ("direct_global_circular", "spencer", "medium", DEFAULT_BATCHING_CLASS),
+    ("direct_global_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
+    ("cuckoo_global_circular", "bishop_simplified", "small", DEFAULT_BATCHING_CLASS),
+    ("cuckoo_global_circular", "bishop_simplified", "medium", DEFAULT_BATCHING_CLASS),
+    ("cuckoo_global_circular", "bishop_simplified", "large", DEFAULT_BATCHING_CLASS),
+    ("cuckoo_global_circular", "spencer", "small", DEFAULT_BATCHING_CLASS),
+    ("cuckoo_global_circular", "spencer", "medium", DEFAULT_BATCHING_CLASS),
+    ("cuckoo_global_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
+    ("cmaes_global_circular", "bishop_simplified", "small", DEFAULT_BATCHING_CLASS),
+    ("cmaes_global_circular", "bishop_simplified", "medium", DEFAULT_BATCHING_CLASS),
+    ("cmaes_global_circular", "bishop_simplified", "large", DEFAULT_BATCHING_CLASS),
+    ("cmaes_global_circular", "spencer", "small", DEFAULT_BATCHING_CLASS),
+    ("cmaes_global_circular", "spencer", "medium", DEFAULT_BATCHING_CLASS),
+    ("cmaes_global_circular", "spencer", "large", DEFAULT_BATCHING_CLASS),
 }
 
 # v1 intentionally empty: thread backend remains serial-by-default in auto mode.

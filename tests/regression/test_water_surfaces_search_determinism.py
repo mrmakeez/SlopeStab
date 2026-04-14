@@ -7,6 +7,7 @@ from tests.path_setup import ensure_src_on_path
 ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
@@ -14,7 +15,6 @@ from slope_stab.models import (
     GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     ProjectInput,
     SearchInput,
     SearchLimitsInput,
@@ -22,10 +22,11 @@ from slope_stab.models import (
 
 
 def _water_surfaces_auto_refine_project() -> ProjectInput:
+    geometry = GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0)
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-        material=MaterialInput(gamma=18.82, c=41.65, phi_deg=15.0),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=18.82, cohesion=41.65, phi_deg=15.0),
         analysis=AnalysisInput(
             method="bishop_simplified",
             n_slices=20,

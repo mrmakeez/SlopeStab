@@ -15,6 +15,7 @@ from slope_stab.geometry.profile import UniformSlopeProfile
 from slope_stab.lem_core.bishop import BishopSimplifiedSolver
 from slope_stab.lem_core.spencer import SpencerSolver
 from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     AnalysisResult,
@@ -22,7 +23,6 @@ from slope_stab.models import (
     GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     SliceGeometry,
@@ -218,7 +218,7 @@ def _project_for_scenario(scenario: _Scenario) -> ProjectInput:
     return ProjectInput(
         units="metric",
         geometry=scenario.geometry,
-        material=MaterialInput(gamma=16.0, c=12.0, phi_deg=38.0),
+        soils=build_uniform_soils_for_geometry(geometry=scenario.geometry, gamma=16.0, cohesion=12.0, phi_deg=38.0),
         analysis=AnalysisInput(
             method=scenario.analysis_method,
             n_slices=50,
@@ -274,7 +274,8 @@ def _generate_slices_with_edges(project: ProjectInput, x_edges: np.ndarray) -> l
     if np.any(np.abs(cos_alpha) < _VERTICAL_TOL):
         raise AssertionError("Near-vertical base encountered while building exact-edge slices.")
     base_length = dx / cos_alpha
-    weights = project.material.gamma * slice_areas
+    material = project.soils.materials[0]
+    weights = material.gamma * slice_areas
 
     groundwater = loads.groundwater if loads is not None else None
     slices: list[SliceGeometry] = []
@@ -347,10 +348,11 @@ def _solve_with_exact_edges(
     x_edges = np.asarray([row[0] for row in min_rows], dtype=float)
 
     slices = _generate_slices_with_edges(project, x_edges)
+    soil = project.soils.materials[0]
     material = MohrCoulombMaterial(
-        gamma=project.material.gamma,
-        cohesion=project.material.c,
-        phi_deg=project.material.phi_deg,
+        gamma=soil.gamma,
+        cohesion=soil.c,
+        phi_deg=soil.phi_deg,
     )
     assert project.prescribed_surface is not None
     surface = CircularSlipSurface(
@@ -400,6 +402,7 @@ class GroundwaterCase78RegressionTests(unittest.TestCase):
                     x_toe=project.geometry.x_toe,
                     y_toe=project.geometry.y_toe,
                 )
+                material = project.soils.materials[0]
                 slices = generate_vertical_slices(
                     profile=profile,
                     surface=CircularSlipSurface(
@@ -410,7 +413,7 @@ class GroundwaterCase78RegressionTests(unittest.TestCase):
                     n_slices=project.analysis.n_slices,
                     x_left=project.prescribed_surface.x_left,
                     x_right=project.prescribed_surface.x_right,
-                    gamma=project.material.gamma,
+                    gamma=material.gamma,
                     loads=project.loads,
                 )
                 s01_path = Path(scenario.s01_path)
@@ -446,6 +449,7 @@ class GroundwaterCase78RegressionTests(unittest.TestCase):
                     x_toe=project.geometry.x_toe,
                     y_toe=project.geometry.y_toe,
                 )
+                material = project.soils.materials[0]
                 slices = generate_vertical_slices(
                     profile=profile,
                     surface=CircularSlipSurface(
@@ -456,7 +460,7 @@ class GroundwaterCase78RegressionTests(unittest.TestCase):
                     n_slices=project.analysis.n_slices,
                     x_left=project.prescribed_surface.x_left,
                     x_right=project.prescribed_surface.x_right,
-                    gamma=project.material.gamma,
+                    gamma=material.gamma,
                     loads=project.loads,
                 )
                 s01_rows = _parse_minimum_slice_info(Path(scenario.s01_path), scenario.method_label)

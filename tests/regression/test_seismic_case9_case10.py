@@ -9,13 +9,13 @@ ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
 from slope_stab.geometry.profile import UniformSlopeProfile
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     GeometryInput,
     GroundwaterHuInput,
     GroundwaterInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     SeismicLoadInput,
@@ -126,6 +126,7 @@ def _case10_loads(*, seismic: bool) -> LoadsInput:
 
 
 def _case9_project(method: str) -> ProjectInput:
+    geometry = GeometryInput(h=25.0, l=75.0, x_toe=0.0, y_toe=0.0)
     if method == "bishop_simplified":
         surface = PrescribedCircleInput(
             xc=20.9283536406624,
@@ -151,8 +152,8 @@ def _case9_project(method: str) -> ProjectInput:
 
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=25.0, l=75.0, x_toe=0.0, y_toe=0.0),
-        material=MaterialInput(gamma=20.0, c=25.0, phi_deg=30.0),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=20.0, cohesion=25.0, phi_deg=30.0),
         analysis=AnalysisInput(method=method, n_slices=30, tolerance=1e-5, max_iter=50, f_init=1.0),
         prescribed_surface=surface,
         loads=_case9_loads(seismic=True),
@@ -160,6 +161,7 @@ def _case9_project(method: str) -> ProjectInput:
 
 
 def _case10_project(method: str) -> ProjectInput:
+    geometry = GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0)
     if method == "bishop_simplified":
         surface = PrescribedCircleInput(
             xc=16.6916223321657,
@@ -185,8 +187,8 @@ def _case10_project(method: str) -> ProjectInput:
 
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-        material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=20.0, cohesion=20.0, phi_deg=20.0),
         analysis=AnalysisInput(method=method, n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
         prescribed_surface=surface,
         loads=_case10_loads(seismic=True),

@@ -140,14 +140,14 @@ class JsonIoNumericValidationTests(unittest.TestCase):
         payload["soils"]["materials"][0]["phi_deg"] = 0.0
 
         project = parse_project_input(payload)
-        self.assertAlmostEqual(project.material.phi_deg, 0.0)
+        self.assertAlmostEqual(project.soils.materials[0].phi_deg, 0.0)
 
     def test_accepts_phi_deg_just_below_upper_bound(self) -> None:
         payload = _base_payload()
         payload["soils"]["materials"][0]["phi_deg"] = 89.999
 
         project = parse_project_input(payload)
-        self.assertAlmostEqual(project.material.phi_deg, 89.999)
+        self.assertAlmostEqual(project.soils.materials[0].phi_deg, 89.999)
 
     def test_rejects_negative_phi_deg(self) -> None:
         payload = _base_payload()

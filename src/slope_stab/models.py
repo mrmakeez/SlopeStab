@@ -21,13 +21,6 @@ class SoilMaterialInput:
 
 
 @dataclass(frozen=True)
-class MaterialInput:
-    gamma: float
-    c: float
-    phi_deg: float
-
-
-@dataclass(frozen=True)
 class SoilRegionAssignmentInput:
     material_id: str
     seed_x: float
@@ -182,53 +175,10 @@ class ProjectInput:
     units: str
     geometry: GeometryInput
     analysis: AnalysisInput
-    soils: SoilsInput | None = None
-    material: MaterialInput | None = None
+    soils: SoilsInput
     prescribed_surface: PrescribedCircleInput | None = None
     search: SearchInput | None = None
     loads: LoadsInput | None = None
-
-    def __post_init__(self) -> None:
-        if self.soils is not None:
-            if self.material is None and len(self.soils.materials) == 1:
-                only = self.soils.materials[0]
-                object.__setattr__(
-                    self,
-                    "material",
-                    MaterialInput(gamma=only.gamma, c=only.c, phi_deg=only.phi_deg),
-                )
-            return
-        if self.material is None:
-            raise ValueError("ProjectInput requires soils (or legacy material for constructor compatibility).")
-        # Constructor compatibility path for in-repo call sites during soils
-        # migration. JSON schema paths reject top-level `material`.
-        default_extent = 1_000_000.0
-        external_boundary = (
-            (-default_extent, -default_extent),
-            (default_extent, -default_extent),
-            (default_extent, default_extent),
-            (-default_extent, default_extent),
-        )
-        legacy_id = "soil_1"
-        object.__setattr__(
-            self,
-            "soils",
-            SoilsInput(
-                materials=(
-                    SoilMaterialInput(
-                        id=legacy_id,
-                        gamma=self.material.gamma,
-                        c=self.material.c,
-                        phi_deg=self.material.phi_deg,
-                    ),
-                ),
-                external_boundary=external_boundary,
-                material_boundaries=(),
-                region_assignments=(
-                    SoilRegionAssignmentInput(material_id=legacy_id, seed_x=0.0, seed_y=0.0),
-                ),
-            ),
-        )
 
 
 @dataclass(frozen=True)

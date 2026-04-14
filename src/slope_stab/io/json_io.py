@@ -353,27 +353,20 @@ def _parse_parallel_execution(parallel_data: object) -> ParallelExecutionInput:
         )
     if not isinstance(parallel_data, dict):
         raise InputValidationError(f"'{key_prefix}' must be an object.")
+    if "enabled" in parallel_data:
+        raise InputValidationError(
+            f"{key_prefix}.enabled is no longer supported; use {key_prefix}.mode."
+        )
 
-    legacy_enabled = parallel_data.get("enabled")
     mode_raw = parallel_data.get("mode")
-    if mode_raw is None and legacy_enabled is None:
+    if mode_raw is None:
         mode = "auto"
-    elif mode_raw is None and legacy_enabled is not None:
-        enabled = _as_bool(legacy_enabled, f"{key_prefix}.enabled")
-        mode = "parallel" if enabled else "serial"
     else:
         mode = str(mode_raw).strip().lower()
         if mode not in allowed_parallel_modes():
             raise InputValidationError(
                 f"{key_prefix}.mode must be one of: auto, serial, parallel."
             )
-        if legacy_enabled is not None:
-            enabled = _as_bool(legacy_enabled, f"{key_prefix}.enabled")
-            legacy_mode = "parallel" if enabled else "serial"
-            if mode != legacy_mode:
-                raise InputValidationError(
-                    f"{key_prefix}.enabled conflicts with {key_prefix}.mode."
-                )
 
     workers = _as_int(parallel_data.get("workers", 0), f"{key_prefix}.workers")
     min_batch_size = _as_int(parallel_data.get("min_batch_size", 1), f"{key_prefix}.min_batch_size")

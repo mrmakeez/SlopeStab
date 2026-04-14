@@ -1,6 +1,8 @@
 ﻿from __future__ import annotations
 
 from dataclasses import dataclass
+import json
+from pathlib import Path
 from typing import TypeAlias
 
 from slope_stab.materials.uniform_soils import build_uniform_soils
@@ -134,6 +136,234 @@ VerificationCase: TypeAlias = (
     | AutoRefineVerificationCase
     | GlobalSearchBenchmarkVerificationCase
 )
+
+
+_CASE11_CASE12_SLIDE2_MANIFEST_PATH = (
+    Path(__file__).resolve().parent / "data" / "case11_case12_slide2_manifest.json"
+)
+_NON_UNIFORM_SEARCH_MARGIN = 0.01
+_NON_UNIFORM_SEARCH_LABELS = {
+    "auto_refine_circular": "Auto-Refine",
+    "direct_global_circular": "Direct Global",
+    "cuckoo_global_circular": "Cuckoo Global",
+    "cmaes_global_circular": "CMAES Global",
+}
+
+
+def _load_case11_case12_slide2_manifest() -> dict[str, object]:
+    return json.loads(_CASE11_CASE12_SLIDE2_MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+_CASE11_CASE12_SLIDE2_MANIFEST = _load_case11_case12_slide2_manifest()
+
+
+def _slide2_search_fos(scenario_key: str, analysis_method: str) -> float:
+    if analysis_method not in {"bishop_simplified", "spencer"}:
+        raise KeyError(f"Unsupported analysis method for Slide2 manifest lookup: {analysis_method}")
+    scenario = _CASE11_CASE12_SLIDE2_MANIFEST["scenarios"][scenario_key]
+    method_entry = scenario["methods"][analysis_method]
+    return float(method_entry["s01"]["fos"])
+
+
+def _case11_water_seismic_surcharge_loads() -> LoadsInput:
+    return LoadsInput(
+        seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
+        uniform_surcharge=UniformSurchargeInput(
+            magnitude_kpa=10.0,
+            placement="crest_range",
+            x_start=50.0,
+            x_end=70.0,
+        ),
+        groundwater=GroundwaterInput(
+            model="water_surfaces",
+            surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
+            hu=GroundwaterHuInput(mode="custom", value=1.0),
+            gamma_w=9.81,
+        ),
+    )
+
+
+def _case12_water_surcharge_loads() -> LoadsInput:
+    return LoadsInput(
+        uniform_surcharge=UniformSurchargeInput(
+            magnitude_kpa=100.0,
+            placement="crest_range",
+            x_start=48.0,
+            x_end=55.0,
+        ),
+        groundwater=GroundwaterInput(
+            model="water_surfaces",
+            surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
+            hu=GroundwaterHuInput(mode="auto", value=None),
+            gamma_w=9.81,
+        ),
+    )
+
+
+def _non_uniform_scenario_definition(
+    scenario_key: str,
+) -> tuple[str, GeometryInput, SoilsInput, LoadsInput | None, SearchLimitsInput]:
+    if scenario_key == "Case11":
+        return (
+            "Case 11 (Non-Uniform)",
+            GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            _case11_soils(),
+            None,
+            SearchLimitsInput(x_min=20.0, x_max=70.0),
+        )
+    if scenario_key == "Case11_Water_Seismic_Surcharge":
+        return (
+            "Case 11 (Water Seismic Surcharge Non-Uniform)",
+            GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
+            _case11_soils(),
+            _case11_water_seismic_surcharge_loads(),
+            SearchLimitsInput(x_min=20.0, x_max=70.0),
+        )
+    if scenario_key == "Case12":
+        return (
+            "Case 12 (Non-Uniform)",
+            GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            _case12_soils(),
+            None,
+            SearchLimitsInput(x_min=15.0, x_max=65.0),
+        )
+    if scenario_key == "Case12_Water_Surcharge":
+        return (
+            "Case 12 (Water Surcharge Non-Uniform)",
+            GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
+            _case12_soils(),
+            _case12_water_surcharge_loads(),
+            SearchLimitsInput(x_min=15.0, x_max=65.0),
+        )
+    raise KeyError(f"Unsupported non-uniform scenario key: {scenario_key}")
+
+
+def _build_non_uniform_search_input(search_method: str, limits: SearchLimitsInput) -> SearchInput:
+    if search_method == "auto_refine_circular":
+        return SearchInput(
+            method=search_method,
+            auto_refine_circular=AutoRefineSearchInput(
+                divisions_along_slope=20,
+                circles_per_division=10,
+                iterations=10,
+                divisions_to_use_next_iteration_pct=50.0,
+                search_limits=limits,
+            ),
+        )
+    if search_method == "direct_global_circular":
+        return SearchInput(
+            method=search_method,
+            direct_global_circular=DirectGlobalSearchInput(
+                max_iterations=90,
+                max_evaluations=1200,
+                min_improvement=0.0001,
+                stall_iterations=12,
+                min_rectangle_half_size=0.001,
+                search_limits=limits,
+            ),
+        )
+    if search_method == "cuckoo_global_circular":
+        return SearchInput(
+            method=search_method,
+            cuckoo_global_circular=CuckooGlobalSearchInput(
+                population_size=40,
+                max_iterations=300,
+                max_evaluations=7000,
+                discovery_rate=0.25,
+                levy_beta=1.5,
+                alpha_max=0.5,
+                alpha_min=0.05,
+                min_improvement=0.0001,
+                stall_iterations=25,
+                seed=0,
+                post_polish=True,
+                search_limits=limits,
+            ),
+        )
+    if search_method == "cmaes_global_circular":
+        return SearchInput(
+            method=search_method,
+            cmaes_global_circular=CmaesGlobalSearchInput(
+                max_evaluations=4500,
+                direct_prescan_evaluations=600,
+                cmaes_population_size=8,
+                cmaes_max_iterations=180,
+                cmaes_restarts=2,
+                cmaes_sigma0=0.15,
+                polish_max_evaluations=80,
+                min_improvement=0.0001,
+                stall_iterations=25,
+                seed=1,
+                post_polish=True,
+                invalid_penalty=1_000_000.0,
+                nonconverged_penalty=100_000.0,
+                search_limits=limits,
+            ),
+        )
+    raise KeyError(f"Unsupported non-uniform search method: {search_method}")
+
+
+def _build_non_uniform_search_project(scenario_key: str, analysis_method: str, search_method: str) -> ProjectInput:
+    _, geometry, soils, loads, limits = _non_uniform_scenario_definition(scenario_key)
+    return ProjectInput(
+        units="metric",
+        geometry=geometry,
+        soils=soils,
+        analysis=AnalysisInput(
+            method=analysis_method,
+            n_slices=50,
+            tolerance=0.001,
+            max_iter=75,
+            f_init=1.0,
+        ),
+        prescribed_surface=None,
+        search=_build_non_uniform_search_input(search_method, limits),
+        loads=loads,
+    )
+
+
+def _non_uniform_search_case_name(scenario_key: str, analysis_method: str, search_method: str) -> str:
+    scenario_label, _, _, _, _ = _non_uniform_scenario_definition(scenario_key)
+    search_label = _NON_UNIFORM_SEARCH_LABELS[search_method]
+    if analysis_method == "spencer":
+        return scenario_label.replace("(", "(Spencer ", 1).replace(")", f" {search_label} Search Benchmark)", 1)
+    return scenario_label.replace(")", f" {search_label} Search Benchmark)", 1)
+
+
+def _build_non_uniform_search_verification_cases() -> tuple[VerificationCase, ...]:
+    scenario_keys = (
+        "Case11",
+        "Case11_Water_Seismic_Surcharge",
+        "Case12",
+        "Case12_Water_Surcharge",
+    )
+    search_methods = (
+        "auto_refine_circular",
+        "direct_global_circular",
+        "cuckoo_global_circular",
+        "cmaes_global_circular",
+    )
+    analysis_methods = ("bishop_simplified", "spencer")
+    cases: list[VerificationCase] = []
+    for scenario_key in scenario_keys:
+        for analysis_method in analysis_methods:
+            for search_method in search_methods:
+                cases.append(
+                    GlobalSearchBenchmarkVerificationCase(
+                        case_type="non_uniform_search_benchmark",
+                        search_method=search_method,
+                        name=_non_uniform_search_case_name(scenario_key, analysis_method, search_method),
+                        project=_build_non_uniform_search_project(
+                            scenario_key=scenario_key,
+                            analysis_method=analysis_method,
+                            search_method=search_method,
+                        ),
+                        benchmark_fos=_slide2_search_fos(scenario_key, analysis_method),
+                        margin=_NON_UNIFORM_SEARCH_MARGIN,
+                        analysis_method=analysis_method,
+                    )
+                )
+    return tuple(cases)
 
 
 VERIFICATION_CASES: tuple[VerificationCase, ...] = (
@@ -1658,7 +1888,7 @@ SPENCER_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
     ),
 )
 
-NON_UNIFORM_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
+NON_UNIFORM_PRESCRIBED_CASES: tuple[VerificationCase, ...] = (
     PrescribedVerificationCase(
         case_type="prescribed_benchmark",
         name="Case 11 (Non-Uniform Prescribed)",
@@ -1889,308 +2119,12 @@ NON_UNIFORM_VERIFICATION_CASES: tuple[VerificationCase, ...] = (
         expected_fos=0.31391,
         fos_tolerance=0.001,
     ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        name="Case 11 (Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            soils=_case11_soils(),
-            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
-                ),
-            ),
-        ),
-        expected_fos=1.40357,
-        fos_tolerance=0.01,
-        expected_radius=18.7077752528147,
-        radius_rel_tolerance=0.25,
-        expected_center=(34.3447952018146, 43.1772707870956),
-        expected_left=(29.9212579698668, 25.0),
-        expected_right=(51.1707601781344, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        analysis_method="spencer",
-        name="Case 11 (Spencer Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            soils=_case11_soils(),
-            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
-                ),
-            ),
-        ),
-        expected_fos=1.37319,
-        fos_tolerance=0.01,
-        expected_radius=18.6386863467291,
-        radius_rel_tolerance=0.25,
-        expected_center=(34.2739217263841, 43.1289861550126),
-        expected_left=(29.9448929989319, 25.0),
-        expected_right=(51.0465247689461, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        name="Case 12 (Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            soils=_case12_soils(),
-            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
-                ),
-            ),
-        ),
-        expected_fos=0.419809,
-        fos_tolerance=0.01,
-        expected_radius=31.44959404703,
-        radius_rel_tolerance=0.25,
-        expected_center=(26.9670236395274, 45.1403590545699),
-        expected_left=(17.9872841230053, 15.0),
-        expected_right=(56.7369763430066, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        analysis_method="spencer",
-        name="Case 12 (Spencer Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            soils=_case12_soils(),
-            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
-                ),
-            ),
-        ),
-        expected_fos=0.42273,
-        fos_tolerance=0.01,
-        expected_radius=31.44959404703,
-        radius_rel_tolerance=0.25,
-        expected_center=(26.9670236395274, 45.1403590545699),
-        expected_left=(17.9872841230053, 15.0),
-        expected_right=(56.7369763430066, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        name="Case 11 (Water Seismic Surcharge Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            soils=_case11_soils(),
-            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
-                ),
-            ),
-            loads=LoadsInput(
-                seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
-                uniform_surcharge=UniformSurchargeInput(
-                    magnitude_kpa=10.0,
-                    placement="crest_range",
-                    x_start=50.0,
-                    x_end=70.0,
-                ),
-                groundwater=GroundwaterInput(
-                    model="water_surfaces",
-                    surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
-                    hu=GroundwaterHuInput(mode="custom", value=1.0),
-                    gamma_w=9.81,
-                ),
-            ),
-        ),
-        expected_fos=0.729648,
-        fos_tolerance=0.01,
-        expected_radius=26.0896796695384,
-        radius_rel_tolerance=0.25,
-        expected_center=(34.1452863060215, 47.906488439106),
-        expected_left=(21.6567246335058, 25.0),
-        expected_right=(56.8189260983078, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        analysis_method="spencer",
-        name="Case 11 (Spencer Water Seismic Surcharge Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-            soils=_case11_soils(),
-            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=20.0, x_max=70.0),
-                ),
-            ),
-            loads=LoadsInput(
-                seismic=SeismicLoadInput(model="pseudo_static", kh=0.2, kv=0.0),
-                uniform_surcharge=UniformSurchargeInput(
-                    magnitude_kpa=10.0,
-                    placement="crest_range",
-                    x_start=50.0,
-                    x_end=70.0,
-                ),
-                groundwater=GroundwaterInput(
-                    model="water_surfaces",
-                    surface=((20.0, 25.0), (30.0, 25.0), (50.0, 29.0), (70.0, 33.3746)),
-                    hu=GroundwaterHuInput(mode="custom", value=1.0),
-                    gamma_w=9.81,
-                ),
-            ),
-        ),
-        expected_fos=0.739875,
-        fos_tolerance=0.01,
-        expected_radius=25.6870443751625,
-        radius_rel_tolerance=0.25,
-        expected_center=(34.4313227841838, 47.6588404609722),
-        expected_left=(22.3316865212303, 25.0),
-        expected_right=(56.7825645151308, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        name="Case 12 (Water Surcharge Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            soils=_case12_soils(),
-            analysis=AnalysisInput(method="bishop_simplified", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
-                ),
-            ),
-            loads=LoadsInput(
-                uniform_surcharge=UniformSurchargeInput(
-                    magnitude_kpa=100.0,
-                    placement="crest_range",
-                    x_start=48.0,
-                    x_end=55.0,
-                ),
-                groundwater=GroundwaterInput(
-                    model="water_surfaces",
-                    surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
-                    hu=GroundwaterHuInput(mode="auto", value=None),
-                    gamma_w=9.81,
-                ),
-            ),
-        ),
-        expected_fos=0.310792,
-        fos_tolerance=0.01,
-        expected_radius=31.4301149458238,
-        radius_rel_tolerance=0.25,
-        expected_center=(27.0463858773805, 45.1395477433383),
-        expected_left=(18.0408333231127, 15.0272222154085),
-        expected_right=(56.7960362462211, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
-    AutoRefineVerificationCase(
-        case_type="auto_refine_parity",
-        analysis_method="spencer",
-        name="Case 12 (Spencer Water Surcharge Non-Uniform Auto-Refine)",
-        project=ProjectInput(
-            units="metric",
-            geometry=GeometryInput(h=20.0, l=30.0, x_toe=18.0, y_toe=15.0),
-            soils=_case12_soils(),
-            analysis=AnalysisInput(method="spencer", n_slices=50, tolerance=0.001, max_iter=75, f_init=1.0),
-            prescribed_surface=None,
-            search=SearchInput(
-                method="auto_refine_circular",
-                auto_refine_circular=AutoRefineSearchInput(
-                    divisions_along_slope=20,
-                    circles_per_division=10,
-                    iterations=10,
-                    divisions_to_use_next_iteration_pct=50.0,
-                    search_limits=SearchLimitsInput(x_min=0.0, x_max=96.0),
-                ),
-            ),
-            loads=LoadsInput(
-                uniform_surcharge=UniformSurchargeInput(
-                    magnitude_kpa=100.0,
-                    placement="crest_range",
-                    x_start=48.0,
-                    x_end=55.0,
-                ),
-                groundwater=GroundwaterInput(
-                    model="water_surfaces",
-                    surface=((0.0, 19.0), (24.0, 19.0), (56.976, 32.2524), (96.0, 32.2524)),
-                    hu=GroundwaterHuInput(mode="auto", value=None),
-                    gamma_w=9.81,
-                ),
-            ),
-        ),
-        expected_fos=0.31391,
-        fos_tolerance=0.01,
-        expected_radius=31.4301149458238,
-        radius_rel_tolerance=0.25,
-        expected_center=(27.0463858773805, 45.1395477433383),
-        expected_left=(18.0408333231127, 15.0272222154085),
-        expected_right=(56.7960362462211, 35.0),
-        endpoint_abs_tolerance=1.5,
-        radius_hard_check=False,
-    ),
+)
+
+NON_UNIFORM_SEARCH_VERIFICATION_CASES = _build_non_uniform_search_verification_cases()
+
+NON_UNIFORM_VERIFICATION_CASES = (
+    NON_UNIFORM_PRESCRIBED_CASES + NON_UNIFORM_SEARCH_VERIFICATION_CASES
 )
 
 VERIFICATION_CASES = VERIFICATION_CASES + SPENCER_VERIFICATION_CASES + NON_UNIFORM_VERIFICATION_CASES

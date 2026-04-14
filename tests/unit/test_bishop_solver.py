@@ -9,6 +9,7 @@ ensure_src_on_path()
 
 from slope_stab.lem_core.bishop import BishopSimplifiedSolver
 from slope_stab.materials.mohr_coulomb import MohrCoulombMaterial
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.analysis import run_analysis
 from slope_stab.exceptions import ConvergenceError
 from slope_stab.models import AnalysisInput, ProjectInput, SliceGeometry
@@ -25,10 +26,16 @@ class BishopSolverTests(unittest.TestCase):
 
     def test_solver_raises_on_forced_non_convergence(self) -> None:
         case2 = next(c for c in VERIFICATION_CASES if c.name == "Case 2")
+        case2_material = case2.project.soils.materials[0]
         project = ProjectInput(
             units=case2.project.units,
             geometry=case2.project.geometry,
-            material=case2.project.material,
+            soils=build_uniform_soils_for_geometry(
+                geometry=case2.project.geometry,
+                gamma=case2_material.gamma,
+                cohesion=case2_material.c,
+                phi_deg=case2_material.phi_deg,
+            ),
             analysis=AnalysisInput(
                 method="bishop_simplified",
                 n_slices=case2.project.analysis.n_slices,

@@ -8,11 +8,11 @@ ensure_src_on_path()
 
 from slope_stab.exceptions import ConvergenceError
 from slope_stab.analysis import run_analysis
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     GeometryInput,
     LoadsInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     UniformSurchargeInput,
@@ -20,10 +20,11 @@ from slope_stab.models import (
 
 
 def _case3_project(method: str, *, surcharge_kpa: float, surface: PrescribedCircleInput) -> ProjectInput:
+    geometry = GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0)
     return ProjectInput(
         units="metric",
-        geometry=GeometryInput(h=10.0, l=20.0, x_toe=30.0, y_toe=25.0),
-        material=MaterialInput(gamma=20.0, c=3.0, phi_deg=19.6),
+        geometry=geometry,
+        soils=build_uniform_soils_for_geometry(geometry=geometry, gamma=20.0, cohesion=3.0, phi_deg=19.6),
         analysis=AnalysisInput(
             method=method,
             n_slices=25,

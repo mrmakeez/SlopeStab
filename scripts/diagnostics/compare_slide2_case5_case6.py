@@ -227,7 +227,7 @@ def main() -> int:
             n_slices=project.analysis.n_slices,
             x_left=project.prescribed_surface.x_left,
             x_right=project.prescribed_surface.x_right,
-            gamma=project.material.gamma,
+            gamma=project.soils.materials[0].gamma,
             loads=project.loads,
         )
         s01_path = REPO_ROOT / scenario.s01_relpath

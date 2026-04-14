@@ -16,11 +16,11 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from slope_stab.analysis import run_analysis
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
     GeometryInput,
-    MaterialInput,
     ProjectInput,
     SearchInput,
     SearchLimitsInput,
@@ -149,7 +149,12 @@ def _build_project(case: CaseDefinition, lines: list[str], method: str) -> Proje
     return ProjectInput(
         units="metric",
         geometry=case.geometry,
-        material=MaterialInput(gamma=unit_weight, c=cohesion, phi_deg=phi_deg),
+        soils=build_uniform_soils_for_geometry(
+            geometry=case.geometry,
+            gamma=unit_weight,
+            cohesion=cohesion,
+            phi_deg=phi_deg,
+        ),
         analysis=AnalysisInput(
             method=method,
             n_slices=n_slices,
@@ -195,6 +200,7 @@ def _capture_case_method(case: CaseDefinition, method: str) -> dict[str, object]
     search_meta = result.metadata["search"]
     before_stage = search_meta["before_post_polish"]
     after_stage = search_meta["after_post_polish"]
+    soil = project.soils.materials[0]
 
     return {
         "case_id": case.case_id,
@@ -210,9 +216,9 @@ def _capture_case_method(case: CaseDefinition, method: str) -> dict[str, object]
             "tolerance": project.analysis.tolerance,
             "max_iter": project.analysis.max_iter,
             "material": {
-                "gamma": project.material.gamma,
-                "c": project.material.c,
-                "phi_deg": project.material.phi_deg,
+                "gamma": soil.gamma,
+                "c": soil.c,
+                "phi_deg": soil.phi_deg,
             },
             "auto_refine_circular": {
                 "divisions_along_slope": project.search.auto_refine_circular.divisions_along_slope,

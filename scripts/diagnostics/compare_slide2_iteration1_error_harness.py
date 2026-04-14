@@ -9,11 +9,11 @@ from pathlib import Path
 
 from slope_stab.exceptions import ConvergenceError, GeometryError
 from slope_stab.geometry.profile import UniformSlopeProfile
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
     GeometryInput,
-    MaterialInput,
     PrescribedCircleInput,
     ProjectInput,
     SearchInput,
@@ -38,7 +38,9 @@ SurfaceKey = tuple[float, float, float, float, float, float, float]
 class Scenario:
     name: str
     geometry: GeometryInput
-    material: MaterialInput
+    gamma: float
+    cohesion: float
+    phi_deg: float
     n_slices: int
     tolerance: float
     max_iter: int
@@ -79,7 +81,12 @@ class Scenario:
         return ProjectInput(
             units="metric",
             geometry=self.geometry,
-            material=self.material,
+            soils=build_uniform_soils_for_geometry(
+                geometry=self.geometry,
+                gamma=self.gamma,
+                cohesion=self.cohesion,
+                phi_deg=self.phi_deg,
+            ),
             analysis=AnalysisInput(
                 method=internal_method,
                 n_slices=self.n_slices,
@@ -109,7 +116,9 @@ SCENARIOS: tuple[Scenario, ...] = (
     Scenario(
         name="Case2_Search_Iter_1",
         geometry=GeometryInput(h=7.5, l=15.0, x_toe=10.0, y_toe=10.0),
-        material=MaterialInput(gamma=20.0, c=20.0, phi_deg=20.0),
+        gamma=20.0,
+        cohesion=20.0,
+        phi_deg=20.0,
         n_slices=7,
         tolerance=0.005,
         max_iter=50,
@@ -124,7 +133,9 @@ SCENARIOS: tuple[Scenario, ...] = (
     Scenario(
         name="Case4_Iter1",
         geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-        material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+        gamma=16.0,
+        cohesion=9.0,
+        phi_deg=32.0,
         n_slices=25,
         tolerance=0.0001,
         max_iter=100,
@@ -139,7 +150,9 @@ SCENARIOS: tuple[Scenario, ...] = (
     Scenario(
         name="Case4_Iter1_Simple",
         geometry=GeometryInput(h=20.0, l=25.0, x_toe=30.0, y_toe=25.0),
-        material=MaterialInput(gamma=16.0, c=9.0, phi_deg=32.0),
+        gamma=16.0,
+        cohesion=9.0,
+        phi_deg=32.0,
         n_slices=25,
         tolerance=0.0001,
         max_iter=100,

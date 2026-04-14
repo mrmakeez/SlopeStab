@@ -544,15 +544,6 @@ def run_analysis(
         return result
 
     if project.search is not None and project.prescribed_surface is None:
-        if context.soil_domain.is_non_uniform and project.search.method in {
-            "direct_global_circular",
-            "cuckoo_global_circular",
-            "cmaes_global_circular",
-        }:
-            raise GeometryError(
-                "Non-uniform soils support only search.method='auto_refine_circular' in v1."
-            )
-
         runner = _SEARCH_RUNNERS.get(project.search.method)
         if runner is None:
             raise GeometryError(f"Unsupported search method: {project.search.method}")

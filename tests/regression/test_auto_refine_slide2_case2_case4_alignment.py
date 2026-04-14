@@ -11,11 +11,11 @@ from tests.path_setup import ensure_src_on_path
 ensure_src_on_path()
 
 from slope_stab.analysis import run_analysis
+from slope_stab.materials.uniform_soils import build_uniform_soils_for_geometry
 from slope_stab.models import (
     AnalysisInput,
     AutoRefineSearchInput,
     GeometryInput,
-    MaterialInput,
     ProjectInput,
     SearchInput,
     SearchLimitsInput,
@@ -145,10 +145,16 @@ def _build_project_for_method(lines: list[str], scenario: Scenario, method: str)
     iterations = int(_parse_float(_extract_data_value(lines, "Number of iterations:")))
     retain_pct = _parse_float(_extract_data_value(lines, "Divisions to use in next iteration:"))
 
+    soils = build_uniform_soils_for_geometry(
+        geometry=scenario.geometry,
+        gamma=unit_weight,
+        cohesion=cohesion,
+        phi_deg=phi_deg,
+    )
     return ProjectInput(
         units="metric",
         geometry=scenario.geometry,
-        material=MaterialInput(gamma=unit_weight, c=cohesion, phi_deg=phi_deg),
+        soils=soils,
         analysis=AnalysisInput(
             method=method,
             n_slices=n_slices,

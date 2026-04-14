@@ -11,12 +11,12 @@ from slope_stab.verification.runner import run_verification_suite_with_execution
 
 class VerificationIntegrationTests(unittest.TestCase):
     def test_built_in_cases_pass(self) -> None:
-        run_result = run_verification_suite_with_execution(requested_mode="serial", requested_workers=1)
+        run_result = run_verification_suite_with_execution(requested_mode="auto_parallel", requested_workers=0)
         outcomes = run_result.outcomes
-        self.assertEqual(len(outcomes), 59)
+        self.assertEqual(len(outcomes), 83)
         self.assertEqual({outcome.analysis_method for outcome in outcomes}, {"bishop_simplified", "spencer"})
-        self.assertEqual(sum(1 for outcome in outcomes if outcome.analysis_method == "bishop_simplified"), 29)
-        self.assertEqual(sum(1 for outcome in outcomes if outcome.analysis_method == "spencer"), 30)
+        self.assertEqual(sum(1 for outcome in outcomes if outcome.analysis_method == "bishop_simplified"), 41)
+        self.assertEqual(sum(1 for outcome in outcomes if outcome.analysis_method == "spencer"), 42)
         for outcome in outcomes:
             self.assertTrue(outcome.passed, msg=f"{outcome.name} failed verification")
 
